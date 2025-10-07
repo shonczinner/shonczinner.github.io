@@ -1,0 +1,84 @@
+/* ---- Basic Reset ---- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ---- Page Layout ---- */
+body {
+    font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.container {
+    max-width: 700px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Header ---- */
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.25em;
+    letter-spacing: 1px;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #ccc;
+    margin-bottom: 2rem;
+}
+
+/* ---- Links ---- */
+h2 {
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    color: #aad;
+}
+
+.link-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.link-list a {
+    display: block;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(6px);
+}
+
+.link-list a:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+/* ---- Footer ---- */
+footer {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: #bbb;
+}
