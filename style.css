@@ -31,19 +31,20 @@ body {
 /* ---- Header ---- */
 h1 {
     font-size: 2.5rem;
-    margin-bottom: 0.25em;
+    margin-bottom: 1rem;
     letter-spacing: 1px;
 }
 
 .subtitle {
     font-size: 1rem;
     color: #ccc;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
-/* ---- Links ---- */
+/* ---- Section Headings ---- */
 h2 {
-    margin-bottom: 1.5rem;
+    margin-top: 1rem; /* consistent spacing from previous content */
+    margin-bottom: 1rem; /* small spacing before the links */
     font-weight: 600;
     text-transform: uppercase;
     font-size: 1.2rem;
@@ -51,6 +52,7 @@ h2 {
     color: #aad;
 }
 
+/* ---- Links ---- */
 .link-list {
     list-style: none;
     display: flex;
@@ -78,7 +80,7 @@ h2 {
 
 /* ---- Footer ---- */
 footer {
-    margin-top: 2rem;
+    margin-top: 1rem;
     font-size: 0.85rem;
     color: #bbb;
 }
