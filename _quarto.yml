@@ -1,0 +1,29 @@
+project:
+  type: website
+
+execute:
+  freeze: true
+
+website:
+  description: "Shon Czinner's blog about AI, statistics, quantitative finance, economics, and more"
+  site-url: https://shonczinner.github.io/
+  title: "Home"
+  navbar:
+    right:
+      - about.qmd
+      - icon: github
+        href: https://github.com/shonczinner
+      - icon: linkedin
+        href: https://www.linkedin.com/in/shon-czinner-14a258140/
+      - icon: rss
+        href: index.xml
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+
+
+

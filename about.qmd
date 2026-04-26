@@ -1,0 +1,19 @@
+---
+title: "About"
+image: profile.jpg
+about:
+  template: jolla
+  links:
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/shon-czinner-14a258140/
+    - icon: github
+      text: Github
+      href: https://github.com/shonczinner
+---
+
+I’m Shon Czinner, an AI model validation analyst at Royal Bank of Canada in Toronto. I work on validating machine learning systems including algorithmic trading, fraud detection, and generative AI.
+
+I went to the University of Waterloo where I received a Master of Quantitative Finance, a Bachelor of Mathematics in Mathematical Economics, a Statistics Minor, and a Combinatorics and Optimization Minor.
+
+This blog is where I share experiments in AI, statistics, quantitative finance, economics, and more.

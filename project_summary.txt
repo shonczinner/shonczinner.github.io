@@ -1,0 +1,13 @@
+1. Download Quarto CLI (check with quarto --version, if doesn't work try rebooting vscode)
+2. Download Quarto VSCode extension
+3. Create a virtual environment
+4. pip install dependencies (py -m pip install jupyter matplotlib plotly)
+5. https://quarto.org/docs/websites/website-blog.html
+6. https://quarto.org/docs/tools/vscode/notebook.html
+7. https://quarto.org/docs/publishing/github-pages.html (github actions + freeze)
+
+
+Desired features:
+    1. Download .ipynb button
+    2. RSS Feed
+    3. Email subscription

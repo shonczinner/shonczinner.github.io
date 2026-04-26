@@ -1,0 +1,17 @@
+---
+title: "Motivation To Write"
+author: "Shon Czinner"
+date: "2026-04-26"
+categories: [non-math]
+---
+I plan to write about AI, statistics, quantitative finance, economics, and more.
+
+For my first post I've decided to write about why I'm writing. 
+
+1. Writing things down provides a reference for when I forget things.
+2. Writing improves understanding.
+
+If other people find the things I write about interesting, that's a bonus. 
+
+Feel free to get in touch if you find any mistakes!
+
