@@ -10,7 +10,32 @@
 <atom:link href="https://shonczinner.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Shon Czinner&#39;s blog about AI, statistics, quantitative finance, economics, and more</description>
 <generator>quarto-1.9.37</generator>
-<lastBuildDate>Sun, 26 Apr 2026 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 26 Apr 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Motivation To Write</title>
+  <dc:creator>Shon Czinner</dc:creator>
+  <link>https://shonczinner.github.io/posts/welcome/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>I plan to write about AI, statistics, quantitative finance, economics, and more.</p>
+<p>For my first post I’ve decided to write about why I’m writing.</p>
+<ol type="1">
+<li>Writing things down provides a reference for when I forget things.</li>
+<li>Writing improves understanding.</li>
+</ol>
+<p>If other people find the things I write about interesting, that’s a bonus.</p>
+<p>Feel free to get in touch if you find any mistakes!</p>
+
+
+
+ ]]></description>
+  <category>non-math</category>
+  <guid>https://shonczinner.github.io/posts/welcome/</guid>
+  <pubDate>Sun, 26 Apr 2026 00:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Sketched Isotropic Gaussian Regularization (SIGReg) Explained</title>
   <dc:creator>Shon Czinner</dc:creator>
@@ -2487,32 +2512,7 @@ Maes, Lucas, Quentin Le Lidec, Damien Scieur, Yann LeCun, and Randall Balestrier
   <category>code</category>
   <category>jepa</category>
   <guid>https://shonczinner.github.io/posts/sigreg-sketched-isotropic-gaussian-regularization/</guid>
-  <pubDate>Sun, 26 Apr 2026 04:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>Motivation To Write</title>
-  <dc:creator>Shon Czinner</dc:creator>
-  <link>https://shonczinner.github.io/posts/welcome/</link>
-  <description><![CDATA[ 
-
-
-
-
-<p>I plan to write about AI, statistics, quantitative finance, economics, and more.</p>
-<p>For my first post I’ve decided to write about why I’m writing.</p>
-<ol type="1">
-<li>Writing things down provides a reference for when I forget things.</li>
-<li>Writing improves understanding.</li>
-</ol>
-<p>If other people find the things I write about interesting, that’s a bonus.</p>
-<p>Feel free to get in touch if you find any mistakes!</p>
-
-
-
- ]]></description>
-  <category>non-math</category>
-  <guid>https://shonczinner.github.io/posts/welcome/</guid>
-  <pubDate>Sun, 26 Apr 2026 04:00:00 GMT</pubDate>
+  <pubDate>Sun, 26 Apr 2026 00:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>

@@ -1,24 +1,10 @@
 [
   {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Motivation To Write",
-    "section": "",
-    "text": "I plan to write about AI, statistics, quantitative finance, economics, and more.\nFor my first post I’ve decided to write about why I’m writing.\n\nWriting things down provides a reference for when I forget things.\nWriting improves understanding.\n\nIf other people find the things I write about interesting, that’s a bonus.\nFeel free to get in touch if you find any mistakes!"
-  },
-  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Shon Czinner’s Blog",
     "section": "",
-    "text": "Sketched Isotropic Gaussian Regularization (SIGReg) Explained\n\n\nGaussianizing to Prevent Latent Collapse in JEPA Models\n\n\n\nai\n\ncode\n\njepa\n\n\n\n\n\n\n\n\n\nApr 26, 2026\n\n\nShon Czinner\n\n\n\n\n\n\n\n\n\n\n\n\nMotivation To Write\n\n\n\n\n\n\nnon-math\n\n\n\n\n\n\n\n\n\nApr 26, 2026\n\n\nShon Czinner\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "I’m Shon Czinner, an AI model validation analyst at Royal Bank of Canada in Toronto. I work on validating machine learning systems including algorithmic trading, fraud detection, and generative AI.\nI went to the University of Waterloo where I received a Master of Quantitative Finance, a Bachelor of Mathematics in Mathematical Economics, a Statistics Minor, and a Combinatorics and Optimization Minor.\nThis blog is where I share experiments in AI, statistics, quantitative finance, economics, and more."
+    "text": "Motivation To Write\n\n\n\n\n\n\nnon-math\n\n\n\n\n\n\n\n\n\nApr 26, 2026\n\n\nShon Czinner\n\n\n\n\n\n\n\n\n\n\n\n\nSketched Isotropic Gaussian Regularization (SIGReg) Explained\n\n\nGaussianizing to Prevent Latent Collapse in JEPA Models\n\n\n\nai\n\ncode\n\njepa\n\n\n\n\n\n\n\n\n\nApr 26, 2026\n\n\nShon Czinner\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/sigreg-sketched-isotropic-gaussian-regularization/index.html",
@@ -61,5 +47,19 @@
     "title": "Sketched Isotropic Gaussian Regularization (SIGReg) Explained",
     "section": "SIGReg",
     "text": "SIGReg\nSIGReg functions the same as above except takes the mean of \\(k\\) slices. See the code block below which is similar to the code in the paper.\n\n\nCode\ndef SIGReg(x, num_slices=256, k=17):\n    # x: (N, D) samples\n    N, D = x.shape\n    device = x.device\n\n    # --- Projection directions ---\n    A = torch.randn(D, num_slices, device=device)\n    A /= A.norm(dim=0)  # normalize columns → unit directions\n\n    # Project to 1D: shape → (N, num_slices)\n    X_proj = x @ A\n\n    # --- Integration points ---\n    t = torch.linspace(-5, 5, k, device=device)  # (k,)\n    phi_normal = torch.exp(-0.5 * t**2)          # (k,)\n    weight = phi_normal                          # Gaussian window\n\n    # Broadcast shapes: (N, M, 1) ⋅ (1, 1, k)\n    X_t = X_proj.unsqueeze(-1) * t\n\n    # Empirical characteristic function across samples\n    ecf = torch.exp(-1j * X_t).mean(dim=0)  # (M, k)\n\n    # Squared difference\n    diff_sq = (ecf - phi_normal).abs()**2  # (M, k)\n\n    # Weighted integration for all projections → shape (M,)\n    per_direction_T = torch.trapz(diff_sq * weight, t, dim=1) * N\n\n    # GLOBAL aggregation — MEAN instead of MAX\n    T_global = per_direction_T.mean()\n\n    return T_global\n\n\nNow lets make a network’s 10-dimensional output standard gaussian. We’ll plot a histogram in the direction of the first dimension, before and after training on the regularizer.\n\n\nCode\ndevice = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n\nn = 1000\nhidden = 20\nD = 10\nX = torch.rand((n,D))*10-5   # uniform(0,6)\n\nX_train = X[:n//2].to(device)\nX_test = X[n//2:].to(device)\n\nmodel = torch.nn.Sequential(\n    torch.nn.Linear(D, hidden),\n    torch.nn.ReLU(),\n    torch.nn.Linear(hidden, D)\n).to(device)\n\nY = model(X_test)\n\ndef plot_output_distribution(model, X, bins=20):\n    \"\"\"\n    Plot model output histogram against standard normal PDF.\n    \n    Args:\n        model: PyTorch model\n        X: input tensor\n        bins: histogram bins\n    \"\"\"\n    model.eval()\n\n    with torch.no_grad():\n        Y = model(X).squeeze().cpu().numpy()[:,0]\n\n    plt.figure(figsize=(6,4))\n\n    plt.hist(\n        Y,\n        bins=bins,\n        density=True,\n        alpha=0.6,\n        label=\"Network outputs\"\n    )\n\n    x = np.linspace(Y.min() - 1, Y.max() + 1, 500)\n\n    plt.plot(\n        x,\n        stats.norm.pdf(x, loc=0, scale=1),\n        'r--',\n        linewidth=2,\n        label=r'$\\mathcal{N}(0,1)$ PDF'\n    )\n\n    plt.xlabel(\"Output value\")\n    plt.ylabel(\"Density\")\n    plt.title(\"Distribution of Network Outputs\")\n    plt.legend()\n    plt.grid(alpha=0.3)\n    plt.show()\n\n\nplot_output_distribution(model, X_test)\n\n\n\n\n\n\n\n\n\nAgain, not very Gaussian. Lets train using SIGReg:\n\n\nCode\nepochs = 1000\n\noptimizer = torch.optim.Adam(model.parameters(), lr=0.01)\nloss_fn = lambda x: SIGReg(x)\n\nfor epoch in range(epochs):\n    optimizer.zero_grad()\n    loss = loss_fn(model(X_train))\n    loss.backward()\n    optimizer.step()\n    if (epoch+1) % (epochs//10) == 0:\n      print(f\"Epoch {epoch+1}/{epochs}, Loss: {loss.item()}\")\n\nY=model(X_test)\nplot_output_distribution(model, X_test)\n\n\nEpoch 100/1000, Loss: 2.2469592094421387\nEpoch 200/1000, Loss: 0.9632902145385742\nEpoch 300/1000, Loss: 0.7503044605255127\nEpoch 400/1000, Loss: 0.548032283782959\nEpoch 500/1000, Loss: 0.42803165316581726\nEpoch 600/1000, Loss: 0.4888719618320465\nEpoch 700/1000, Loss: 0.4376848340034485\nEpoch 800/1000, Loss: 0.37319087982177734\nEpoch 900/1000, Loss: 0.3438933491706848\nEpoch 1000/1000, Loss: 0.2580392360687256\n\n\n\n\n\n\n\n\n\nAnd now after training, the output is more Gaussian. So adding this regularizer to your objective function encourages Gaussian latent embeddings.\nIn a future blog post, I’d like to train a small JEPA model using SIGReg as in “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels”(Maes et al. 2026)."
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Motivation To Write",
+    "section": "",
+    "text": "I plan to write about AI, statistics, quantitative finance, economics, and more.\nFor my first post I’ve decided to write about why I’m writing.\n\nWriting things down provides a reference for when I forget things.\nWriting improves understanding.\n\nIf other people find the things I write about interesting, that’s a bonus.\nFeel free to get in touch if you find any mistakes!"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "I’m Shon Czinner, an AI model validation analyst at Royal Bank of Canada in Toronto. I work on validating machine learning systems including algorithmic trading, fraud detection, and generative AI.\nI went to the University of Waterloo where I received a Master of Quantitative Finance, a Bachelor of Mathematics in Mathematical Economics, a Statistics Minor, and a Combinatorics and Optimization Minor.\nThis blog is where I share experiments in AI, statistics, quantitative finance, economics, and more."
   }
 ]
