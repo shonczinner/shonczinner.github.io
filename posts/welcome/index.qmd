@@ -1,7 +1,7 @@
 ---
 title: "Motivation To Write"
 author: "Shon Czinner"
-date: "2026-04-26"
+date: "2026-04-25"
 categories: [non-math]
 ---
 I plan to write about AI, statistics, quantitative finance, economics, and more.
