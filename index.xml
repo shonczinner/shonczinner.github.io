@@ -10,7 +10,1169 @@
 <atom:link href="https://shonczinner.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Shon Czinner&#39;s blog about AI, statistics, quantitative finance, economics, and more</description>
 <generator>quarto-1.9.37</generator>
-<lastBuildDate>Sun, 26 Apr 2026 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 30 Apr 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>A Small JEPA Word Embedding Model</title>
+  <dc:creator>Shon Czinner</dc:creator>
+  <link>https://shonczinner.github.io/posts/small-jepa-language-model/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>After my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">prior blog post about SIGReg</a>, I figured I’d train a small JEPA model to demonstate it.</p>
+<p>The paper “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels” <span class="citation" data-cites="maes2026">(Maes et al. 2026)</span> suggested significantly reducing the complexity of JEPA models by removing stop-gradients, and the exponential-moving-average encoder. This was in the context of world models and planning.</p>
+<p>In this case, I’m applying JEPA to the task of creating word embeddings. Prior methodologies include Word2vec <span class="citation" data-cites="mikolov2013">(Mikolov et al. 2013)</span> which uses a log-linear model and negative sampling, MLP next-word prediction <span class="citation" data-cites="bengio2000">(Bengio et al. 2000)</span>, applying CCA to small context windows <span class="citation" data-cites="dhillon2011">(Dhillon et al. 2011)</span>, and training an autoencoder on small context windows <span class="citation" data-cites="shao2025">(Shao et al. 2025)</span>.</p>
+<p>We’ll be training a linear JEPA model with SIGReg on a small shakespeare dataset to show that it learns some informative embeddings. In other words, we’ll train an encoder that turns two words into word embeddings, and train a linear predictor that predicts the second word embedding from the first. It would be easy to extend this methodology to non-linear encoders and use larger contexts than single words.</p>
+<p>First lets start with the imports.</p>
+<div id="be13a26c" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> torch</span>
+<span id="cb1-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> matplotlib.pyplot <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> plt</span>
+<span id="cb1-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-5"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> requests</span>
+<span id="cb1-6"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> re</span></code></pre></div></div>
+</details>
+</div>
+<section id="preparing-the-data" class="level1">
+<h1>Preparing The Data</h1>
+<p>The Shakespeare Dataset is a text file containing Shakespeare’s plays.</p>
+<div id="4ff7a761" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">txt_url <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"</span></span>
+<span id="cb2-2">response <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> requests.get(txt_url)</span>
+<span id="cb2-3">txt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> response.text</span>
+<span id="cb2-4">txt[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>]</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>'First Citizen:\nBefore we proceed any further, hear me speak.\n\nAll:\nSpeak, speak.\n\nFirst Citizen:\nYou'</code></pre>
+</div>
+</div>
+<p>To turn this into our dataset, we’ll convert everything to lower-case, split out punctuation, and then split on spaces to get our tokens. We’ll treat everything with frequency below 5 as an unknown token. The dataset consists of a single context word and the target word is simply the next word.</p>
+<div id="4f4866bd" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Lowercase then put spaces around punctuation and \n and then split on spaces</span></span>
+<span id="cb4-2">tokens <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> re.findall(<span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">r"</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\w</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">|</span><span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">[^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\w\s</span><span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">]</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, txt.lower(), re.UNICODE)</span>
+<span id="cb4-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(tokens[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>])  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># tokens[:10]</span></span>
+<span id="cb4-4"></span>
+<span id="cb4-5">min_freq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span></span>
+<span id="cb4-6">vocab_freq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.Series(tokens).value_counts()</span>
+<span id="cb4-7">vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> vocab_freq[vocab_freq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> min_freq].index.tolist()</span>
+<span id="cb4-8"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Vocab size: "</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(vocab))</span>
+<span id="cb4-9"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"First 10 vocab tokens: "</span>, vocab[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>])</span>
+<span id="cb4-10"></span>
+<span id="cb4-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># add &lt;unk&gt; token for out-of-vocab words</span></span>
+<span id="cb4-12">vocab.append(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&lt;unk&gt;"</span>)</span>
+<span id="cb4-13">token_to_id <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {token: idx <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> idx, token <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(vocab)}</span>
+<span id="cb4-14">id_to_token <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {idx: token <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> idx, token <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(vocab)}</span>
+<span id="cb4-15"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> encode(tokens):</span>
+<span id="cb4-16">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> [token_to_id.get(token, token_to_id[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&lt;unk&gt;"</span>]) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> token <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> tokens]</span>
+<span id="cb4-17"></span>
+<span id="cb4-18"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> decode(token_ids):</span>
+<span id="cb4-19">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> [id_to_token.get(token_id, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&lt;unk&gt;"</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> token_id <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> token_ids]  </span>
+<span id="cb4-20"></span>
+<span id="cb4-21">encoded <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encode(tokens)</span>
+<span id="cb4-22"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(encoded[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>])  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># encoded[:10]</span></span>
+<span id="cb4-23"></span>
+<span id="cb4-24">x0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encoded[:<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb4-25">x1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encoded[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:]</span>
+<span id="cb4-26"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dataset size: "</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(x0))</span>
+<span id="cb4-27">pd.DataFrame({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x0"</span>: x0, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"x1"</span>: x1}).head()</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>['first', 'citizen', ':', 'before', 'we', 'proceed', 'any', 'further', ',', 'hear']
+Vocab size:  3234
+First 10 vocab tokens:  [',', ':', '.', 'the', "'", 'and', 'i', 'to', 'of', ';']
+[100, 283, 1, 152, 40, 985, 158, 678, 0, 137]
+Dataset size:  262926</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">x0</th>
+<th data-quarto-table-cell-role="th">x1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>100</td>
+<td>283</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>283</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>1</td>
+<td>152</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>152</td>
+<td>40</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>40</td>
+<td>985</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="sigreg" class="level1">
+<h1>SIGReg</h1>
+<p>We use the same SIGReg code as in my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">prior blog post</a>. This is what makes the embedding space a bit Gaussian, avoiding dimensional collapse, as you’ll see later in Figure&nbsp;1 which plots the first two embedding dimensions against each other.</p>
+<div id="1c4016f1" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> SIGReg(x, num_slices<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">256</span>, k<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">17</span>):</span>
+<span id="cb6-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># x: (N, D) samples</span></span>
+<span id="cb6-3">    N, D <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> x.shape</span>
+<span id="cb6-4">    device <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> x.device</span>
+<span id="cb6-5"></span>
+<span id="cb6-6">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Projection directions ---</span></span>
+<span id="cb6-7">    A <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.randn(D, num_slices, device<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>device)</span>
+<span id="cb6-8">    A <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/=</span> A.norm(dim<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># normalize columns → unit directions</span></span>
+<span id="cb6-9"></span>
+<span id="cb6-10">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Project to 1D: shape → (N, num_slices)</span></span>
+<span id="cb6-11">    X_proj <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> A</span>
+<span id="cb6-12"></span>
+<span id="cb6-13">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Integration points ---</span></span>
+<span id="cb6-14">    t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.linspace(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, k, device<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>device)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># (k,)</span></span>
+<span id="cb6-15">    phi_normal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.exp(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> t<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># (k,)</span></span>
+<span id="cb6-16">    weight <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> phi_normal                          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Gaussian window</span></span>
+<span id="cb6-17"></span>
+<span id="cb6-18">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Broadcast shapes: (N, M, 1) ⋅ (1, 1, k)</span></span>
+<span id="cb6-19">    X_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X_proj.unsqueeze(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> t</span>
+<span id="cb6-20"></span>
+<span id="cb6-21">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Empirical characteristic function across samples</span></span>
+<span id="cb6-22">    ecf <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.exp(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">1j</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> X_t).mean(dim<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># (M, k)</span></span>
+<span id="cb6-23"></span>
+<span id="cb6-24">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Squared difference</span></span>
+<span id="cb6-25">    diff_sq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (ecf <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> phi_normal).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">abs</span>()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># (M, k)</span></span>
+<span id="cb6-26"></span>
+<span id="cb6-27">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Weighted integration for all projections → shape (M,)</span></span>
+<span id="cb6-28">    per_direction_T <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.trapz(diff_sq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> weight, t, dim<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> N</span>
+<span id="cb6-29"></span>
+<span id="cb6-30">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># GLOBAL aggregation — MEAN instead of MAX</span></span>
+<span id="cb6-31">    T_global <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> per_direction_T.mean()</span>
+<span id="cb6-32"></span>
+<span id="cb6-33">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> T_global</span></code></pre></div></div>
+</details>
+</div>
+</section>
+<section id="making-and-training-the-embedding-model" class="level1">
+<h1>Making and Training The Embedding Model</h1>
+<p>Now we’re ready to train a model. The encoder in this case is just an Embedding module and the predictor is just a Linear module. We use MSE loss comparing the predicted next word embedding versus the actual next word embedding as the objective function.</p>
+<div id="3369ceed" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">device <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cuda"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> torch.cuda.is_available() <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cpu"</span></span>
+<span id="cb7-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Using device: "</span>, device)</span>
+<span id="cb7-3"></span>
+<span id="cb7-4">x0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.tensor(x0, dtype<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>torch.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">long</span>).to(device)</span>
+<span id="cb7-5">x1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.tensor(x1, dtype<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>torch.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">long</span>).to(device)</span>
+<span id="cb7-6"></span>
+<span id="cb7-7">embedding_dim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span></span>
+<span id="cb7-8">hidden_dim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">64</span></span>
+<span id="cb7-9">encoder <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.nn.Embedding(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(vocab), embedding_dim).to(device)</span>
+<span id="cb7-10">next_encoding_predictor <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.nn.Linear(embedding_dim, embedding_dim).to(device)</span>
+<span id="cb7-11">sigreg_reg_lambda <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span></span>
+<span id="cb7-12"></span>
+<span id="cb7-13">n_epochs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span></span>
+<span id="cb7-14">batch_size <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">512</span></span>
+<span id="cb7-15">optimizer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.optim.Adam(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(encoder.parameters()) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(next_encoding_predictor.parameters()), lr<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span>)</span>
+<span id="cb7-16">loss_fn <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.nn.MSELoss()</span>
+<span id="cb7-17"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> epoch <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(n_epochs):</span>
+<span id="cb7-18">    total_loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb7-19">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(x0), batch_size):</span>
+<span id="cb7-20">        x0_batch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> x0[i:i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>batch_size]</span>
+<span id="cb7-21">        x1_batch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> x1[i:i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>batch_size]</span>
+<span id="cb7-22">        </span>
+<span id="cb7-23">        x0_embedded <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encoder(x0_batch)</span>
+<span id="cb7-24">        x1_embedded <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encoder(x1_batch)</span>
+<span id="cb7-25">        </span>
+<span id="cb7-26">        x1_predicted <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> next_encoding_predictor(x0_embedded)</span>
+<span id="cb7-27">        </span>
+<span id="cb7-28">        loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> loss_fn(x1_predicted, x1_embedded)</span>
+<span id="cb7-29">        sigreg_loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> SIGReg(x0_embedded)</span>
+<span id="cb7-30">        loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> sigreg_reg_lambda<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>sigreg_loss</span>
+<span id="cb7-31">        optimizer.zero_grad()</span>
+<span id="cb7-32">        loss.backward()</span>
+<span id="cb7-33">        optimizer.step()</span>
+<span id="cb7-34">        </span>
+<span id="cb7-35">        total_loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> loss.item()</span>
+<span id="cb7-36">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (epoch<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%</span> (n_epochs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>:</span>
+<span id="cb7-37">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Epoch </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>epoch<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">/</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>n_epochs<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, Loss: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>total_loss<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(x0)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Using device:  cuda
+Epoch 1/10, Loss: 0.001497643509146753
+Epoch 2/10, Loss: 0.0013701475152272003
+Epoch 3/10, Loss: 0.001300397162714445
+Epoch 4/10, Loss: 0.0012644762265178317
+Epoch 5/10, Loss: 0.0012466884210328192
+Epoch 6/10, Loss: 0.0012368921435588504
+Epoch 7/10, Loss: 0.0012292570233309666
+Epoch 8/10, Loss: 0.0012229596484082204
+Epoch 9/10, Loss: 0.0012185444856821132
+Epoch 10/10, Loss: 0.0012142995094667748</code></pre>
+</div>
+</div>
+</section>
+<section id="visualize" class="level1">
+<h1>Visualize</h1>
+<div id="cell-fig-embspace" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> visualize_embeddings(encoder, vocab, token_to_id, max_tokens<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>):</span>
+<span id="cb9-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb9-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Visualize token embeddings.</span></span>
+<span id="cb9-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    </span></span>
+<span id="cb9-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    If embedding_dim == 2 → plot directly.</span></span>
+<span id="cb9-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    If embedding_dim &gt; 2 → plot first 2 dimensions</span></span>
+<span id="cb9-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    </span></span>
+<span id="cb9-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    max_tokens limits how many tokens to plot for readability.</span></span>
+<span id="cb9-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb9-10"></span>
+<span id="cb9-11">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># optionally limit tokens for clarity</span></span>
+<span id="cb9-12">    tokens <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> vocab[:max_tokens]</span>
+<span id="cb9-13">    indices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [token_to_id[t] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> t <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> tokens]</span>
+<span id="cb9-14">    emb_subset <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encoder(torch.tensor(indices).to(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">next</span>(encoder.parameters()).device)).detach().cpu().numpy()</span>
+<span id="cb9-15">    </span>
+<span id="cb9-16"></span>
+<span id="cb9-17">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># plot</span></span>
+<span id="cb9-18">    plt.figure(figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>))</span>
+<span id="cb9-19">    plt.scatter(emb_subset[:, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], emb_subset[:, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])</span>
+<span id="cb9-20">    </span>
+<span id="cb9-21">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># annotate tokens</span></span>
+<span id="cb9-22">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, token <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(tokens):</span>
+<span id="cb9-23">        plt.annotate(token, (emb_subset[i, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], emb_subset[i, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]), fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)</span>
+<span id="cb9-24">    </span>
+<span id="cb9-25">    plt.title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Token Embeddings Visualization"</span>)</span>
+<span id="cb9-26">    plt.xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dim 1"</span>)</span>
+<span id="cb9-27">    plt.ylabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dim 2"</span>)</span>
+<span id="cb9-28">    plt.grid()</span>
+<span id="cb9-29">    plt.show()</span>
+<span id="cb9-30"></span>
+<span id="cb9-31">visualize_embeddings(encoder, vocab, token_to_id)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-embspace" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-embspace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://shonczinner.github.io/posts/small-jepa-language-model/index_files/figure-html/fig-embspace-output-1.png" id="fig-embspace" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-embspace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In the visualization above we can see several clusters including character names, royal titles, and tokens that follow apostrophes in words like ne’er, ’tis and o’er. This shows that the JEPA model is learning informative embeddings.</p>
+</section>
+<section id="further-embedding-investigation" class="level1">
+<h1>Further Embedding Investigation</h1>
+<p>We can also observe what words are closest in embedding space. For example, it’s encouraging that “prince” is near the word “king”, “juliet” is near the word “romeo” and “wolves” is near the word “dogs”.</p>
+<div id="d21a8295" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> neighbour_table_l2(words, n<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>):</span>
+<span id="cb10-2">    device <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">next</span>(encoder.parameters()).device</span>
+<span id="cb10-3">    encoder.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">eval</span>()</span>
+<span id="cb10-4"></span>
+<span id="cb10-5">    vocab_ids <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.arange(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(vocab)).to(device)</span>
+<span id="cb10-6"></span>
+<span id="cb10-7">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> torch.no_grad():</span>
+<span id="cb10-8">        vocab_emb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encoder(vocab_ids)</span>
+<span id="cb10-9"></span>
+<span id="cb10-10">    rows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb10-11"></span>
+<span id="cb10-12">    word_order <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {w: i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, w <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(words)}</span>
+<span id="cb10-13"></span>
+<span id="cb10-14">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> word <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> words:</span>
+<span id="cb10-15">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> word <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">not</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> token_to_id:</span>
+<span id="cb10-16">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">continue</span></span>
+<span id="cb10-17"></span>
+<span id="cb10-18">        word_id <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> token_to_id[word]</span>
+<span id="cb10-19"></span>
+<span id="cb10-20">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> torch.no_grad():</span>
+<span id="cb10-21">            query_emb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encoder(torch.tensor([word_id]).to(device))</span>
+<span id="cb10-22"></span>
+<span id="cb10-23">            x_sq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (query_emb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>(dim<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, keepdim<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb10-24">            v_sq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (vocab_emb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>(dim<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>).unsqueeze(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb10-25">            cross <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.matmul(query_emb, vocab_emb.T)</span>
+<span id="cb10-26"></span>
+<span id="cb10-27">            distances <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (x_sq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> v_sq <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> cross).squeeze(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb10-28"></span>
+<span id="cb10-29">            distances[word_id] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"inf"</span>)</span>
+<span id="cb10-30"></span>
+<span id="cb10-31">            top_ids <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.topk(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>distances, n).indices.tolist()</span>
+<span id="cb10-32"></span>
+<span id="cb10-33">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> rank, i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(top_ids, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>):</span>
+<span id="cb10-34">            rows.append({</span>
+<span id="cb10-35">                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"query"</span>: word,</span>
+<span id="cb10-36">                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"query_order"</span>: word_order[word],</span>
+<span id="cb10-37">                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rank"</span>: rank,</span>
+<span id="cb10-38">                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"token"</span>: id_to_token[i],</span>
+<span id="cb10-39">                <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"l2_distance"</span>: distances[i].item()</span>
+<span id="cb10-40">            })</span>
+<span id="cb10-41"></span>
+<span id="cb10-42">    df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(rows)</span>
+<span id="cb10-43"></span>
+<span id="cb10-44">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># enforce deterministic ordering for display</span></span>
+<span id="cb10-45">    df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df.sort_values([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"query_order"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rank"</span>])</span>
+<span id="cb10-46"></span>
+<span id="cb10-47">    pivot_tokens <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb10-48">        df.pivot(index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"query"</span>, columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rank"</span>, values<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"token"</span>)</span>
+<span id="cb10-49">        .reindex(words)</span>
+<span id="cb10-50">    ).T</span>
+<span id="cb10-51"></span>
+<span id="cb10-52">    display(pivot_tokens)</span>
+<span id="cb10-53"></span>
+<span id="cb10-54">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> df</span>
+<span id="cb10-55"></span>
+<span id="cb10-56"></span>
+<span id="cb10-57"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ---- run ----</span></span>
+<span id="cb10-58">words <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"the"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"old"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"king"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"romeo"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fears"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dogs"</span>]</span>
+<span id="cb10-59">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> neighbour_table_l2(words, n<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">query</th>
+<th data-quarto-table-cell-role="th">the</th>
+<th data-quarto-table-cell-role="th">old</th>
+<th data-quarto-table-cell-role="th">king</th>
+<th data-quarto-table-cell-role="th">romeo</th>
+<th data-quarto-table-cell-role="th">fears</th>
+<th data-quarto-table-cell-role="th">dogs</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">rank</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1</th>
+<td>their</td>
+<td>mighty</td>
+<td>prince</td>
+<td>juliet</td>
+<td>guest</td>
+<td>mine</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2</th>
+<td>meaner</td>
+<td>trusty</td>
+<td>maiden</td>
+<td>benvolio</td>
+<td>scorns</td>
+<td>wolves</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">3</th>
+<td>your</td>
+<td>airy</td>
+<td>fourth</td>
+<td>biondello</td>
+<td>affections</td>
+<td>pain</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">4</th>
+<td>our</td>
+<td>honest</td>
+<td>tyranny</td>
+<td>paulina</td>
+<td>hour</td>
+<td>england</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">5</th>
+<td>yon</td>
+<td>youthful</td>
+<td>custom</td>
+<td>norfolk</td>
+<td>serpent</td>
+<td>cover</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="future-directions" class="level1">
+<h1>Future Directions</h1>
+<p>As I mentioned earlier, it would be easy to extend this methodology to non-linear (e.g.&nbsp;MLP, CNN, RNN, Transformer) models and use larger contexts and targets than single words. It’s also possible to play around with other hyperparameters like SIGReg regularizer coefficient, embedding dimension, and hidden dimension and try larger datasets.</p>
+<p>Compared to many prior methods for getting word embeddings, this does appear to be less complicated than things like negative sampling (e.g.&nbsp;word2vec).</p>
+<p>There’s also recent work on approximations to SIGReg that are likely more computationally efficient with very little downside <span class="citation" data-cites="akbar2026">(Akbar 2026)</span>.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-akbar2026" class="csl-entry">
+Akbar, Habibullah. 2026. <em>Weak-SIGReg: Covariance Regularization for Stable Deep Learning</em>. <a href="https://arxiv.org/abs/2603.05924">https://arxiv.org/abs/2603.05924</a>.
+</div>
+<div id="ref-bengio2000" class="csl-entry">
+Bengio, Yoshua, Réjean Ducharme, and Pascal Vincent. 2000. <span>“A Neural Probabilistic Language Model.”</span> In <em>Advances in Neural Information Processing Systems</em>, edited by T. Leen, T. Dietterich, and V. Tresp, vol. 13. MIT Press. <a href="https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf</a>.
+</div>
+<div id="ref-dhillon2011" class="csl-entry">
+Dhillon, Paramveer, Dean P Foster, and Lyle Ungar. 2011. <span>“Multi-View Learning of Word Embeddings via CCA.”</span> In <em>Advances in Neural Information Processing Systems</em>, edited by J. Shawe-Taylor, R. Zemel, P. Bartlett, F. Pereira, and K. Weinberger, vol. 24. Curran Associates, Inc. <a href="https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf</a>.
+</div>
+<div id="ref-maes2026" class="csl-entry">
+Maes, Lucas, Quentin Le Lidec, Damien Scieur, Yann LeCun, and Randall Balestriero. 2026. <em>LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels</em>. <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a>.
+</div>
+<div id="ref-mikolov2013" class="csl-entry">
+Mikolov, Tomas, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013. <em>Efficient Estimation of Word Representations in Vector Space</em>. <a href="https://arxiv.org/abs/1301.3781">https://arxiv.org/abs/1301.3781</a>.
+</div>
+<div id="ref-shao2025" class="csl-entry">
+Shao, Chenze, Darren Li, Fandong Meng, and Jie Zhou. 2025. <em>Continuous Autoregressive Language Models</em>. <a href="https://arxiv.org/abs/2510.27688">https://arxiv.org/abs/2510.27688</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>ai</category>
+  <category>code</category>
+  <category>jepa</category>
+  <guid>https://shonczinner.github.io/posts/small-jepa-language-model/</guid>
+  <pubDate>Thu, 30 Apr 2026 00:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Sketched Isotropic Gaussian Regularization (SIGReg) Explained</title>
   <dc:creator>Shon Czinner</dc:creator>
