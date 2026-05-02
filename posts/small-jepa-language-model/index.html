@@ -130,6 +130,35 @@ div.csl-indent {
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -221,77 +250,100 @@ div.csl-indent {
 </header>
 
 
-<p>After my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">prior blog post about SIGReg</a>, I figured I’d train a small JEPA model to demonstate it.</p>
+<p>After my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">prior blog post about SIGReg</a>, I figured I’d train a small Joint-Embedding Predictive Architecture (JEPA) model to demonstrate it.</p>
 <p>The paper “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels” <span class="citation" data-cites="maes2026">(<a href="#ref-maes2026" role="doc-biblioref">Maes et al. 2026</a>)</span> suggested significantly reducing the complexity of JEPA models by removing stop-gradients, and the exponential-moving-average encoder. This was in the context of world models and planning.</p>
 <p>In this case, I’m applying JEPA to the task of creating word embeddings. Prior methodologies include Word2vec <span class="citation" data-cites="mikolov2013">(<a href="#ref-mikolov2013" role="doc-biblioref">Mikolov et al. 2013</a>)</span> which uses a log-linear model and negative sampling, MLP next-word prediction <span class="citation" data-cites="bengio2000">(<a href="#ref-bengio2000" role="doc-biblioref">Bengio et al. 2000</a>)</span>, applying CCA to small context windows <span class="citation" data-cites="dhillon2011">(<a href="#ref-dhillon2011" role="doc-biblioref">Dhillon et al. 2011</a>)</span>, and training an autoencoder on small context windows <span class="citation" data-cites="shao2025">(<a href="#ref-shao2025" role="doc-biblioref">Shao et al. 2025</a>)</span>.</p>
 <p>We’ll be training a linear JEPA model with SIGReg on a small shakespeare dataset to show that it learns some informative embeddings. In other words, we’ll train an encoder that turns two words into word embeddings, and train a linear predictor that predicts the second word embedding from the first. It would be easy to extend this methodology to non-linear encoders and use larger contexts than single words.</p>
-<p>First lets start with the imports.</p>
-<div id="be13a26c" class="cell" data-execution_count="1">
+<section id="overview" class="level1">
+<h1>Overview</h1>
+<p>First we’ll take our dataset and convert it into tokens. For example,</p>
+<pre><code>["to", "be", ",", "or", "not", "to", "be"] -&gt; [1, 2, 3, 4, 5, 1, 2]</code></pre>
+<p>Then we create the dataset where we have context/target pairs. So in this case that would look like,</p>
+<pre><code>Context 1: [1], Target 1: [2]
+Context 2: [2], Target 2: [3]
+...
+Context 5: [5], Target 5: [1]
+Context 6: [1], Target 6: [2]</code></pre>
+<p>Then we create the JEPA model which uses the same embedding <span class="math inline">\(f_\theta(\cdot)\)</span> for the context <span class="math inline">\(x\)</span> and target <span class="math inline">\(y\)</span>, and then has predictor <span class="math inline">\(g_\varphi(\cdot)\)</span> predict the target from the context. More formally,</p>
+<p><span class="math display">\[
+f_\theta(x)=h_x
+\]</span></p>
+<p><span class="math display">\[
+f_\theta(y)=h_y
+\]</span></p>
+<p><span class="math display">\[
+g_\varphi(h_x)=\hat h_y
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{L}_{JEPA}(\theta,\varphi)=MSE(h_y,\hat h_y)+\lambda\text{SIGReg}(h_x)
+\]</span></p>
+<div id="be13a26c" class="cell" data-execution_count="50">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+</section>
 <section id="preparing-the-data" class="level1">
 <h1>Preparing The Data</h1>
-<p>The Shakespeare Dataset is a text file containing Shakespeare’s plays.</p>
-<div id="4ff7a761" class="cell" data-execution_count="2">
+<p>The dataset is a text file containing Shakespeare’s plays.</p>
+<div id="4ff7a761" class="cell" data-execution_count="51">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>txt_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(txt_url)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>txt <span class="op">=</span> response.text</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>txt[:<span class="dv">100</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>txt_url <span class="op">=</span> <span class="st">"https://www.gutenberg.org/cache/epub/100/pg100.txt"</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(txt_url)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>txt <span class="op">=</span> response.text</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>txt[:<span class="dv">100</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="2">
-<pre><code>'First Citizen:\nBefore we proceed any further, hear me speak.\n\nAll:\nSpeak, speak.\n\nFirst Citizen:\nYou'</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="51">
+<pre><code>'\ufeffThe Project Gutenberg eBook of The Complete Works of William Shakespeare\r\n    \r\nThis eBook is for t'</code></pre>
 </div>
 </div>
 <p>To turn this into our dataset, we’ll convert everything to lower-case, split out punctuation, and then split on spaces to get our tokens. We’ll treat everything with frequency below 5 as an unknown token. The dataset consists of a single context word and the target word is simply the next word.</p>
-<div id="4f4866bd" class="cell">
+<div id="4f4866bd" class="cell" data-execution_count="52">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lowercase then put spaces around punctuation and \n and then split on spaces</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> re.findall(<span class="vs">r"</span><span class="dv">\w</span><span class="op">+</span><span class="cf">|</span><span class="pp">[^</span><span class="dv">\w\s</span><span class="pp">]</span><span class="vs">"</span>, txt.lower(), re.UNICODE)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tokens[:<span class="dv">10</span>])  <span class="co"># tokens[:10]</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>min_freq <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>vocab_freq <span class="op">=</span> pd.Series(tokens).value_counts()</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> vocab_freq[vocab_freq <span class="op">&gt;=</span> min_freq].index.tolist()</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Vocab size: "</span>, <span class="bu">len</span>(vocab))</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"First 10 vocab tokens: "</span>, vocab[:<span class="dv">10</span>])</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># add &lt;unk&gt; token for out-of-vocab words</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>vocab.append(<span class="st">"&lt;unk&gt;"</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>token_to_id <span class="op">=</span> {token: idx <span class="cf">for</span> idx, token <span class="kw">in</span> <span class="bu">enumerate</span>(vocab)}</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>id_to_token <span class="op">=</span> {idx: token <span class="cf">for</span> idx, token <span class="kw">in</span> <span class="bu">enumerate</span>(vocab)}</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> encode(tokens):</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [token_to_id.get(token, token_to_id[<span class="st">"&lt;unk&gt;"</span>]) <span class="cf">for</span> token <span class="kw">in</span> tokens]</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decode(token_ids):</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [id_to_token.get(token_id, <span class="st">"&lt;unk&gt;"</span>) <span class="cf">for</span> token_id <span class="kw">in</span> token_ids]  </span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>encoded <span class="op">=</span> encode(tokens)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(encoded[:<span class="dv">10</span>])  <span class="co"># encoded[:10]</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> encoded[:<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>x1 <span class="op">=</span> encoded[<span class="dv">1</span>:]</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Dataset size: "</span>, <span class="bu">len</span>(x0))</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>pd.DataFrame({<span class="st">"x0"</span>: x0, <span class="st">"x1"</span>: x1}).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lowercase then put spaces around punctuation and \n and then split on spaces</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> re.findall(<span class="vs">r"</span><span class="dv">\w</span><span class="op">+</span><span class="cf">|</span><span class="pp">[^</span><span class="dv">\w\s</span><span class="pp">]</span><span class="vs">"</span>, txt.lower(), re.UNICODE)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tokens[:<span class="dv">10</span>])  <span class="co"># tokens[:10]</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>min_freq <span class="op">=</span> <span class="dv">25</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>vocab_freq <span class="op">=</span> pd.Series(tokens).value_counts()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> vocab_freq[vocab_freq <span class="op">&gt;=</span> min_freq].index.tolist()</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Vocab size: "</span>, <span class="bu">len</span>(vocab))</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"First 10 vocab tokens: "</span>, vocab[:<span class="dv">10</span>])</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># add &lt;unk&gt; token for out-of-vocab words</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>vocab.insert(<span class="dv">0</span>, <span class="st">"&lt;unk&gt;"</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>token_to_id <span class="op">=</span> {token: idx <span class="cf">for</span> idx, token <span class="kw">in</span> <span class="bu">enumerate</span>(vocab)}</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>id_to_token <span class="op">=</span> {idx: token <span class="cf">for</span> idx, token <span class="kw">in</span> <span class="bu">enumerate</span>(vocab)}</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> encode(tokens):</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [token_to_id.get(token, token_to_id[<span class="st">"&lt;unk&gt;"</span>]) <span class="cf">for</span> token <span class="kw">in</span> tokens]</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decode(token_ids):</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [id_to_token.get(token_id, <span class="st">"&lt;unk&gt;"</span>) <span class="cf">for</span> token_id <span class="kw">in</span> token_ids]  </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>encoded <span class="op">=</span> encode(tokens)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(encoded[:<span class="dv">15</span>]) </span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> encoded[:<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>x1 <span class="op">=</span> encoded[<span class="dv">1</span>:]</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Dataset size: "</span>, <span class="bu">len</span>(x0))</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>pd.DataFrame({<span class="st">"x0"</span>: x0, <span class="st">"x1"</span>: x1}).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>['first', 'citizen', ':', 'before', 'we', 'proceed', 'any', 'further', ',', 'hear']
-Vocab size:  3234
-First 10 vocab tokens:  [',', ':', '.', 'the', "'", 'and', 'i', 'to', 'of', ';']
-[100, 283, 1, 152, 40, 985, 158, 678, 0, 137]
-Dataset size:  262926</code></pre>
+<pre><code>['\ufeff', 'the', 'project', 'gutenberg', 'ebook', 'of', 'the', 'complete', 'works', 'of']
+Vocab size:  3227
+First 10 vocab tokens:  [',', '.', 'the', 'and', '’', 'i', 'to', 'of', 'a', 'you']
+[0, 3, 1071, 1098, 0, 8, 3, 0, 1523, 8, 1174, 0, 27, 0, 16]
+Dataset size:  1262243</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="52">
 <div>
 
 
@@ -306,28 +358,28 @@ Dataset size:  262926</code></pre>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>100</td>
-<td>283</td>
+<td>0</td>
+<td>3</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>283</td>
-<td>1</td>
+<td>3</td>
+<td>1071</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>1</td>
-<td>152</td>
+<td>1071</td>
+<td>1098</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
-<td>152</td>
-<td>40</td>
+<td>1098</td>
+<td>0</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
-<td>40</td>
-<td>985</td>
+<td>0</td>
+<td>8</td>
 </tr>
 </tbody>
 </table>
@@ -339,140 +391,139 @@ Dataset size:  262926</code></pre>
 <section id="sigreg" class="level1">
 <h1>SIGReg</h1>
 <p>We use the same SIGReg code as in my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">prior blog post</a>. This is what makes the embedding space a bit Gaussian, avoiding dimensional collapse, as you’ll see later in <a href="#fig-embspace" class="quarto-xref">Figure&nbsp;1</a> which plots the first two embedding dimensions against each other.</p>
-<div id="1c4016f1" class="cell" data-execution_count="4">
+<div id="1c4016f1" class="cell" data-execution_count="53">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> SIGReg(x, num_slices<span class="op">=</span><span class="dv">256</span>, k<span class="op">=</span><span class="dv">17</span>):</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># x: (N, D) samples</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    N, D <span class="op">=</span> x.shape</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> x.device</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Projection directions ---</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> torch.randn(D, num_slices, device<span class="op">=</span>device)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    A <span class="op">/=</span> A.norm(dim<span class="op">=</span><span class="dv">0</span>)  <span class="co"># normalize columns → unit directions</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Project to 1D: shape → (N, num_slices)</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    X_proj <span class="op">=</span> x <span class="op">@</span> A</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Integration points ---</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">5</span>, <span class="dv">5</span>, k, device<span class="op">=</span>device)  <span class="co"># (k,)</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    phi_normal <span class="op">=</span> torch.exp(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> t<span class="op">**</span><span class="dv">2</span>)          <span class="co"># (k,)</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    weight <span class="op">=</span> phi_normal                          <span class="co"># Gaussian window</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Broadcast shapes: (N, M, 1) ⋅ (1, 1, k)</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    X_t <span class="op">=</span> X_proj.unsqueeze(<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span> t</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Empirical characteristic function across samples</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    ecf <span class="op">=</span> torch.exp(<span class="op">-</span><span class="ot">1j</span> <span class="op">*</span> X_t).mean(dim<span class="op">=</span><span class="dv">0</span>)  <span class="co"># (M, k)</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Squared difference</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    diff_sq <span class="op">=</span> (ecf <span class="op">-</span> phi_normal).<span class="bu">abs</span>()<span class="op">**</span><span class="dv">2</span>  <span class="co"># (M, k)</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Weighted integration for all projections → shape (M,)</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    per_direction_T <span class="op">=</span> torch.trapz(diff_sq <span class="op">*</span> weight, t, dim<span class="op">=</span><span class="dv">1</span>) <span class="op">*</span> N</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># GLOBAL aggregation — MEAN instead of MAX</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    T_global <span class="op">=</span> per_direction_T.mean()</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> T_global</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> SIGReg(x, num_slices<span class="op">=</span><span class="dv">256</span>, k<span class="op">=</span><span class="dv">17</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># x: (N, D) samples</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    N, D <span class="op">=</span> x.shape</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> x.device</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Projection directions ---</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> torch.randn(D, num_slices, device<span class="op">=</span>device)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    A <span class="op">/=</span> A.norm(dim<span class="op">=</span><span class="dv">0</span>)  <span class="co"># normalize columns → unit directions</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Project to 1D: shape → (N, num_slices)</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    X_proj <span class="op">=</span> x <span class="op">@</span> A</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Integration points ---</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> torch.linspace(<span class="op">-</span><span class="dv">5</span>, <span class="dv">5</span>, k, device<span class="op">=</span>device)  <span class="co"># (k,)</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    phi_normal <span class="op">=</span> torch.exp(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> t<span class="op">**</span><span class="dv">2</span>)          <span class="co"># (k,)</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    weight <span class="op">=</span> phi_normal                          <span class="co"># Gaussian window</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Broadcast shapes: (N, M, 1) ⋅ (1, 1, k)</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    X_t <span class="op">=</span> X_proj.unsqueeze(<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span> t</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Empirical characteristic function across samples</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    ecf <span class="op">=</span> torch.exp(<span class="op">-</span><span class="ot">1j</span> <span class="op">*</span> X_t).mean(dim<span class="op">=</span><span class="dv">0</span>)  <span class="co"># (M, k)</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Squared difference</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    diff_sq <span class="op">=</span> (ecf <span class="op">-</span> phi_normal).<span class="bu">abs</span>()<span class="op">**</span><span class="dv">2</span>  <span class="co"># (M, k)</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Weighted integration for all projections → shape (M,)</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    per_direction_T <span class="op">=</span> torch.trapz(diff_sq <span class="op">*</span> weight, t, dim<span class="op">=</span><span class="dv">1</span>) <span class="op">*</span> N</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># GLOBAL aggregation — MEAN instead of MAX</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    T_global <span class="op">=</span> per_direction_T.mean()</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> T_global</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="making-and-training-the-embedding-model" class="level1">
 <h1>Making and Training The Embedding Model</h1>
 <p>Now we’re ready to train a model. The encoder in this case is just an Embedding module and the predictor is just a Linear module. We use MSE loss comparing the predicted next word embedding versus the actual next word embedding as the objective function.</p>
-<div id="3369ceed" class="cell">
+<div id="3369ceed" class="cell" data-execution_count="54">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> <span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Using device: "</span>, device)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> torch.tensor(x0, dtype<span class="op">=</span>torch.<span class="bu">long</span>).to(device)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>x1 <span class="op">=</span> torch.tensor(x1, dtype<span class="op">=</span>torch.<span class="bu">long</span>).to(device)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>embedding_dim <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>hidden_dim <span class="op">=</span> <span class="dv">64</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>encoder <span class="op">=</span> torch.nn.Embedding(<span class="bu">len</span>(vocab), embedding_dim).to(device)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>next_encoding_predictor <span class="op">=</span> torch.nn.Linear(embedding_dim, embedding_dim).to(device)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>sigreg_reg_lambda <span class="op">=</span> <span class="fl">0.01</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>n_epochs <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">512</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.Adam(<span class="bu">list</span>(encoder.parameters()) <span class="op">+</span> <span class="bu">list</span>(next_encoding_predictor.parameters()), lr<span class="op">=</span><span class="fl">0.01</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.MSELoss()</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs):</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    total_loss <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(x0), batch_size):</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        x0_batch <span class="op">=</span> x0[i:i<span class="op">+</span>batch_size]</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        x1_batch <span class="op">=</span> x1[i:i<span class="op">+</span>batch_size]</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        x0_embedded <span class="op">=</span> encoder(x0_batch)</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        x1_embedded <span class="op">=</span> encoder(x1_batch)</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        x1_predicted <span class="op">=</span> next_encoding_predictor(x0_embedded)</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(x1_predicted, x1_embedded)</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        sigreg_loss <span class="op">=</span> SIGReg(x0_embedded)</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">+=</span> sigreg_reg_lambda<span class="op">*</span>sigreg_loss</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>        optimizer.zero_grad()</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        optimizer.step()</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        total_loss <span class="op">+=</span> loss.item()</span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (epoch<span class="op">+</span><span class="dv">1</span>) <span class="op">%</span> (n_epochs <span class="op">//</span> <span class="dv">10</span>) <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>n_epochs<span class="sc">}</span><span class="ss">, Loss: </span><span class="sc">{</span>total_loss<span class="op">/</span><span class="bu">len</span>(x0)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> <span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Using device: "</span>, device)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> torch.tensor(x0, dtype<span class="op">=</span>torch.<span class="bu">long</span>).to(device)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>x1 <span class="op">=</span> torch.tensor(x1, dtype<span class="op">=</span>torch.<span class="bu">long</span>).to(device)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>embedding_dim <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>encoder <span class="op">=</span> torch.nn.Embedding(<span class="bu">len</span>(vocab), embedding_dim).to(device)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>next_encoding_predictor <span class="op">=</span> torch.nn.Linear(embedding_dim, embedding_dim).to(device)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>sigreg_lambda <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>n_epochs <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">2048</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.Adam(<span class="bu">list</span>(encoder.parameters()) <span class="op">+</span> <span class="bu">list</span>(next_encoding_predictor.parameters()), lr<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.MSELoss()</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs):</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    total_loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(x0), batch_size):</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        x0_batch <span class="op">=</span> x0[i:i<span class="op">+</span>batch_size]</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        x1_batch <span class="op">=</span> x1[i:i<span class="op">+</span>batch_size]</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        x0_embedded <span class="op">=</span> encoder(x0_batch)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        x1_embedded <span class="op">=</span> encoder(x1_batch)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        x1_predicted <span class="op">=</span> next_encoding_predictor(x0_embedded)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(x1_predicted, x1_embedded)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>        sigreg_loss <span class="op">=</span> SIGReg(x0_embedded)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">+=</span> sigreg_lambda<span class="op">*</span>sigreg_loss</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>        optimizer.zero_grad()</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>        optimizer.step()</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>        total_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (epoch<span class="op">+</span><span class="dv">1</span>) <span class="op">%</span> (n_epochs <span class="op">//</span> <span class="dv">10</span>) <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>n_epochs<span class="sc">}</span><span class="ss">, Loss: </span><span class="sc">{</span>total_loss<span class="op">/</span><span class="bu">len</span>(x0)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Using device:  cuda
-Epoch 1/10, Loss: 0.001497643509146753
-Epoch 2/10, Loss: 0.0013701475152272003
-Epoch 3/10, Loss: 0.001300397162714445
-Epoch 4/10, Loss: 0.0012644762265178317
-Epoch 5/10, Loss: 0.0012466884210328192
-Epoch 6/10, Loss: 0.0012368921435588504
-Epoch 7/10, Loss: 0.0012292570233309666
-Epoch 8/10, Loss: 0.0012229596484082204
-Epoch 9/10, Loss: 0.0012185444856821132
-Epoch 10/10, Loss: 0.0012142995094667748</code></pre>
+Epoch 1/10, Loss: 0.00048023610461530306
+Epoch 2/10, Loss: 0.0004523864227085027
+Epoch 3/10, Loss: 0.0004391360668865251
+Epoch 4/10, Loss: 0.0004303184247303124
+Epoch 5/10, Loss: 0.00042514875212748543
+Epoch 6/10, Loss: 0.00042165358612022394
+Epoch 7/10, Loss: 0.0004195104785958759
+Epoch 8/10, Loss: 0.0004182606700457514
+Epoch 9/10, Loss: 0.0004172710015018738
+Epoch 10/10, Loss: 0.00041632126264852835</code></pre>
 </div>
 </div>
 </section>
 <section id="visualize" class="level1">
 <h1>Visualize</h1>
-<div id="cell-fig-embspace" class="cell">
+<div id="cell-fig-embspace" class="cell" data-execution_count="55">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize_embeddings(encoder, vocab, token_to_id, max_tokens<span class="op">=</span><span class="dv">200</span>):</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Visualize token embeddings.</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">    If embedding_dim == 2 → plot directly.</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">    If embedding_dim &gt; 2 → plot first 2 dimensions</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">    max_tokens limits how many tokens to plot for readability.</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># optionally limit tokens for clarity</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> vocab[:max_tokens]</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    indices <span class="op">=</span> [token_to_id[t] <span class="cf">for</span> t <span class="kw">in</span> tokens]</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    emb_subset <span class="op">=</span> encoder(torch.tensor(indices).to(<span class="bu">next</span>(encoder.parameters()).device)).detach().cpu().numpy()</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># plot</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    plt.scatter(emb_subset[:, <span class="dv">0</span>], emb_subset[:, <span class="dv">1</span>])</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># annotate tokens</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(tokens):</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        plt.annotate(token, (emb_subset[i, <span class="dv">0</span>], emb_subset[i, <span class="dv">1</span>]), fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="st">"Token Embeddings Visualization"</span>)</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">"Dim 1"</span>)</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"Dim 2"</span>)</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    plt.grid()</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>visualize_embeddings(encoder, vocab, token_to_id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize_embeddings(encoder, vocab, token_to_id, max_tokens<span class="op">=</span><span class="dv">200</span>):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Visualize token embeddings.</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">    If embedding_dim == 2 → plot directly.</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">    If embedding_dim &gt; 2 → plot first 2 dimensions</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">    max_tokens limits how many tokens to plot for readability.</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># optionally limit tokens for clarity</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> vocab[:max_tokens]</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    indices <span class="op">=</span> [token_to_id[t] <span class="cf">for</span> t <span class="kw">in</span> tokens]</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    emb_subset <span class="op">=</span> encoder(torch.tensor(indices).to(<span class="bu">next</span>(encoder.parameters()).device)).detach().cpu().numpy()</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># plot</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    plt.scatter(emb_subset[:, <span class="dv">0</span>], emb_subset[:, <span class="dv">1</span>])</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># annotate tokens</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(tokens):</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>        plt.annotate(token, (emb_subset[i, <span class="dv">0</span>], emb_subset[i, <span class="dv">1</span>]), fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="st">"Token Embeddings Visualization"</span>)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">"Dim 1"</span>)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"Dim 2"</span>)</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    plt.grid()</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>visualize_embeddings(encoder, vocab, token_to_id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-embspace" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -487,73 +538,73 @@ Figure&nbsp;1
 </div>
 </div>
 </div>
-<p>In the visualization above we can see several clusters including character names, royal titles, and tokens that follow apostrophes in words like ne’er, ’tis and o’er. This shows that the JEPA model is learning informative embeddings.</p>
+<p>The visualization above shows only the first two dimensions of the embedding space. We can see several clusters including character names, royal titles, and tokens that follow apostrophes in words like ne’er, ’tis and o’er. This shows that the JEPA model is learning informative embeddings.</p>
 </section>
 <section id="further-embedding-investigation" class="level1">
 <h1>Further Embedding Investigation</h1>
-<p>We can also observe what words are closest in embedding space. For example, it’s encouraging that “prince” is near the word “king”, “juliet” is near the word “romeo” and “wolves” is near the word “dogs”.</p>
-<div id="d21a8295" class="cell" data-execution_count="19">
+<p>We can also observe what words are closest in embedding space.</p>
+<div id="d21a8295" class="cell" data-execution_count="61">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> neighbour_table_l2(words, n<span class="op">=</span><span class="dv">5</span>):</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="bu">next</span>(encoder.parameters()).device</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    encoder.<span class="bu">eval</span>()</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    vocab_ids <span class="op">=</span> torch.arange(<span class="bu">len</span>(vocab)).to(device)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        vocab_emb <span class="op">=</span> encoder(vocab_ids)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    rows <span class="op">=</span> []</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    word_order <span class="op">=</span> {w: i <span class="cf">for</span> i, w <span class="kw">in</span> <span class="bu">enumerate</span>(words)}</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> word <span class="kw">in</span> words:</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> word <span class="kw">not</span> <span class="kw">in</span> token_to_id:</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        word_id <span class="op">=</span> token_to_id[word]</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>            query_emb <span class="op">=</span> encoder(torch.tensor([word_id]).to(device))</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>            x_sq <span class="op">=</span> (query_emb <span class="op">**</span> <span class="dv">2</span>).<span class="bu">sum</span>(dim<span class="op">=</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>            v_sq <span class="op">=</span> (vocab_emb <span class="op">**</span> <span class="dv">2</span>).<span class="bu">sum</span>(dim<span class="op">=</span><span class="dv">1</span>).unsqueeze(<span class="dv">0</span>)</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>            cross <span class="op">=</span> torch.matmul(query_emb, vocab_emb.T)</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>            distances <span class="op">=</span> (x_sq <span class="op">+</span> v_sq <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> cross).squeeze(<span class="dv">0</span>)</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>            distances[word_id] <span class="op">=</span> <span class="bu">float</span>(<span class="st">"inf"</span>)</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>            top_ids <span class="op">=</span> torch.topk(<span class="op">-</span>distances, n).indices.tolist()</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> rank, i <span class="kw">in</span> <span class="bu">enumerate</span>(top_ids, <span class="dv">1</span>):</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>            rows.append({</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>                <span class="st">"query"</span>: word,</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>                <span class="st">"query_order"</span>: word_order[word],</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>                <span class="st">"rank"</span>: rank,</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>                <span class="st">"token"</span>: id_to_token[i],</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>                <span class="st">"l2_distance"</span>: distances[i].item()</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>            })</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> pd.DataFrame(rows)</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># enforce deterministic ordering for display</span></span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> df.sort_values([<span class="st">"query_order"</span>, <span class="st">"rank"</span>])</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>    pivot_tokens <span class="op">=</span> (</span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>        df.pivot(index<span class="op">=</span><span class="st">"query"</span>, columns<span class="op">=</span><span class="st">"rank"</span>, values<span class="op">=</span><span class="st">"token"</span>)</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>        .reindex(words)</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    ).T</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>    display(pivot_tokens)</span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- run ----</span></span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>words <span class="op">=</span> [<span class="st">"the"</span>, <span class="st">"old"</span>, <span class="st">"king"</span>, <span class="st">"romeo"</span>, <span class="st">"fears"</span>, <span class="st">"dogs"</span>]</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> neighbour_table_l2(words, n<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> neighbour_table_l2(words, n<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="bu">next</span>(encoder.parameters()).device</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    encoder.<span class="bu">eval</span>()</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    vocab_ids <span class="op">=</span> torch.arange(<span class="bu">len</span>(vocab)).to(device)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        vocab_emb <span class="op">=</span> encoder(vocab_ids)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    rows <span class="op">=</span> []</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    word_order <span class="op">=</span> {w: i <span class="cf">for</span> i, w <span class="kw">in</span> <span class="bu">enumerate</span>(words)}</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> word <span class="kw">in</span> words:</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> word <span class="kw">not</span> <span class="kw">in</span> token_to_id:</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        word_id <span class="op">=</span> token_to_id[word]</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>            query_emb <span class="op">=</span> encoder(torch.tensor([word_id]).to(device))</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>            x_sq <span class="op">=</span> (query_emb <span class="op">**</span> <span class="dv">2</span>).<span class="bu">sum</span>(dim<span class="op">=</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>            v_sq <span class="op">=</span> (vocab_emb <span class="op">**</span> <span class="dv">2</span>).<span class="bu">sum</span>(dim<span class="op">=</span><span class="dv">1</span>).unsqueeze(<span class="dv">0</span>)</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>            cross <span class="op">=</span> torch.matmul(query_emb, vocab_emb.T)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>            distances <span class="op">=</span> (x_sq <span class="op">+</span> v_sq <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> cross).squeeze(<span class="dv">0</span>)</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>            distances[word_id] <span class="op">=</span> <span class="bu">float</span>(<span class="st">"inf"</span>)</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>            top_ids <span class="op">=</span> torch.topk(<span class="op">-</span>distances, n).indices.tolist()</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> rank, i <span class="kw">in</span> <span class="bu">enumerate</span>(top_ids, <span class="dv">1</span>):</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>            rows.append({</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>                <span class="st">"query"</span>: word,</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>                <span class="st">"query_order"</span>: word_order[word],</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>                <span class="st">"rank"</span>: rank,</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>                <span class="st">"token"</span>: id_to_token[i],</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>                <span class="st">"l2_distance"</span>: distances[i].item()</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>            })</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> pd.DataFrame(rows)</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># enforce deterministic ordering for display</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> df.sort_values([<span class="st">"query_order"</span>, <span class="st">"rank"</span>])</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>    pivot_tokens <span class="op">=</span> (</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>        df.pivot(index<span class="op">=</span><span class="st">"query"</span>, columns<span class="op">=</span><span class="st">"rank"</span>, values<span class="op">=</span><span class="st">"token"</span>)</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>        .reindex(words)</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>    ).T</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>    display(pivot_tokens)</span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- run ----</span></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>words <span class="op">=</span> [<span class="st">"young"</span>, <span class="st">"king"</span>, <span class="st">"romeo"</span>]</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> neighbour_table_l2(words, n<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -563,18 +614,12 @@ Figure&nbsp;1
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th">query</th>
-<th data-quarto-table-cell-role="th">the</th>
-<th data-quarto-table-cell-role="th">old</th>
+<th data-quarto-table-cell-role="th">young</th>
 <th data-quarto-table-cell-role="th">king</th>
 <th data-quarto-table-cell-role="th">romeo</th>
-<th data-quarto-table-cell-role="th">fears</th>
-<th data-quarto-table-cell-role="th">dogs</th>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">rank</th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th"></th>
@@ -583,48 +628,33 @@ Figure&nbsp;1
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">1</th>
-<td>their</td>
-<td>mighty</td>
-<td>prince</td>
-<td>juliet</td>
-<td>guest</td>
-<td>mine</td>
+<td>old</td>
+<td>friar</td>
+<td>malcolm</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">2</th>
-<td>meaner</td>
-<td>trusty</td>
-<td>maiden</td>
-<td>benvolio</td>
-<td>scorns</td>
-<td>wolves</td>
+<td>delicate</td>
+<td>chief</td>
+<td>hamlet</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">3</th>
-<td>your</td>
-<td>airy</td>
-<td>fourth</td>
-<td>biondello</td>
-<td>affections</td>
-<td>pain</td>
+<td>civil</td>
+<td>tamora</td>
+<td>wolsey</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">4</th>
-<td>our</td>
-<td>honest</td>
-<td>tyranny</td>
-<td>paulina</td>
-<td>hour</td>
-<td>england</td>
+<td>honourable</td>
+<td>taking</td>
+<td>lucius</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">5</th>
-<td>yon</td>
-<td>youthful</td>
-<td>custom</td>
-<td>norfolk</td>
-<td>serpent</td>
-<td>cover</td>
+<td>troubled</td>
+<td>perfect</td>
+<td>viola</td>
 </tr>
 </tbody>
 </table>
@@ -632,6 +662,7 @@ Figure&nbsp;1
 </div>
 </div>
 </div>
+<p>It’s encouraging that “king” is near other professions, young is near other adjectives (including its opposite - old), and “romeo” is near other names.</p>
 </section>
 <section id="future-directions" class="level1">
 <h1>Future Directions</h1>
