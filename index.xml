@@ -71,7 +71,7 @@ font-style: inherit;">import</span> re</span></code></pre></div></div>
 </section>
 <section id="preparing-the-data" class="level1">
 <h1>Preparing The Data</h1>
-<p>The dataset is a text file containing Shakespeare’s plays.</p>
+<p>The dataset is a text file containing some of Shakespeare’s plays.</p>
 <div id="4ff7a761" class="cell" data-execution_count="51">
 <details class="code-fold">
 <summary>Code</summary>
