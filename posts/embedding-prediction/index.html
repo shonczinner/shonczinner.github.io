@@ -249,7 +249,7 @@ window.Quarto = {
 <p><span class="math display">\[\max_{A,B} \text{tr}\left(\frac{1}{n}z_x^Tz_y\right) \]</span> <span class="math display">\[\text{s.t}\]</span> <span class="math display">\[\frac{1}{n}z_x^Tz_x=\frac{1}{n}z_y^Tz_y=I\]</span></p>
 <p>This maximizes the trace of the cross-correlation matrix, while constraining embedding vectors to unit variance and zero covariance.</p>
 <p>Similar to the equivalence between maximizing variance and minimizing prediction error in solving PCA, we have a relationship between the trace of the cross-correlation matrix and embedding prediction error,</p>
-<p><span class="math display">\[\frac{1}{n}\sum_{i=1}^n ||z_x^{(i)}-z_y^{(i)}||^2=\frac{1}{n}||z_x-z_y||_F^2= \frac{1}{n}\text{tr}(z_x^Tz_x) + \frac{1}{n}\text{tr}(z_y^Tz_y) - \frac{2}{n}\text{tr}(z_x^Tz_y)\]</span> And due to the whitening constraints, <span class="math display">\[=\frac{2k}{n}- \frac{2}{n}\text{tr}(z_x^Tz_y)\]</span></p>
+<p><span class="math display">\[\frac{1}{n}\sum_{i=1}^n ||z_x^{(i)}-z_y^{(i)}||^2=\frac{1}{n}||z_x-z_y||_F^2= \frac{1}{n}\text{tr}(z_x^Tz_x) + \frac{1}{n}\text{tr}(z_y^Tz_y) - \frac{2}{n}\text{tr}(z_x^Tz_y)\]</span> And due to the whitening constraints, <span class="math display">\[=2k- \frac{2}{n}\text{tr}(z_x^Tz_y)\]</span></p>
 <p>So maximizing the trace of the cross-correlation under the whitening constraints is equivalent to minimizing the MSE of the embedding representations. Therefore we can write CCA as,</p>
 <p><span class="math display">\[\min_{A,B} \frac{1}{n}\sum_{i=1}^n ||z_x^{(i)}-z_y^{(i)}||^2\]</span> <span class="math display">\[\text{s.t}\]</span> <span class="math display">\[\frac{1}{n}z_x^Tz_x=\frac{1}{n}z_y^Tz_y=I\]</span></p>
 </section>
@@ -262,11 +262,6 @@ window.Quarto = {
 <p>Note the similarity in the objective function but the lack of whitening constraints. The lack of whitening constraints results in representational and dimensional collapse. For example, a trivial solution to the above problem is <span class="math inline">\(z_x^{(i)}=z_y^{(i)}=c\)</span>.</p>
 <p>As discussed in my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">previous blog post</a> SIGReg <span class="citation" data-cites="balestriero2025">(<a href="#ref-balestriero2025" role="doc-biblioref">Balestriero and LeCun 2025</a>)</span> fixes this problem. What does it do? It encourages the embeddings <span class="math inline">\(z_x\)</span> and <span class="math inline">\(z_y\)</span> to have an isotropic (i.e.&nbsp;unit variance, uncorrelated) Gaussian distribution. As a result it encourages,</p>
 <p><span class="math display">\[\frac{1}{n}z_x^Tz_x=\frac{1}{n}z_y^Tz_y=I\]</span></p>
-</section>
-<section id="connection" class="level2">
-<h2 class="anchored" data-anchor-id="connection">Connection</h2>
-<p>In the case where <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span> are linear, then <span class="math inline">\(g\circ f\)</span> is equivalent to <span class="math inline">\(A\)</span> and <span class="math inline">\(f\)</span> is equivalent to <span class="math inline">\(B\)</span>.</p>
-<p>CCA shows how JEPA can be expanded to cases where <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are different dimensions or modalities. For example, if you wanted to train an embedding on natural text, you could use the preceding 5 words as <span class="math inline">\(X\)</span> and the next word as <span class="math inline">\(Y\)</span>, using the same embedding for both. There’s no need for <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> to have the same size.</p>
 </section>
 </section>
 <section id="conclusion" class="level1">
