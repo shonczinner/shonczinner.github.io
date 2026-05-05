@@ -17,6 +17,9 @@ website:
         href: https://www.linkedin.com/in/shon-czinner-14a258140/
       - icon: rss
         href: index.xml
+  google-analytics:
+    tracking-id: "G-44Q7K7T86R"
+    storage: none
 
 format:
   html:
