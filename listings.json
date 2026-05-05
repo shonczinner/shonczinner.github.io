@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/embedding-prediction/index.html",
       "/posts/small-jepa-language-model/index.html",
       "/posts/sigreg-sketched-isotropic-gaussian-regularization/index.html",
       "/posts/welcome/index.html"

@@ -10,7 +10,106 @@
 <atom:link href="https://shonczinner.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Shon Czinner&#39;s blog about AI, statistics, quantitative finance, economics, and more</description>
 <generator>quarto-1.9.37</generator>
-<lastBuildDate>Thu, 30 Apr 2026 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 04 May 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>The 90-year-old idea behind JEPA models: Canonical Correlation Analysis (CCA)</title>
+  <dc:creator>Shon Czinner</dc:creator>
+  <link>https://shonczinner.github.io/posts/embedding-prediction/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<blockquote class="blockquote">
+<p>Concepts of correlation and regression may be applied not only to ordinary one-dimensional variates but also to variates of two or more dimensions.</p>
+</blockquote>
+<p>This is the first sentence from the paper “Relations Between Two Sets of Variates” <span class="citation" data-cites="hotelling1936">(Hotelling 1936)</span> by statistician and economist Harold Hotelling. This paper introduced Canonical Correlation Analysis (CCA). In modern terminology, “CCA is used to find a common signal among two large matrices” <span class="citation" data-cites="bykhovskaya2025">(Bykhovskaya and Gorin 2025)</span>.</p>
+<p>In JEPA, the objective is the same except the second data matrix happens to be simply a different view of the same data in the first dataset (e.g.&nbsp;via data augmentation or spatial or temporal proximity). One of the recent papers to acknowledge a connection states, “JEPA-based models implicitly perform a non-linear generalization of Canonical Correlation Analysis”. <span class="citation" data-cites="huang2026">(Huang 2026)</span></p>
+<p>CCA’s connection to JEPA is relevant to Schmidhuber’s debate on <a href="https://people.idsia.ch/~juergen/who-invented-jepa.html">who invented JEPA</a>, which is directed at Yann LeCun. Personally, I think Hotelling deserves the credit for the idea of maximizing correlation in embedding space.</p>
+<p>Of course, the CCA model has many differences from JEPA.</p>
+<p>For one, CCA does not enforce a shared encoder. But the biggest difference is that CCA is linear. Non-linear neural variants of CCA have been researched with the earliest usage of the term “Deep CCA” being <span class="citation" data-cites="andrew2013">(Andrew et al. 2013)</span>.</p>
+<p>Connecting JEPA models back to its CCA roots is genuinely useful. Another Deep CCA paper <span class="citation" data-cites="benton2017">(Benton et al. 2017)</span> relaxed the assumption of two sets of variables to an arbitrary number based on a generalization of CCA proposed in 1961 <span class="citation" data-cites="horst1961">(Horst 1961)</span>. Conceivably, JEPAs could be expanded to handle more than two views as well.</p>
+</section>
+<section id="cca-vs.-jepa-overview" class="level1">
+<h1>CCA vs.&nbsp;JEPA Overview</h1>
+<section id="cca" class="level2">
+<h2 class="anchored" data-anchor-id="cca">CCA</h2>
+<p>Suppose we have zero-mean matrices <img src="https://latex.codecogs.com/png.latex?X=(x_1,...,x_n)%5ET%5Cin%20%5Cmathbb%20R%5E%7Bn%5Ctimes%20d_x%7D"> and <img src="https://latex.codecogs.com/png.latex?Y=(y_1,...,y_n)%5ET%5Cin%5Cmathbb%20R%5E%7Bn%5Ctimes%20d_y%7D">.</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?k%5Cleq%20%5Cmin(d_x,d_y,%20n)"> and <img src="https://latex.codecogs.com/png.latex?A%5Cin%20%20%5Cmathbb%20R%5E%7Bd_x%5Ctimes%20k%7D"> and <img src="https://latex.codecogs.com/png.latex?B%5Cin%20%20%5Cmathbb%20R%5E%7Bd_y%5Ctimes%20k%7D"> so that <img src="https://latex.codecogs.com/png.latex?XA=z_x%5Cin%5Cmathbb%20R%5E%7Bn%20%5Ctimes%20k%7D"> and <img src="https://latex.codecogs.com/png.latex?YB=z_y%5Cin%5Cmathbb%20R%5E%7Bn%20%5Ctimes%20k%7D">.</p>
+<p>CCA solves the following maximization problem,</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmax_%7BA,B%7D%20%5Ctext%7Btr%7D%5Cleft(%5Cfrac%7B1%7D%7Bn%7Dz_x%5ETz_y%5Cright)%20"> <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bs.t%7D"> <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7Bn%7Dz_x%5ETz_x=%5Cfrac%7B1%7D%7Bn%7Dz_y%5ETz_y=I"></p>
+<p>This maximizes the trace of the cross-correlation matrix, while constraining embedding vectors to unit variance and zero covariance.</p>
+<p>Similar to the equivalence between maximizing variance and minimizing prediction error in solving PCA, we have a relationship between the trace of the cross-correlation matrix and embedding prediction error,</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bi=1%7D%5En%20%7C%7Cz_x%5E%7B(i)%7D-z_y%5E%7B(i)%7D%7C%7C%5E2=%5Cfrac%7B1%7D%7Bn%7D%7C%7Cz_x-z_y%7C%7C_F%5E2=%20%5Cfrac%7B1%7D%7Bn%7D%5Ctext%7Btr%7D(z_x%5ETz_x)%20+%20%5Cfrac%7B1%7D%7Bn%7D%5Ctext%7Btr%7D(z_y%5ETz_y)%20-%20%5Cfrac%7B2%7D%7Bn%7D%5Ctext%7Btr%7D(z_x%5ETz_y)"> And due to the whitening constraints, <img src="https://latex.codecogs.com/png.latex?=%5Cfrac%7B2k%7D%7Bn%7D-%20%5Cfrac%7B2%7D%7Bn%7D%5Ctext%7Btr%7D(z_x%5ETz_y)"></p>
+<p>So maximizing the trace of the cross-correlation under the whitening constraints is equivalent to minimizing the MSE of the embedding representations. Therefore we can write CCA as,</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmin_%7BA,B%7D%20%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bi=1%7D%5En%20%7C%7Cz_x%5E%7B(i)%7D-z_y%5E%7B(i)%7D%7C%7C%5E2"> <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bs.t%7D"> <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7Bn%7Dz_x%5ETz_x=%5Cfrac%7B1%7D%7Bn%7Dz_y%5ETz_y=I"></p>
+</section>
+<section id="jepa" class="level2">
+<h2 class="anchored" data-anchor-id="jepa">JEPA</h2>
+<p>Adopting the previous notation, JEPA is constrained to <img src="https://latex.codecogs.com/png.latex?d_x=d_y=d"> as a result of the joint-embedding. In JEPA, we have the encoder <img src="https://latex.codecogs.com/png.latex?f_%5Ctheta:%5Cmathbb%20R%5E%7Bd%7D%5Crightarrow%20%5Cmathbb%20R%5Ek">, and predictor <img src="https://latex.codecogs.com/png.latex?g_%5Cvarphi:%5Cmathbb%20R%5E%7Bk%7D%5Crightarrow%20%5Cmathbb%20R%5Ek">.</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?z_x%5E%7B(i)%7D=g_%5Cvarphi(f_%5Ctheta(x_i))">, <img src="https://latex.codecogs.com/png.latex?z_y%5E%7B(i)%7D=f_%5Ctheta(y_i)">.</p>
+<p>Then we solve,</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmin_%7B%5Ctheta,%5Cvarphi%7D%5Cfrac%7B1%7D%7Bn%7D%20%5Csum_%7Bi=1%7D%5En%20%7C%7Cz_x%5E%7B(i)%7D-z_y%5E%7B(i)%7D%7C%7C%5E2"></p>
+<p>Note the similarity in the objective function but the lack of whitening constraints. The lack of whitening constraints results in representational and dimensional collapse. For example, a trivial solution to the above problem is <img src="https://latex.codecogs.com/png.latex?z_x%5E%7B(i)%7D=z_y%5E%7B(i)%7D=c">.</p>
+<p>As discussed in my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">previous blog post</a> SIGReg <span class="citation" data-cites="balestriero2025">(Balestriero and LeCun 2025)</span> fixes this problem. What does it do? It encourages the embeddings <img src="https://latex.codecogs.com/png.latex?z_x"> and <img src="https://latex.codecogs.com/png.latex?z_y"> to have an isotropic (i.e.&nbsp;unit variance, uncorrelated) Gaussian distribution. As a result it encourages,</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7Bn%7Dz_x%5ETz_x=%5Cfrac%7B1%7D%7Bn%7Dz_y%5ETz_y=I"></p>
+</section>
+<section id="connection" class="level2">
+<h2 class="anchored" data-anchor-id="connection">Connection</h2>
+<p>In the case where <img src="https://latex.codecogs.com/png.latex?f"> and <img src="https://latex.codecogs.com/png.latex?g"> are linear, then <img src="https://latex.codecogs.com/png.latex?g%5Ccirc%20f"> is equivalent to <img src="https://latex.codecogs.com/png.latex?A"> and <img src="https://latex.codecogs.com/png.latex?f"> is equivalent to <img src="https://latex.codecogs.com/png.latex?B">.</p>
+<p>CCA shows how JEPA can be expanded to cases where <img src="https://latex.codecogs.com/png.latex?X"> and <img src="https://latex.codecogs.com/png.latex?Y"> are different dimensions or modalities. For example, if you wanted to train an embedding on natural text, you could use the preceding 5 words as <img src="https://latex.codecogs.com/png.latex?X"> and the next word as <img src="https://latex.codecogs.com/png.latex?Y">, using the same embedding for both. There’s no need for <img src="https://latex.codecogs.com/png.latex?X"> and <img src="https://latex.codecogs.com/png.latex?Y"> to have the same size.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>As I mentioned in the introduction, Schmidhuber has debated <a href="https://people.idsia.ch/~juergen/who-invented-jepa.html">who invented JEPA</a> and said this about LeCun,</p>
+<blockquote class="blockquote">
+<p>Dr.&nbsp;LeCun’s heavily promoted Joint Embedding Predictive Architecture (JEPA) is the heart of his new company. However, the core ideas are not original to LeCun. Instead, JEPA is essentially identical to our 1992 Predictability Maximization system.</p>
+</blockquote>
+<p>Schmidhuber references Yann LeCun’s response,</p>
+<blockquote class="blockquote">
+<p>JEPA is merely a name for a general concept. The question is, and has always been, how do you make it work (particularly how do you prevent it from collapsing), and how do you make it work at scale with SOTA results on non-toy problems. That’s the hard part. Ideas are a dime a dozen. Making them work is what the community will give you credit for.</p>
+</blockquote>
+<p>Do I agree with LeCun? Yes and no.</p>
+<p>Yes, because of course you will get credit for making things work, and ideas are indeed arguably “a dime a dozen”.</p>
+<p>No, because the thread of citations is important for progress. If important citations are missed, whether intentionally or not, the correct thing to do is just add them. We’re all only the better for doing so. The connection that JEPA models have to CCA is informative.</p>
+<p>My opinion is that JEPA/Predictability Maximization models are architectural enhancements layered on top of CCA. Non-linearity is an enhancement.</p>
+<p>Ultimately, these models all have the same objective function introduced by CCA: find the transformations that result in maximal correlation between sets of multidimensional data.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-andrew2013" class="csl-entry">
+Andrew, Galen, Raman Arora, Jeff Bilmes, and Karen Livescu. 2013. <span>“Deep Canonical Correlation Analysis.”</span> <em>International Conference on Machine Learning</em>, 1247–55. <a href="https://proceedings.mlr.press/v28/andrew13.html">https://proceedings.mlr.press/v28/andrew13.html</a>.
+</div>
+<div id="ref-balestriero2025" class="csl-entry">
+Balestriero, Randall, and Yann LeCun. 2025. <em>LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics</em>. <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a>.
+</div>
+<div id="ref-benton2017" class="csl-entry">
+Benton, Adrian, Huda Khayrallah, Biman Gujral, Dee Ann Reisinger, Sheng Zhang, and Raman Arora. 2017. <em>Deep Generalized Canonical Correlation Analysis</em>. <a href="https://arxiv.org/abs/1702.02519">https://arxiv.org/abs/1702.02519</a>.
+</div>
+<div id="ref-bykhovskaya2025" class="csl-entry">
+Bykhovskaya, Anna, and Vadim Gorin. 2025. <em>Canonical Correlation Analysis: Review</em>. <a href="https://arxiv.org/abs/2411.15625">https://arxiv.org/abs/2411.15625</a>.
+</div>
+<div id="ref-horst1961" class="csl-entry">
+Horst, Paul. 1961. <em>Generalized Canonical Correlations and Their Application to Experimental Data</em>. Journal of clinical psychology.
+</div>
+<div id="ref-hotelling1936" class="csl-entry">
+Hotelling, Harold. 1936. <span>“Relations Between Two Sets of Variates.”</span> <em>Biometrika</em> 28 (3/4): 321–77. <a href="http://www.jstor.org/stable/2333955">http://www.jstor.org/stable/2333955</a>.
+</div>
+<div id="ref-huang2026" class="csl-entry">
+Huang, Yongchao. 2026. <em>VJEPA: Variational Joint Embedding Predictive Architectures as Probabilistic World Models</em>. <a href="https://arxiv.org/abs/2601.14354">https://arxiv.org/abs/2601.14354</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>ai</category>
+  <category>jepa</category>
+  <guid>https://shonczinner.github.io/posts/embedding-prediction/</guid>
+  <pubDate>Mon, 04 May 2026 00:00:00 GMT</pubDate>
+</item>
 <item>
   <title>A Small JEPA Word Embedding Model</title>
   <dc:creator>Shon Czinner</dc:creator>

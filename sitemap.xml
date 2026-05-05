@@ -2,22 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://shonczinner.github.io/index.html</loc>
-    <lastmod>2026-05-03T04:43:38.998Z</lastmod>
+    <lastmod>2026-05-05T01:40:05.040Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/sigreg-sketched-isotropic-gaussian-regularization/index.html</loc>
-    <lastmod>2026-05-03T04:43:39.004Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/welcome/index.html</loc>
-    <lastmod>2026-05-03T04:43:39.006Z</lastmod>
+    <lastmod>2026-05-05T01:40:05.047Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/small-jepa-language-model/index.html</loc>
-    <lastmod>2026-05-03T04:43:39.006Z</lastmod>
+    <lastmod>2026-05-05T01:40:05.048Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/welcome/index.html</loc>
+    <lastmod>2026-05-05T01:40:05.048Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/embedding-prediction/index.html</loc>
+    <lastmod>2026-05-05T01:40:05.041Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/about.html</loc>
-    <lastmod>2026-05-03T04:43:38.998Z</lastmod>
+    <lastmod>2026-05-05T01:40:05.040Z</lastmod>
   </url>
 </urlset>
