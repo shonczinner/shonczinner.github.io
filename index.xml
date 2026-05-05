@@ -109,6 +109,7 @@ Huang, Yongchao. 2026. <em>VJEPA: Variational Joint Embedding Predictive Archite
   <category>jepa</category>
   <guid>https://shonczinner.github.io/posts/embedding-prediction/</guid>
   <pubDate>Mon, 04 May 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://shonczinner.github.io/posts/embedding-prediction/noisy_matrix_with_marginals.png" medium="image" type="image/png" height="146" width="144"/>
 </item>
 <item>
   <title>A Small JEPA Word Embedding Model</title>
