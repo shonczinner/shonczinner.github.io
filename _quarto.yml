@@ -19,7 +19,7 @@ website:
         href: index.xml
   google-analytics:
     tracking-id: "G-44Q7K7T86R"
-    storage: none
+    anonymize-ip: true
 
 format:
   html:
