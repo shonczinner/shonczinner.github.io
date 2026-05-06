@@ -7,7 +7,7 @@ execute:
 website:
   description: "Shon Czinner's blog about AI, statistics, quantitative finance, economics, and more"
   site-url: https://shonczinner.github.io/
-  title: "Home"
+  title: "Home of Shon Czinner's Blog"
   navbar:
     right:
       - about.qmd
