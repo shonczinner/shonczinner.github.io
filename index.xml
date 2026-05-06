@@ -5,7 +5,7 @@
       xmlns:dc="http://purl.org/dc/elements/1.1/" 
       version="2.0">
 <channel>
-<title>Home</title>
+<title>Home of Shon Czinner&#39;s Blog</title>
 <link>https://shonczinner.github.io/</link>
 <atom:link href="https://shonczinner.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Shon Czinner&#39;s blog about AI, statistics, quantitative finance, economics, and more</description>
