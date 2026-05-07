@@ -5,9 +5,20 @@ execute:
   freeze: true
 
 website:
+  title: "Shon Czinner's Blog"
+
   description: "Shon Czinner's blog about AI, statistics, quantitative finance, economics, and more"
-  site-url: https://shonczinner.github.io/
-  title: "Home of Shon Czinner's Blog"
+
+  site-url: "https://shonczinner.github.io/"
+
+  favicon: favicon.png
+
+  open-graph:
+    site-name: "Shon Czinner's Blog"
+    locale: en_CA
+
+  twitter-card: true
+
   navbar:
     right:
       - about.qmd
@@ -17,6 +28,7 @@ website:
         href: https://www.linkedin.com/in/shon-czinner-14a258140/
       - icon: rss
         href: index.xml
+
   google-analytics:
     tracking-id: "G-44Q7K7T86R"
     anonymize-ip: true
@@ -24,9 +36,7 @@ website:
 format:
   html:
     theme:
-      - cosmo
-      - brand
+      light: cosmo
     css: styles.css
-
-
-
+    include-in-header:
+      - includes/schema.html
