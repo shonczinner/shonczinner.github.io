@@ -5,10 +5,15 @@
       xmlns:dc="http://purl.org/dc/elements/1.1/" 
       version="2.0">
 <channel>
-<title>Home of Shon Czinner&#39;s Blog</title>
+<title>Shon Czinner&#39;s Blog</title>
 <link>https://shonczinner.github.io/</link>
 <atom:link href="https://shonczinner.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Shon Czinner&#39;s blog about AI, statistics, quantitative finance, economics, and more</description>
+<image>
+<url>https://shonczinner.github.io/profile.jpg</url>
+<title>Shon Czinner&#39;s Blog</title>
+<link>https://shonczinner.github.io/</link>
+</image>
 <generator>quarto-1.9.37</generator>
 <lastBuildDate>Mon, 04 May 2026 00:00:00 GMT</lastBuildDate>
 <item>
