@@ -1,0 +1,75 @@
+<div id="ai-widget" style="padding: 20px; border: 1px solid #ddd; border-radius: 10px; background: #fff; max-width: 400px; margin: 10px auto; font-family: system-ui, -apple-system, sans-serif;">
+    <h4 style="margin-top: 0;">MyModel Inference</h4>
+    
+    <div id="status-light" style="font-size: 0.85em; margin-bottom: 15px;">
+        <span style="height: 10px; width: 10px; background-color: #bbb; border-radius: 50%; display: inline-block; margin-right: 5px;"></span>
+        Status: <span id="status-text">Initializing...</span>
+    </div>
+
+    <div style="display: flex; gap: 10px; flex-direction: column;">
+        <button id="run-inference" style="padding: 10px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px;" disabled>
+            Predict from Random Input
+        </button>
+        <div id="prediction-output" style="padding: 10px; background: #f8f9fa; border-radius: 5px; font-weight: bold; text-align: center; min-height: 20px;">
+            --
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/ort.min.js"></script>
+
+<script type="module">
+    // Configure WASM
+    ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/";
+
+    let session;
+    const statusText = document.getElementById('status-text');
+    const statusLight = document.getElementById('status-light').children[0];
+    const predictBtn = document.getElementById('run-inference');
+    const outputDiv = document.getElementById('prediction-output');
+
+    async function init() {
+        try {
+            // Using the External Data logic from the docs you found
+            session = await ort.InferenceSession.create('./model.onnx', {
+                executionProviders: ['wasm'],
+                externalData: [
+                    {
+                        path: 'model.onnx.data',
+                        data: './model.onnx.data'
+                    }
+                ]
+            });
+
+            statusText.innerText = "Ready";
+            statusLight.style.backgroundColor = "#28a745";
+            predictBtn.disabled = false;
+        } catch (e) {
+            statusText.innerText = "Error loading model";
+            statusLight.style.backgroundColor = "#dc3545";
+            console.error(e);
+        }
+    }
+
+    async function run() {
+        try {
+            // MyModel expects FLOAT, [1, 10]
+            const inputData = Float32Array.from({length: 10}, () => Math.random() * 2 - 1);
+            const inputTensor = new ort.Tensor('float32', inputData, [1, 10]);
+
+            // Feed key 'x' matches the input name in your Python graph
+            const results = await session.run({ x: inputTensor });
+            
+            // Output name 'linear_1' matches your Python graph output
+            const resultValue = results.linear_1.data[0];
+            
+            outputDiv.innerText = `Result: ${resultValue.toFixed(6)}`;
+        } catch (e) {
+            outputDiv.innerText = "Inference failed";
+            console.error(e);
+        }
+    }
+
+    predictBtn.onclick = run;
+    init();
+</script>
