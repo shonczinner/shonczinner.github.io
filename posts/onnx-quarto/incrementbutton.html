@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div style="padding: 20px; border: 1px solid #ccc; border-radius: 5px;">
+        <h3>Counter: <span id="count">0</span></h3>
+        <button onclick="increment()">Click Me!</button>
+    </div>
+
+    <script>
+        let count = 0;
+        function increment() {
+            count++;
+            document.getElementById('count').innerText = count;
+        }
+    </script>
+</body>
+</html>
