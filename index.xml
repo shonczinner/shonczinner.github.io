@@ -41,7 +41,7 @@
 <h1>Python Code</h1>
 <section id="imports-and-model" class="level2">
 <h2 class="anchored" data-anchor-id="imports-and-model">Imports and Model</h2>
-<div id="c761e87c" class="cell" data-execution_count="55">
+<div id="c761e87c" class="cell" data-execution_count="16">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
@@ -136,7 +136,7 @@ font-style: inherit;">return</span> x</span></code></pre></div></div>
 </section>
 <section id="export-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="export-the-model">Export the model</h2>
-<div id="938c3afd" class="cell" data-execution_count="56">
+<div id="938c3afd" class="cell" data-execution_count="17">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1">model <span class="op" style="color: #5E5E5E;
@@ -147,13 +147,35 @@ background-color: null;
 font-style: inherit;">eval</span>()  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Set the model to evaluation mode</span></span>
-<span id="cb3-3">torch.onnx.export(model, torch.randn(<span class="dv" style="color: #AD0000;
+<span id="cb3-3"></span>
+<span id="cb3-4">INPUT_NAME <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"input_features"</span></span>
+<span id="cb3-5">OUTPUT_NAME <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"prediction"</span></span>
+<span id="cb3-6">INPUT_SHAPE <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">10</span>), <span class="st" style="color: #20794D;
+font-style: inherit;">10</span>)</span>
+<span id="cb3-7"></span>
+<span id="cb3-8">torch.onnx.export(model, torch.randn(<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">"model.onnx"</span>,opset_version<span class="op" style="color: #5E5E5E;
+font-style: inherit;">*</span>INPUT_SHAPE),<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model.onnx"</span>,</span>
+<span id="cb3-9">                  input_names<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[INPUT_NAME], output_names<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[OUTPUT_NAME], opset_version<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
@@ -175,7 +197,7 @@ font-style: inherit;">;</span></span></code></pre></div></div>
 </section>
 <section id="test-model-in-python" class="level2">
 <h2 class="anchored" data-anchor-id="test-model-in-python">Test Model in Python</h2>
-<div id="fb55c438" class="cell" data-execution_count="57">
+<div id="fb55c438" class="cell" data-execution_count="18">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="kw" style="color: #003B4F;
@@ -193,31 +215,57 @@ font-style: inherit;">=</span> ort.InferenceSession(<span class="st" style="colo
 background-color: null;
 font-style: inherit;">"model.onnx"</span>)</span>
 <span id="cb5-5"></span>
-<span id="cb5-6">x <span class="op" style="color: #5E5E5E;
+<span id="cb5-6"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> torch.randn(<span class="dv" style="color: #AD0000;
+font-style: inherit;"># Create a test input using the same shape we defined earlier</span></span>
+<span id="cb5-7">x <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+font-style: inherit;">=</span> torch.randn(<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">10</span>)</span>
-<span id="cb5-7">ort_inputs <span class="op" style="color: #5E5E5E;
+font-style: inherit;">*</span>INPUT_SHAPE)</span>
+<span id="cb5-8"></span>
+<span id="cb5-9"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> {ort_session.get_inputs()[<span class="dv" style="color: #AD0000;
+font-style: inherit;"># Initialize the session</span></span>
+<span id="cb5-10">ort_session <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">0</span>].name: to_numpy(x)}</span>
-<span id="cb5-8">ort_outs <span class="op" style="color: #5E5E5E;
+font-style: inherit;">=</span> ort.InferenceSession(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model.onnx"</span>)</span>
+<span id="cb5-11"></span>
+<span id="cb5-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the explicit name we assigned during export</span></span>
+<span id="cb5-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># This replaces: ort_session.get_inputs()[0].name</span></span>
+<span id="cb5-14">ort_inputs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {INPUT_NAME: to_numpy(x)}</span>
+<span id="cb5-15"></span>
+<span id="cb5-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Run the model</span></span>
+<span id="cb5-17">ort_outs <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> ort_session.run(<span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">None</span>, ort_inputs)</span>
-<span id="cb5-9"><span class="bu" style="color: null;
+<span id="cb5-18"></span>
+<span id="cb5-19"><span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"ONNX Runtime output:"</span>, ort_outs)</span></code></pre></div></div>
+font-style: inherit;">f"ONNX Runtime output (</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>OUTPUT_NAME<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">):"</span>, ort_outs)</span></code></pre></div></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ONNX Runtime output: [array([[-0.2114761]], dtype=float32)]</code></pre>
+<pre><code>ONNX Runtime output (prediction): [array([[0.47290263]], dtype=float32)]</code></pre>
 </div>
 </div>
 </section>
@@ -226,7 +274,7 @@ font-style: inherit;">"ONNX Runtime output:"</span>, ort_outs)</span></code></pr
 <h1>HTML and Javascript Code</h1>
 <section id="example-of-html-and-javascript" class="level2">
 <h2 class="anchored" data-anchor-id="example-of-html-and-javascript">Example of HTML and Javascript</h2>
-<div id="05e77bb0" class="cell" data-execution_count="58">
+<div id="05e77bb0" class="cell" data-execution_count="19">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="im" style="color: #00769E;
@@ -439,7 +487,7 @@ background-color: null;
 font-style: inherit;">&gt;</span></span></code></pre></div></div>
 </div>
 </div>
-<div id="7f1c54fd" class="cell" data-execution_count="59">
+<div id="7f1c54fd" class="cell" data-execution_count="20">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">display(HTML(raw_code))</span></code></pre></div></div>
@@ -467,7 +515,7 @@ font-style: inherit;">&gt;</span></span></code></pre></div></div>
 </section>
 <section id="loading-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="loading-the-model">Loading The Model</h2>
-<div id="0729d2df" class="cell" data-execution_count="60">
+<div id="0729d2df" class="cell" data-execution_count="21">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="cf" style="color: #003B4F;
@@ -705,8 +753,7 @@ font-weight: bold;
 font-style: inherit;">div</span><span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">&gt;</span></span>
-<span id="cb11-18"></span>
-<span id="cb11-19"><span class="dt" style="color: #AD0000;
+<span id="cb11-18"><span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">&lt;</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -725,8 +772,7 @@ font-weight: bold;
 font-style: inherit;">script</span><span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">&gt;</span></span>
-<span id="cb11-20"></span>
-<span id="cb11-21"><span class="dt" style="color: #AD0000;
+<span id="cb11-19"><span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">&lt;</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -738,10 +784,10 @@ background-color: null;
 font-style: inherit;">"module"</span><span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">&gt;</span></span>
-<span id="cb11-22">    <span class="co" style="color: #5E5E5E;
+<span id="cb11-20">    <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">// Configure WASM</span></span>
-<span id="cb11-23">    ort<span class="op" style="color: #5E5E5E;
+font-style: inherit;">// 1. Version and WASM Configuration</span></span>
+<span id="cb11-21">    ort<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -760,14 +806,91 @@ background-color: null;
 font-style: inherit;">"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-24"></span>
-<span id="cb11-25">    <span class="kw" style="color: #003B4F;
+<span id="cb11-22"></span>
+<span id="cb11-23">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// 2. Model Configuration (Matches your Python Export variables)</span></span>
+<span id="cb11-24">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> CONFIG <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb11-25">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">modelPath</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'./model.onnx'</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-26">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">externalDataPath</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'model.onnx.data'</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-27">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">inputName</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'input_features'</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Matches INPUT_NAME in Python</span></span>
+<span id="cb11-28">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">outputName</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'prediction'</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span>    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Matches OUTPUT_NAME in Python</span></span>
+<span id="cb11-29">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">inputShape</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> [<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span>         <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Matches INPUT_SHAPE in Python</span></span>
+<span id="cb11-30">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">inputSize</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Total elements (1 * 10)</span></span>
+<span id="cb11-31">    }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb11-32"></span>
+<span id="cb11-33">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">let</span> session<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-26">    <span class="kw" style="color: #003B4F;
+<span id="cb11-34">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">const</span> statusText <span class="op" style="color: #5E5E5E;
@@ -783,7 +906,7 @@ background-color: null;
 font-style: inherit;">'status-text'</span>)<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-27">    <span class="kw" style="color: #003B4F;
+<span id="cb11-35">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">const</span> statusLight <span class="op" style="color: #5E5E5E;
@@ -805,7 +928,7 @@ background-color: null;
 font-style: inherit;">0</span>]<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-28">    <span class="kw" style="color: #003B4F;
+<span id="cb11-36">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">const</span> predictBtn <span class="op" style="color: #5E5E5E;
@@ -821,7 +944,7 @@ background-color: null;
 font-style: inherit;">'run-inference'</span>)<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-29">    <span class="kw" style="color: #003B4F;
+<span id="cb11-37">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">const</span> outputDiv <span class="op" style="color: #5E5E5E;
@@ -837,8 +960,8 @@ background-color: null;
 font-style: inherit;">'prediction-output'</span>)<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-30"></span>
-<span id="cb11-31">    <span class="kw" style="color: #003B4F;
+<span id="cb11-38"></span>
+<span id="cb11-39">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">async</span> <span class="kw" style="color: #003B4F;
@@ -847,14 +970,14 @@ font-weight: bold;
 font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">init</span>() {</span>
-<span id="cb11-32">        <span class="cf" style="color: #003B4F;
+<span id="cb11-40">        <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">try</span> {</span>
-<span id="cb11-33">            <span class="co" style="color: #5E5E5E;
+<span id="cb11-41">            <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">// Using the External Data logic from the docs you found</span></span>
-<span id="cb11-34">            session <span class="op" style="color: #5E5E5E;
+font-style: inherit;">// Using the External Data logic with variables</span></span>
+<span id="cb11-42">            session <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -867,12 +990,14 @@ font-style: inherit;">InferenceSession</span><span class="op" style="color: #5E5
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">create</span>(<span class="st" style="color: #20794D;
+font-style: inherit;">create</span>(CONFIG<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">'./model.onnx'</span><span class="op" style="color: #5E5E5E;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">modelPath</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span> {</span>
-<span id="cb11-35">                <span class="dt" style="color: #AD0000;
+<span id="cb11-43">                <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">executionProviders</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -881,35 +1006,47 @@ background-color: null;
 font-style: inherit;">'wasm'</span>]<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb11-36">                <span class="dt" style="color: #AD0000;
+<span id="cb11-44">                <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">externalData</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> [</span>
-<span id="cb11-37">                    {</span>
-<span id="cb11-38">                        <span class="dt" style="color: #AD0000;
+<span id="cb11-45">                    {</span>
+<span id="cb11-46">                        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">path</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+font-style: inherit;">:</span> CONFIG<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">'model.onnx.data'</span><span class="op" style="color: #5E5E5E;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">externalDataPath</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb11-39">                        <span class="dt" style="color: #AD0000;
+<span id="cb11-47">                        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">data</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+font-style: inherit;">:</span> <span class="vs" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'./model.onnx.data'</span></span>
-<span id="cb11-40">                    }</span>
-<span id="cb11-41">                ]</span>
-<span id="cb11-42">            })<span class="op" style="color: #5E5E5E;
+font-style: inherit;">`./</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>CONFIG<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">externalDataPath</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span></span>
+<span id="cb11-48">                    }</span>
+<span id="cb11-49">                ]</span>
+<span id="cb11-50">            })<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-43"></span>
-<span id="cb11-44">            statusText<span class="op" style="color: #5E5E5E;
+<span id="cb11-51"></span>
+<span id="cb11-52">            statusText<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -920,7 +1057,7 @@ background-color: null;
 font-style: inherit;">"Ready"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-45">            statusLight<span class="op" style="color: #5E5E5E;
+<span id="cb11-53">            statusLight<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -935,7 +1072,7 @@ background-color: null;
 font-style: inherit;">"#28a745"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-46">            predictBtn<span class="op" style="color: #5E5E5E;
+<span id="cb11-54">            predictBtn<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -947,11 +1084,11 @@ font-weight: bold;
 font-style: inherit;">false</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-47">        } <span class="cf" style="color: #003B4F;
+<span id="cb11-55">        } <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">catch</span> (e) {</span>
-<span id="cb11-48">            statusText<span class="op" style="color: #5E5E5E;
+<span id="cb11-56">            statusText<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -962,7 +1099,7 @@ background-color: null;
 font-style: inherit;">"Error loading model"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-49">            statusLight<span class="op" style="color: #5E5E5E;
+<span id="cb11-57">            statusLight<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -977,7 +1114,7 @@ background-color: null;
 font-style: inherit;">"#dc3545"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-50">            <span class="bu" style="color: null;
+<span id="cb11-58">            <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">console</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -986,10 +1123,10 @@ background-color: null;
 font-style: inherit;">error</span>(e)<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-51">        }</span>
-<span id="cb11-52">    }</span>
-<span id="cb11-53"></span>
-<span id="cb11-54">    <span class="kw" style="color: #003B4F;
+<span id="cb11-59">        }</span>
+<span id="cb11-60">    }</span>
+<span id="cb11-61"></span>
+<span id="cb11-62">    <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">async</span> <span class="kw" style="color: #003B4F;
@@ -998,14 +1135,14 @@ font-weight: bold;
 font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">run</span>() {</span>
-<span id="cb11-55">        <span class="cf" style="color: #003B4F;
+<span id="cb11-63">        <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">try</span> {</span>
-<span id="cb11-56">            <span class="co" style="color: #5E5E5E;
+<span id="cb11-64">            <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">// MyModel expects FLOAT, [1, 10]</span></span>
-<span id="cb11-57">            <span class="kw" style="color: #003B4F;
+font-style: inherit;">// Use CONFIG.inputSize instead of a magic number 10</span></span>
+<span id="cb11-65">            <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">const</span> inputData <span class="op" style="color: #5E5E5E;
@@ -1016,15 +1153,19 @@ font-style: inherit;">Float32Array</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">from</span>({<span class="dt" style="color: #AD0000;
+font-style: inherit;">from</span>(</span>
+<span id="cb11-66">                { <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+font-style: inherit;">:</span> CONFIG<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">10</span>}<span class="op" style="color: #5E5E5E;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">,</span> () <span class="kw" style="color: #003B4F;
+font-style: inherit;">inputSize</span> }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> </span>
+<span id="cb11-67">                () <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">=&gt;</span> <span class="bu" style="color: null;
@@ -1041,10 +1182,15 @@ font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
+font-style: inherit;">1</span></span>
+<span id="cb11-68">            )<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-58">            <span class="kw" style="color: #003B4F;
+<span id="cb11-69">            </span>
+<span id="cb11-70">            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Use CONFIG.inputShape</span></span>
+<span id="cb11-71">            <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">const</span> inputTensor <span class="op" style="color: #5E5E5E;
@@ -1062,20 +1208,32 @@ font-style: inherit;">'float32'</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span> inputData<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">,</span> [<span class="dv" style="color: #AD0000;
+font-style: inherit;">,</span> CONFIG<span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>])<span class="op" style="color: #5E5E5E;
+font-style: inherit;">inputShape</span>)<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-59"></span>
-<span id="cb11-60">            <span class="co" style="color: #5E5E5E;
+<span id="cb11-72"></span>
+<span id="cb11-73">            <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">// Feed key 'x' matches the input name in your Python graph</span></span>
-<span id="cb11-61">            <span class="kw" style="color: #003B4F;
+font-style: inherit;">// Use CONFIG.inputName and CONFIG.outputName</span></span>
+<span id="cb11-74">            <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> feeds <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> { [CONFIG<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inputName</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> inputTensor }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb11-75">            <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">const</span> results <span class="op" style="color: #5E5E5E;
@@ -1087,27 +1245,20 @@ font-style: inherit;">await</span> session<span class="op" style="color: #5E5E5E
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">run</span>({ <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> inputTensor })<span class="op" style="color: #5E5E5E;
+font-style: inherit;">run</span>(feeds)<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-62">            </span>
-<span id="cb11-63">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">// Output name 'linear_1' matches your Python graph output</span></span>
-<span id="cb11-64">            <span class="kw" style="color: #003B4F;
+<span id="cb11-76">            </span>
+<span id="cb11-77">            <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">const</span> resultValue <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> results<span class="op" style="color: #5E5E5E;
+font-style: inherit;">=</span> results[CONFIG<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">linear_1</span><span class="op" style="color: #5E5E5E;
+font-style: inherit;">outputName</span>]<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -1116,8 +1267,8 @@ background-color: null;
 font-style: inherit;">0</span>]<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-65">            </span>
-<span id="cb11-66">            outputDiv<span class="op" style="color: #5E5E5E;
+<span id="cb11-78">            </span>
+<span id="cb11-79">            outputDiv<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -1140,11 +1291,11 @@ background-color: null;
 font-style: inherit;">`</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-67">        } <span class="cf" style="color: #003B4F;
+<span id="cb11-80">        } <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">catch</span> (e) {</span>
-<span id="cb11-68">            outputDiv<span class="op" style="color: #5E5E5E;
+<span id="cb11-81">            outputDiv<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -1155,7 +1306,7 @@ background-color: null;
 font-style: inherit;">"Inference failed"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-69">            <span class="bu" style="color: null;
+<span id="cb11-82">            <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">console</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -1164,10 +1315,10 @@ background-color: null;
 font-style: inherit;">error</span>(e)<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-70">        }</span>
-<span id="cb11-71">    }</span>
-<span id="cb11-72"></span>
-<span id="cb11-73">    predictBtn<span class="op" style="color: #5E5E5E;
+<span id="cb11-83">        }</span>
+<span id="cb11-84">    }</span>
+<span id="cb11-85"></span>
+<span id="cb11-86">    predictBtn<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="at" style="color: #657422;
 background-color: null;
@@ -1176,12 +1327,12 @@ background-color: null;
 font-style: inherit;">=</span> run<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-74">    <span class="fu" style="color: #4758AB;
+<span id="cb11-87">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">init</span>()<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">;</span></span>
-<span id="cb11-75"><span class="dt" style="color: #AD0000;
+<span id="cb11-88"><span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">&lt;/</span><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -1191,7 +1342,7 @@ background-color: null;
 font-style: inherit;">&gt;</span></span></code></pre></div></div>
 </div>
 </div>
-<div id="06b6fb29" class="cell" data-execution_count="61">
+<div id="06b6fb29" class="cell" data-execution_count="22">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1">display(HTML(model_code))</span></code></pre></div></div>
@@ -1214,12 +1365,20 @@ font-style: inherit;">&gt;</span></span></code></pre></div></div>
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/ort.min.js"></script>
-
 <script type="module">
-    // Configure WASM
+    // 1. Version and WASM Configuration
     ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/";
+
+    // 2. Model Configuration (Matches your Python Export variables)
+    const CONFIG = {
+        modelPath: './model.onnx',
+        externalDataPath: 'model.onnx.data',
+        inputName: 'input_features', // Matches INPUT_NAME in Python
+        outputName: 'prediction',    // Matches OUTPUT_NAME in Python
+        inputShape: [1, 10],         // Matches INPUT_SHAPE in Python
+        inputSize: 10                // Total elements (1 * 10)
+    };
 
     let session;
     const statusText = document.getElementById('status-text');
@@ -1229,13 +1388,13 @@ font-style: inherit;">&gt;</span></span></code></pre></div></div>
 
     async function init() {
         try {
-            // Using the External Data logic from the docs you found
-            session = await ort.InferenceSession.create('./model.onnx', {
+            // Using the External Data logic with variables
+            session = await ort.InferenceSession.create(CONFIG.modelPath, {
                 executionProviders: ['wasm'],
                 externalData: [
                     {
-                        path: 'model.onnx.data',
-                        data: './model.onnx.data'
+                        path: CONFIG.externalDataPath,
+                        data: `./${CONFIG.externalDataPath}`
                     }
                 ]
             });
@@ -1252,15 +1411,20 @@ font-style: inherit;">&gt;</span></span></code></pre></div></div>
 
     async function run() {
         try {
-            // MyModel expects FLOAT, [1, 10]
-            const inputData = Float32Array.from({length: 10}, () => Math.random() * 2 - 1);
-            const inputTensor = new ort.Tensor('float32', inputData, [1, 10]);
-
-            // Feed key 'x' matches the input name in your Python graph
-            const results = await session.run({ x: inputTensor });
+            // Use CONFIG.inputSize instead of a magic number 10
+            const inputData = Float32Array.from(
+                { length: CONFIG.inputSize }, 
+                () => Math.random() * 2 - 1
+            );
             
-            // Output name 'linear_1' matches your Python graph output
-            const resultValue = results.linear_1.data[0];
+            // Use CONFIG.inputShape
+            const inputTensor = new ort.Tensor('float32', inputData, CONFIG.inputShape);
+
+            // Use CONFIG.inputName and CONFIG.outputName
+            const feeds = { [CONFIG.inputName]: inputTensor };
+            const results = await session.run(feeds);
+            
+            const resultValue = results[CONFIG.outputName].data[0];
             
             outputDiv.innerText = `Result: ${resultValue.toFixed(6)}`;
         } catch (e) {

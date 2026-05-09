@@ -250,7 +250,7 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 <h1>Python Code</h1>
 <section id="imports-and-model" class="level2">
 <h2 class="anchored" data-anchor-id="imports-and-model">Imports and Model</h2>
-<div id="c761e87c" class="cell" data-execution_count="55">
+<div id="c761e87c" class="cell" data-execution_count="16">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -275,12 +275,18 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 </section>
 <section id="export-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="export-the-model">Export the model</h2>
-<div id="938c3afd" class="cell" data-execution_count="56">
+<div id="938c3afd" class="cell" data-execution_count="17">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> MyModel()  </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>model.<span class="bu">eval</span>()  <span class="co"># Set the model to evaluation mode</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>torch.onnx.export(model, torch.randn(<span class="dv">1</span>, <span class="dv">10</span>), <span class="st">"model.onnx"</span>,opset_version<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>INPUT_NAME <span class="op">=</span> <span class="st">"input_features"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>OUTPUT_NAME <span class="op">=</span> <span class="st">"prediction"</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>INPUT_SHAPE <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">10</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>torch.onnx.export(model, torch.randn(<span class="op">*</span>INPUT_SHAPE),<span class="st">"model.onnx"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                  input_names<span class="op">=</span>[INPUT_NAME], output_names<span class="op">=</span>[OUTPUT_NAME], opset_version<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[torch.onnx] Obtain model graph for `MyModel([...]` with `torch.export.export(..., strict=False)`...
@@ -296,7 +302,7 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 </section>
 <section id="test-model-in-python" class="level2">
 <h2 class="anchored" data-anchor-id="test-model-in-python">Test Model in Python</h2>
-<div id="fb55c438" class="cell" data-execution_count="57">
+<div id="fb55c438" class="cell" data-execution_count="18">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> to_numpy(tensor):</span>
@@ -304,13 +310,23 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ort_session <span class="op">=</span> ort.InferenceSession(<span class="st">"model.onnx"</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="dv">1</span>, <span class="dv">10</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>ort_inputs <span class="op">=</span> {ort_session.get_inputs()[<span class="dv">0</span>].name: to_numpy(x)}</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>ort_outs <span class="op">=</span> ort_session.run(<span class="va">None</span>, ort_inputs)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ONNX Runtime output:"</span>, ort_outs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a test input using the same shape we defined earlier</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="op">*</span>INPUT_SHAPE)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the session</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>ort_session <span class="op">=</span> ort.InferenceSession(<span class="st">"model.onnx"</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the explicit name we assigned during export</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># This replaces: ort_session.get_inputs()[0].name</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>ort_inputs <span class="op">=</span> {INPUT_NAME: to_numpy(x)}</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the model</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>ort_outs <span class="op">=</span> ort_session.run(<span class="va">None</span>, ort_inputs)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"ONNX Runtime output (</span><span class="sc">{</span>OUTPUT_NAME<span class="sc">}</span><span class="ss">):"</span>, ort_outs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ONNX Runtime output: [array([[-0.2114761]], dtype=float32)]</code></pre>
+<pre><code>ONNX Runtime output (prediction): [array([[0.47290263]], dtype=float32)]</code></pre>
 </div>
 </div>
 </section>
@@ -319,7 +335,7 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 <h1>HTML and Javascript Code</h1>
 <section id="example-of-html-and-javascript" class="level2">
 <h2 class="anchored" data-anchor-id="example-of-html-and-javascript">Example of HTML and Javascript</h2>
-<div id="05e77bb0" class="cell" data-execution_count="58">
+<div id="05e77bb0" class="cell" data-execution_count="19">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown,HTML</span>
@@ -351,7 +367,7 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<div id="7f1c54fd" class="cell" data-execution_count="59">
+<div id="7f1c54fd" class="cell" data-execution_count="20">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>display(HTML(raw_code))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -379,7 +395,7 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 </section>
 <section id="loading-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="loading-the-model">Loading The Model</h2>
-<div id="0729d2df" class="cell" data-execution_count="60">
+<div id="0729d2df" class="cell" data-execution_count="21">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"loadmodel.html"</span>, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
@@ -406,67 +422,80 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
 <span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/ort.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> type=</span><span class="st">"module"</span><span class="dt">&gt;</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure WASM</span></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    ort<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="at">wasm</span><span class="op">.</span><span class="at">wasmPaths</span> <span class="op">=</span> <span class="st">"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/"</span><span class="op">;</span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> session<span class="op">;</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> statusText <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'status-text'</span>)<span class="op">;</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> statusLight <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'status-light'</span>)<span class="op">.</span><span class="at">children</span>[<span class="dv">0</span>]<span class="op">;</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> predictBtn <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'run-inference'</span>)<span class="op">;</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> outputDiv <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'prediction-output'</span>)<span class="op">;</span></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">function</span> <span class="fu">init</span>() {</span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> {</span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Using the External Data logic from the docs you found</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>            session <span class="op">=</span> <span class="cf">await</span> ort<span class="op">.</span><span class="at">InferenceSession</span><span class="op">.</span><span class="fu">create</span>(<span class="st">'./model.onnx'</span><span class="op">,</span> {</span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>                <span class="dt">executionProviders</span><span class="op">:</span> [<span class="st">'wasm'</span>]<span class="op">,</span></span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>                <span class="dt">externalData</span><span class="op">:</span> [</span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>                    {</span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">path</span><span class="op">:</span> <span class="st">'model.onnx.data'</span><span class="op">,</span></span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">data</span><span class="op">:</span> <span class="st">'./model.onnx.data'</span></span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>                    }</span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>                ]</span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>            })<span class="op">;</span></span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>            statusText<span class="op">.</span><span class="at">innerText</span> <span class="op">=</span> <span class="st">"Ready"</span><span class="op">;</span></span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>            statusLight<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">backgroundColor</span> <span class="op">=</span> <span class="st">"#28a745"</span><span class="op">;</span></span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>            predictBtn<span class="op">.</span><span class="at">disabled</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">catch</span> (e) {</span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>            statusText<span class="op">.</span><span class="at">innerText</span> <span class="op">=</span> <span class="st">"Error loading model"</span><span class="op">;</span></span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>            statusLight<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">backgroundColor</span> <span class="op">=</span> <span class="st">"#dc3545"</span><span class="op">;</span></span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>            <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(e)<span class="op">;</span></span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">function</span> <span class="fu">run</span>() {</span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> {</span>
-<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>            <span class="co">// MyModel expects FLOAT, [1, 10]</span></span>
-<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> inputData <span class="op">=</span> <span class="bu">Float32Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> <span class="dv">10</span>}<span class="op">,</span> () <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">*</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span>)<span class="op">;</span></span>
-<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> inputTensor <span class="op">=</span> <span class="kw">new</span> ort<span class="op">.</span><span class="fu">Tensor</span>(<span class="st">'float32'</span><span class="op">,</span> inputData<span class="op">,</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">10</span>])<span class="op">;</span></span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Feed key 'x' matches the input name in your Python graph</span></span>
-<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> results <span class="op">=</span> <span class="cf">await</span> session<span class="op">.</span><span class="fu">run</span>({ <span class="dt">x</span><span class="op">:</span> inputTensor })<span class="op">;</span></span>
-<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Output name 'linear_1' matches your Python graph output</span></span>
-<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> resultValue <span class="op">=</span> results<span class="op">.</span><span class="at">linear_1</span><span class="op">.</span><span class="at">data</span>[<span class="dv">0</span>]<span class="op">;</span></span>
-<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>            outputDiv<span class="op">.</span><span class="at">innerText</span> <span class="op">=</span> <span class="vs">`Result: </span><span class="sc">${</span>resultValue<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">6</span>)<span class="sc">}</span><span class="vs">`</span><span class="op">;</span></span>
-<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">catch</span> (e) {</span>
-<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>            outputDiv<span class="op">.</span><span class="at">innerText</span> <span class="op">=</span> <span class="st">"Inference failed"</span><span class="op">;</span></span>
-<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>            <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(e)<span class="op">;</span></span>
-<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/ort.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> type=</span><span class="st">"module"</span><span class="dt">&gt;</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 1. Version and WASM Configuration</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    ort<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="at">wasm</span><span class="op">.</span><span class="at">wasmPaths</span> <span class="op">=</span> <span class="st">"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/"</span><span class="op">;</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 2. Model Configuration (Matches your Python Export variables)</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> CONFIG <span class="op">=</span> {</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">modelPath</span><span class="op">:</span> <span class="st">'./model.onnx'</span><span class="op">,</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">externalDataPath</span><span class="op">:</span> <span class="st">'model.onnx.data'</span><span class="op">,</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">inputName</span><span class="op">:</span> <span class="st">'input_features'</span><span class="op">,</span> <span class="co">// Matches INPUT_NAME in Python</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">outputName</span><span class="op">:</span> <span class="st">'prediction'</span><span class="op">,</span>    <span class="co">// Matches OUTPUT_NAME in Python</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>        <span class="dt">inputShape</span><span class="op">:</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">10</span>]<span class="op">,</span>         <span class="co">// Matches INPUT_SHAPE in Python</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>        <span class="dt">inputSize</span><span class="op">:</span> <span class="dv">10</span>                <span class="co">// Total elements (1 * 10)</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    }<span class="op">;</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> session<span class="op">;</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> statusText <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'status-text'</span>)<span class="op">;</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> statusLight <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'status-light'</span>)<span class="op">.</span><span class="at">children</span>[<span class="dv">0</span>]<span class="op">;</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> predictBtn <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'run-inference'</span>)<span class="op">;</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> outputDiv <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'prediction-output'</span>)<span class="op">;</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">function</span> <span class="fu">init</span>() {</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> {</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Using the External Data logic with variables</span></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>            session <span class="op">=</span> <span class="cf">await</span> ort<span class="op">.</span><span class="at">InferenceSession</span><span class="op">.</span><span class="fu">create</span>(CONFIG<span class="op">.</span><span class="at">modelPath</span><span class="op">,</span> {</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>                <span class="dt">executionProviders</span><span class="op">:</span> [<span class="st">'wasm'</span>]<span class="op">,</span></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>                <span class="dt">externalData</span><span class="op">:</span> [</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>                    {</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">path</span><span class="op">:</span> CONFIG<span class="op">.</span><span class="at">externalDataPath</span><span class="op">,</span></span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">data</span><span class="op">:</span> <span class="vs">`./</span><span class="sc">${</span>CONFIG<span class="op">.</span><span class="at">externalDataPath</span><span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>                    }</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>                ]</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>            })<span class="op">;</span></span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>            statusText<span class="op">.</span><span class="at">innerText</span> <span class="op">=</span> <span class="st">"Ready"</span><span class="op">;</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>            statusLight<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">backgroundColor</span> <span class="op">=</span> <span class="st">"#28a745"</span><span class="op">;</span></span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>            predictBtn<span class="op">.</span><span class="at">disabled</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">catch</span> (e) {</span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>            statusText<span class="op">.</span><span class="at">innerText</span> <span class="op">=</span> <span class="st">"Error loading model"</span><span class="op">;</span></span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>            statusLight<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">backgroundColor</span> <span class="op">=</span> <span class="st">"#dc3545"</span><span class="op">;</span></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>            <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(e)<span class="op">;</span></span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">function</span> <span class="fu">run</span>() {</span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> {</span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Use CONFIG.inputSize instead of a magic number 10</span></span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> inputData <span class="op">=</span> <span class="bu">Float32Array</span><span class="op">.</span><span class="fu">from</span>(</span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>                { <span class="dt">length</span><span class="op">:</span> CONFIG<span class="op">.</span><span class="at">inputSize</span> }<span class="op">,</span> </span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>                () <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">*</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>            )<span class="op">;</span></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Use CONFIG.inputShape</span></span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> inputTensor <span class="op">=</span> <span class="kw">new</span> ort<span class="op">.</span><span class="fu">Tensor</span>(<span class="st">'float32'</span><span class="op">,</span> inputData<span class="op">,</span> CONFIG<span class="op">.</span><span class="at">inputShape</span>)<span class="op">;</span></span>
 <span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>    predictBtn<span class="op">.</span><span class="at">onclick</span> <span class="op">=</span> run<span class="op">;</span></span>
-<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">init</span>()<span class="op">;</span></span>
-<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Use CONFIG.inputName and CONFIG.outputName</span></span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> feeds <span class="op">=</span> { [CONFIG<span class="op">.</span><span class="at">inputName</span>]<span class="op">:</span> inputTensor }<span class="op">;</span></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> results <span class="op">=</span> <span class="cf">await</span> session<span class="op">.</span><span class="fu">run</span>(feeds)<span class="op">;</span></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> resultValue <span class="op">=</span> results[CONFIG<span class="op">.</span><span class="at">outputName</span>]<span class="op">.</span><span class="at">data</span>[<span class="dv">0</span>]<span class="op">;</span></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>            outputDiv<span class="op">.</span><span class="at">innerText</span> <span class="op">=</span> <span class="vs">`Result: </span><span class="sc">${</span>resultValue<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">6</span>)<span class="sc">}</span><span class="vs">`</span><span class="op">;</span></span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">catch</span> (e) {</span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>            outputDiv<span class="op">.</span><span class="at">innerText</span> <span class="op">=</span> <span class="st">"Inference failed"</span><span class="op">;</span></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>            <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(e)<span class="op">;</span></span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a>    predictBtn<span class="op">.</span><span class="at">onclick</span> <span class="op">=</span> run<span class="op">;</span></span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">init</span>()<span class="op">;</span></span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<div id="06b6fb29" class="cell" data-execution_count="61">
+<div id="06b6fb29" class="cell" data-execution_count="22">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>display(HTML(model_code))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -489,12 +518,20 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/ort.min.js"></script>
-
 <script type="module">
-    // Configure WASM
+    // 1. Version and WASM Configuration
     ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/";
+
+    // 2. Model Configuration (Matches your Python Export variables)
+    const CONFIG = {
+        modelPath: './model.onnx',
+        externalDataPath: 'model.onnx.data',
+        inputName: 'input_features', // Matches INPUT_NAME in Python
+        outputName: 'prediction',    // Matches OUTPUT_NAME in Python
+        inputShape: [1, 10],         // Matches INPUT_SHAPE in Python
+        inputSize: 10                // Total elements (1 * 10)
+    };
 
     let session;
     const statusText = document.getElementById('status-text');
@@ -504,13 +541,13 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 
     async function init() {
         try {
-            // Using the External Data logic from the docs you found
-            session = await ort.InferenceSession.create('./model.onnx', {
+            // Using the External Data logic with variables
+            session = await ort.InferenceSession.create(CONFIG.modelPath, {
                 executionProviders: ['wasm'],
                 externalData: [
                     {
-                        path: 'model.onnx.data',
-                        data: './model.onnx.data'
+                        path: CONFIG.externalDataPath,
+                        data: `./${CONFIG.externalDataPath}`
                     }
                 ]
             });
@@ -527,15 +564,20 @@ gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
 
     async function run() {
         try {
-            // MyModel expects FLOAT, [1, 10]
-            const inputData = Float32Array.from({length: 10}, () => Math.random() * 2 - 1);
-            const inputTensor = new ort.Tensor('float32', inputData, [1, 10]);
-
-            // Feed key 'x' matches the input name in your Python graph
-            const results = await session.run({ x: inputTensor });
+            // Use CONFIG.inputSize instead of a magic number 10
+            const inputData = Float32Array.from(
+                { length: CONFIG.inputSize }, 
+                () => Math.random() * 2 - 1
+            );
             
-            // Output name 'linear_1' matches your Python graph output
-            const resultValue = results.linear_1.data[0];
+            // Use CONFIG.inputShape
+            const inputTensor = new ort.Tensor('float32', inputData, CONFIG.inputShape);
+
+            // Use CONFIG.inputName and CONFIG.outputName
+            const feeds = { [CONFIG.inputName]: inputTensor };
+            const results = await session.run(feeds);
+            
+            const resultValue = results[CONFIG.outputName].data[0];
             
             outputDiv.innerText = `Result: ${resultValue.toFixed(6)}`;
         } catch (e) {
