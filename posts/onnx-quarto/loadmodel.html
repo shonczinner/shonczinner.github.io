@@ -15,12 +15,20 @@
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/ort.min.js"></script>
-
 <script type="module">
-    // Configure WASM
+    // 1. Version and WASM Configuration
     ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0/dist/";
+
+    // 2. Model Configuration (Matches your Python Export variables)
+    const CONFIG = {
+        modelPath: './model.onnx',
+        externalDataPath: 'model.onnx.data',
+        inputName: 'input_features', // Matches INPUT_NAME in Python
+        outputName: 'prediction',    // Matches OUTPUT_NAME in Python
+        inputShape: [1, 10],         // Matches INPUT_SHAPE in Python
+        inputSize: 10                // Total elements (1 * 10)
+    };
 
     let session;
     const statusText = document.getElementById('status-text');
@@ -30,13 +38,13 @@
 
     async function init() {
         try {
-            // Using the External Data logic from the docs you found
-            session = await ort.InferenceSession.create('./model.onnx', {
+            // Using the External Data logic with variables
+            session = await ort.InferenceSession.create(CONFIG.modelPath, {
                 executionProviders: ['wasm'],
                 externalData: [
                     {
-                        path: 'model.onnx.data',
-                        data: './model.onnx.data'
+                        path: CONFIG.externalDataPath,
+                        data: `./${CONFIG.externalDataPath}`
                     }
                 ]
             });
@@ -53,15 +61,20 @@
 
     async function run() {
         try {
-            // MyModel expects FLOAT, [1, 10]
-            const inputData = Float32Array.from({length: 10}, () => Math.random() * 2 - 1);
-            const inputTensor = new ort.Tensor('float32', inputData, [1, 10]);
-
-            // Feed key 'x' matches the input name in your Python graph
-            const results = await session.run({ x: inputTensor });
+            // Use CONFIG.inputSize instead of a magic number 10
+            const inputData = Float32Array.from(
+                { length: CONFIG.inputSize }, 
+                () => Math.random() * 2 - 1
+            );
             
-            // Output name 'linear_1' matches your Python graph output
-            const resultValue = results.linear_1.data[0];
+            // Use CONFIG.inputShape
+            const inputTensor = new ort.Tensor('float32', inputData, CONFIG.inputShape);
+
+            // Use CONFIG.inputName and CONFIG.outputName
+            const feeds = { [CONFIG.inputName]: inputTensor };
+            const results = await session.run(feeds);
+            
+            const resultValue = results[CONFIG.outputName].data[0];
             
             outputDiv.innerText = `Result: ${resultValue.toFixed(6)}`;
         } catch (e) {
