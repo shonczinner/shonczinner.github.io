@@ -7,17 +7,17 @@ categories: [personal finance, tools]
 execute:
  freeze: true
  echo: false
-bibliography: citations.bib
+image: buyrent.png
 ---
 
 Buying versus renting a home is divisive. Some believe buying a home to be a good path to wealth largely relying on the overwhelming amount of data showing homeowners to be wealthier than renters. On the other hand, correlation is not a causation. Homes have always been expensive and most of the time require more cash-flow than renting. So is it that owning a home makes you wealthier or is that wealthier people own? The point of a calculator is to definitively resolve whether you'd be wealthier buying or renting.
 
-Here are many existing calculators:
+Here are some existing calculators:
 
-1.  https://www.calculator.net/rent-vs-buy-calculator.html
-2.  https://michaelbluejay.com/house/rentvsbuy.html
-3.  https://www.nbc.ca/personal/mortgages/calculators/rent-or-buy.html
-4.  https://research-tools.pwlcapital.com/research/rent-vs-buy
+1.  [https://www.calculator.net/rent-vs-buy-calculator.html](https://www.calculator.net/rent-vs-buy-calculator.html)
+2.  [https://michaelbluejay.com/house/rentvsbuy.html](https://michaelbluejay.com/house/rentvsbuy.html)
+3.  [https://www.nbc.ca/personal/mortgages/calculators/rent-or-buy.html](https://www.nbc.ca/personal/mortgages/calculators/rent-or-buy.html)
+4.  [https://research-tools.pwlcapital.com/research/rent-vs-buy](https://research-tools.pwlcapital.com/research/rent-vs-buy)
 
 These models generally use a simple methodology, although I can't speak for all of them, nor can I guarantee their accuracy. 
 
@@ -336,7 +336,11 @@ Inputs.table(
 
 # Who Ends Up Ahead?
 
-We're almost ready to compare who comes out ahead. We just need to calculate how much the buyer and renter invest each year.
+We're almost ready to compare who comes out ahead. We just need to calculate how much the buyer and renter invest each year. 
+
+Remember that the buyer and renter are given the maximum of the two cash-flows each year, so if the buyer has a cash-flow of $20k and the renter has a cash-flow of $25k, then both the buyer and renter are given an income of $25k. The buyer invests $5k and the renter invests $0. If in the next year, the buyer has a cash-flow of $30k and the renter has a cash-flow of $28k, then both are given an income of $30k. The buyer invests $0 and the renter invests $2k. 
+
+Some might argue that this is unrealistic. In reality, it's actually a fairly irrelevant assumption. The important thing is that the buyer and renter are given the same income each year, and that they invest the difference between their cash-flow and that income. The maximum of the two cash-flows is just a convenient way to ensure we don't end up with negative investments. In the years below where it shows the buyer investing, we could equivalently assume the buyer is investing zero and the renter is removing money from their investments to cover the income shortfall. If we decrease both their incomes \$1 in a year, the impact on their final net worth will be the same, and the decision of who is ahead will be the same. Same goes for increasing their incomes by \$1 in a year. 
 
 
 ```{ojs}
@@ -377,7 +381,7 @@ Inputs.table(
 )
 ```
 
-Finally we can compare  who is better off at the end of the comparison period by looking at the net home equity for the buyer and the accumulated investments for both. The buyer's net home equity is the net sale proceeds minus the remaining mortgage balance.
+Finally we can compare who is better off at the end of the comparison period by looking at the net home equity for the buyer and the accumulated investments for both. The buyer's net home equity is the net sale proceeds minus the remaining mortgage balance.
 
 All we need is the return on investments and capital gains tax. Then we can calculate the accumulated investments for the buyer and renter, and the net home equity for the buyer.
 
