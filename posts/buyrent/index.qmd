@@ -533,7 +533,7 @@ md`Note: In present dollars (i.e. discounted by inflation), the buyer's net wort
 
 So who is ahead? It depends on the assumptions. Try changing the assumptions to see how it affects the outcome. 
 
-Lastly, lets end with some plots. First we'll plot the net worth of the buyer and renter over time. Then we'll plot the annual change in net worth for both the buyer and renter over time, first in absolute terms and then in percentage terms.
+Lastly, lets end with some plots. First we'll plot the net worth of the buyer and renter over time. Then we'll plot the difference in net worth, first in absolute terms (renter - buyer) and then in percentage terms (renter - buyer) / buyer.
 
 ```{ojs}
 Plot.plot({
@@ -583,14 +583,14 @@ Plot.plot({
   width: 700,
   height: 400,
 
-  marginLeft: 90,
+  marginLeft: 80,
 
   x: {
     label: "Year"
   },
 
   y: {
-    label: "Annual Change in Net Worth ($)"
+    label: "Difference in Net Worth (Renter - Buyer) ($)"
   },
 
   color: {
@@ -599,22 +599,13 @@ Plot.plot({
 
   marks: [
     Plot.line(
-      cashflows.slice(1).flatMap((d, i) => [
-        {
-          Year: d.Year,
-          Value: buyer_net_worth[i + 1] - buyer_net_worth[i],
-          Series: "Buyer"
-        },
-        {
-          Year: d.Year,
-          Value: renter_net_worth[i + 1] - renter_net_worth[i],
-          Series: "Renter"
-        }
-      ]),
+      cashflows.map((d, i) => ({
+        Year: d.Year,
+        Value: renter_net_worth[i + 1] - buyer_net_worth[i + 1]
+      })),
       {
         x: "Year",
-        y: "Value",
-        stroke: "Series"
+        y: "Value"
       }
     )
   ]
@@ -633,7 +624,7 @@ Plot.plot({
   },
 
   y: {
-    label: "Annual Change in Net Worth (%)"
+    label: "Difference in Net Worth (Renter - Buyer) / Buyer (%)"
   },
 
   color: {
@@ -642,33 +633,13 @@ Plot.plot({
 
   marks: [
     Plot.line(
-      cashflows.slice(1).flatMap((d, i) => {
-        const buyer_base = Math.max(1, Math.abs(buyer_net_worth[i]))
-        const renter_base = Math.max(1, Math.abs(renter_net_worth[i]))
-
-        return [
-          {
-            Year: d.Year,
-            Value:
-              ((buyer_net_worth[i + 1] - buyer_net_worth[i]) /
-                buyer_base) *
-              100,
-            Series: "Buyer"
-          },
-          {
-            Year: d.Year,
-            Value:
-              ((renter_net_worth[i + 1] - renter_net_worth[i]) /
-                renter_base) *
-              100,
-            Series: "Renter"
-          }
-        ]
-      }),
+      cashflows.map((d, i) => ({
+        Year: d.Year,
+        Value: (renter_net_worth[i] - buyer_net_worth[i]) / Math.abs(buyer_net_worth[i]) * 100
+      })),
       {
         x: "Year",
-        y: "Value",
-        stroke: "Series"
+        y: "Value"
       }
     )
   ]
