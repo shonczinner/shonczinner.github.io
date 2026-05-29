@@ -14,8 +14,4121 @@
 <title>Shon Czinner&#39;s Blog</title>
 <link>https://shonczinner.github.io/</link>
 </image>
-<generator>quarto-1.9.37</generator>
-<lastBuildDate>Fri, 08 May 2026 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.38</generator>
+<lastBuildDate>Thu, 28 May 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Another Buying versus Renting Housing Calculator</title>
+  <dc:creator>Shon Czinner</dc:creator>
+  <link>https://shonczinner.github.io/posts/buyrent/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Buying versus renting a home is divisive. Some believe buying a home to be a good path to wealth largely relying on the overwhelming amount of data showing homeowners to be wealthier than renters. On the other hand, correlation is not a causation. Homes have always been expensive and most of the time require more cash-flow than renting. So is it that owning a home makes you wealthier or is that wealthier people own? The point of a calculator is to definitively resolve whether you’d be wealthier buying or renting.</p>
+<p>Here are some existing calculators:</p>
+<ol type="1">
+<li><a href="https://www.calculator.net/rent-vs-buy-calculator.html">https://www.calculator.net/rent-vs-buy-calculator.html</a></li>
+<li><a href="https://michaelbluejay.com/house/rentvsbuy.html">https://michaelbluejay.com/house/rentvsbuy.html</a></li>
+<li><a href="https://www.nbc.ca/personal/mortgages/calculators/rent-or-buy.html">https://www.nbc.ca/personal/mortgages/calculators/rent-or-buy.html</a></li>
+<li><a href="https://research-tools.pwlcapital.com/research/rent-vs-buy">https://research-tools.pwlcapital.com/research/rent-vs-buy</a></li>
+</ol>
+<p>These models generally use a simple methodology, although I can’t speak for all of them, nor can I guarantee their accuracy.</p>
+<p>The general methodology is as follows: Take two individuals with identical income. One of them buys a home with a mortgage, and the other rents. Any income unspent in a period is invested. At the end of so many years, you compare how much they could liquidate their assets (i.e.&nbsp;home and investments) for. In practice, this means calculating the cashflow for each individual in each period and giving both of them an income equal to the maximum of the two.</p>
+<p>These calculators are approximations. Most calculators for example assume future housing price growth is deterministic. Performing Monte-Carlo simulations with stochastic values still requires assumptions that might be wrong.</p>
+<p>The choice is even more complicated when you consider that buying and renting is often an apples to oranges comparison. <a href="https://www.huduser.gov/portal/periodicals/cityscpe/vol13num2/cityscape_july2011_rethinking.pdf">“More than 85 percent of single-family dwellings are owner occupied; more than 85 percent of dwellings in homes with more than three units are rented.”</a> The average homes available for renting and buying likely have different sizes, forms, lots, nearby jobs, quality and proximity of schools, and necessary transportation costs. These calculators work best assuming you are deciding whether to rent or buy the exact same home.</p>
+<p>The calculators assume a level of fiscal discipline and rationality that may not be realistic. For example, the buyer may be more likely to make home improvements that increase the value of the home, or they might be more likely to invest in a diversified portfolio. The renter might be more likely to spend their savings on consumption rather than investing.</p>
+<p>Finally, these calculators are usually limited regarding refinancing and investing with leverage. Sophisticated individuals may buy a home and then keep their home leveraged instead of increasing equity in order to invest more elsewhere. They might also borrow against their investments.</p>
+<p>In this post I present an interactive description of the calculations for buyers and renters. You may modify the assumptions. Finally at the end, I present who ends up ahead.</p>
+<p>First lets decide on our comparison horizon and the general rate of inflation.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="39" data-source-offset="-0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 38;"><span id="cb1-39">viewof comparison_years <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">number</span>({</span>
+<span id="cb1-40">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-41">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">min</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-42">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">max</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-43">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-44">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Years"</span></span>
+<span id="cb1-45">})</span>
+<span id="cb1-46"></span>
+<span id="cb1-47">viewof inflation_rate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb1-48">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-49">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-50">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Inflation rate (% / year)"</span></span>
+<span id="cb1-51">})</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<section id="the-buyers-necessary-cashflows" class="level1">
+<h1>The Buyer’s Necessary Cashflows</h1>
+<p>The first transactions for a buyer are the down payment and closing costs. These involve the price of the home, real estate transfer taxes and fees, and down payment.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="59" data-source-offset="-0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 58;"><span id="cb2-59">viewof home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">number</span>({</span>
+<span id="cb2-60">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">750000</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-61">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">min</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-62">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10000</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-63">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Home price"</span></span>
+<span id="cb2-64">})</span>
+<span id="cb2-65"></span>
+<span id="cb2-66">viewof downpayment_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb2-67">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-68">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-69">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Down payment (%)"</span></span>
+<span id="cb2-70">})</span>
+<span id="cb2-71"></span>
+<span id="cb2-72">viewof closing_costs_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb2-73">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-74">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-75">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Closing costs (%)"</span></span>
+<span id="cb2-76">})</span>
+<span id="cb2-77"></span>
+<span id="cb2-78">downpayment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> downpayment_pct<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb2-79"></span>
+<span id="cb2-80">closing_costs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> closing_costs_pct<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb2-81"></span>
+<span id="cb2-82">total_upfront_cost <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>  downpayment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> closing_costs</span>
+<span id="cb2-83"></span>
+<span id="cb2-84">Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">table</span>([</span>
+<span id="cb2-85">  {</span>
+<span id="cb2-86">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Down payment"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> downpayment<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-87">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Closing costs"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> closing_costs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb2-88">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Total upfront"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> total_upfront_cost</span>
+<span id="cb2-89">  }</span>
+<span id="cb2-90">])</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-7" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+<p>Next we have the annual payments (the error from using annual numbers instead of monthly is small). These include the mortgage payments and expenses like property taxes, insurance, and maintenance. Property taxes will grow with the home price, insurance and maintenance will grow with inflation.</p>
+<p>Note that the mortgage payment is calculated via the following equation,</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BLoan%20Amount%7D%20=%20%5Csum_%7Bi=1%7D%5E%7Bn%7D%20%5Cfrac%7B%5Ctext%7BPayment%7D%7D%7B(1%20+%20r)%5Ei%7D"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?r"> is the mortgage rate and <img src="https://latex.codecogs.com/png.latex?n"> is the mortgage term. In other words, the present value of the loan is the sum of the present values of all future payments using mortgage rate for the discounting.</p>
+<p>The remaining loan amount at time <img src="https://latex.codecogs.com/png.latex?t"> is,</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BBalance%7D_t%20=%20%5Csum_%7Bi=t+1%7D%5E%7Bn%7D%20%5Cfrac%7B%5Ctext%7BPayment%7D%7D%7B(1%20+%20r)%5E%7Bi-t%7D%7D"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BBalance%7D_0=%5Ctext%7BLoan%20Amount%7D">. The interest payment at time <img src="https://latex.codecogs.com/png.latex?t"> is <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BBalance%7D_%7Bt-1%7D%20%5Ccdot%20r"> and the principal payment is <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BPayment%7D%20-%20%5Ctext%7BInterest%7D_t">. The total mortgage payment is the sum of the interest and principal payments and can be calculated via the partial sum of the geometric series,</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BPayment%7D%20=%20%5Cfrac%7B%5Ctext%7BLoan%20Amount%7D%20%5Ccdot%20r%20%5Ccdot%20(1%20+%20r)%5En%7D%7B(1%20+%20r)%5En%20-%201%7D"></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="115" data-source-offset="-69" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 114;"><span id="cb3-115">viewof home_price_growth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb3-116">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-117">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-118">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Home price growth (% / year)"</span></span>
+<span id="cb3-119">})</span>
+<span id="cb3-120"></span>
+<span id="cb3-121">viewof mortgage_rate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb3-122">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-123">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-124">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mortgage rate (%)"</span></span>
+<span id="cb3-125">})</span>
+<span id="cb3-126"></span>
+<span id="cb3-127">viewof mortgage_term <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">number</span>({</span>
+<span id="cb3-128">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-129">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">min</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-130">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">max</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> comparison_years<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-131">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-132">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mortgage term (years)"</span></span>
+<span id="cb3-133">})</span>
+<span id="cb3-134"></span>
+<span id="cb3-135">viewof property_tax_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb3-136">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-137">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-138">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Property tax (% of home price)"</span></span>
+<span id="cb3-139">})</span>
+<span id="cb3-140"></span>
+<span id="cb3-141">viewof insurance_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb3-142">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-143">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-144">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Insurance (% of home price)"</span></span>
+<span id="cb3-145">})</span>
+<span id="cb3-146"></span>
+<span id="cb3-147"></span>
+<span id="cb3-148">viewof maintenance_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb3-149">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-150">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-151">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Maintenance (% of home price)"</span></span>
+<span id="cb3-152">})</span>
+<span id="cb3-153"></span>
+<span id="cb3-154"></span>
+<span id="cb3-155"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// =========================</span></span>
+<span id="cb3-156"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// MORTGAGE SETUP</span></span>
+<span id="cb3-157"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// =========================</span></span>
+<span id="cb3-158"></span>
+<span id="cb3-159">loan_amount <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> downpayment</span>
+<span id="cb3-160"></span>
+<span id="cb3-161">mortgage_rate_decimal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mortgage_rate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb3-162"></span>
+<span id="cb3-163">mortgage_payment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span></span>
+<span id="cb3-164">  mortgage_rate_decimal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">===</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb3-165">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">?</span> loan_amount <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> mortgage_term</span>
+<span id="cb3-166">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> (</span>
+<span id="cb3-167">        loan_amount <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb3-168">        mortgage_rate_decimal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb3-169">        (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> mortgage_rate_decimal) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> mortgage_term</span>
+<span id="cb3-170">      ) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span></span>
+<span id="cb3-171">      (</span>
+<span id="cb3-172">        (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> mortgage_rate_decimal) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> mortgage_term <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb3-173">      )</span>
+<span id="cb3-174"></span>
+<span id="cb3-175"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// =========================</span></span>
+<span id="cb3-176"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// COST MODEL WITH AMORTIZATION</span></span>
+<span id="cb3-177"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// =========================</span></span>
+<span id="cb3-178"></span>
+<span id="cb3-179">ownership_costs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (() <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> {</span>
+<span id="cb3-180"></span>
+<span id="cb3-181">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> balance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> loan_amount</span>
+<span id="cb3-182"></span>
+<span id="cb3-183">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Array</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">from</span>({ <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> comparison_years }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> (_<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> {</span>
+<span id="cb3-184"></span>
+<span id="cb3-185">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ----- non-mortgage -----</span></span>
+<span id="cb3-186">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> property_tax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span></span>
+<span id="cb3-187">      home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb3-188">      property_tax_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb3-189">      (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> home_price_growth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> i</span>
+<span id="cb3-190"></span>
+<span id="cb3-191">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> insurance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span></span>
+<span id="cb3-192">      home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb3-193">      insurance_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb3-194">      (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> inflation_rate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> i</span>
+<span id="cb3-195"></span>
+<span id="cb3-196">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> maintenance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span></span>
+<span id="cb3-197">      home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb3-198">      maintenance_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb3-199">      (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> inflation_rate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> i</span>
+<span id="cb3-200"></span>
+<span id="cb3-201">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ----- mortgage split -----</span></span>
+<span id="cb3-202">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> interest <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb3-203">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> principal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb3-204">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> payment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb3-205"></span>
+<span id="cb3-206">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> mortgage_term) {</span>
+<span id="cb3-207">      interest <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> balance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> mortgage_rate_decimal</span>
+<span id="cb3-208">      payment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mortgage_payment</span>
+<span id="cb3-209">      principal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> payment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> interest</span>
+<span id="cb3-210">      balance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> balance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> principal)</span>
+<span id="cb3-211">    }</span>
+<span id="cb3-212"></span>
+<span id="cb3-213">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> mortgage_total <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> principal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> interest</span>
+<span id="cb3-214"></span>
+<span id="cb3-215">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> {</span>
+<span id="cb3-216">      <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-217">      <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Principal</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> principal<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-218">      <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Interest</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> interest<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-219">      <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Mortgage</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> mortgage_total<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-220">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Property Tax"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> property_tax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-221">      <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Insurance</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> insurance<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-222">      <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Maintenance</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> maintenance<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-223">      <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Total</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> mortgage_total <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> property_tax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> insurance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> maintenance</span>
+<span id="cb3-224">    }</span>
+<span id="cb3-225">  })</span>
+<span id="cb3-226">})()</span>
+<span id="cb3-227"></span>
+<span id="cb3-228"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// =========================</span></span>
+<span id="cb3-229"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// DISPLAY</span></span>
+<span id="cb3-230"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// =========================</span></span>
+<span id="cb3-231"></span>
+<span id="cb3-232">Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">table</span>(</span>
+<span id="cb3-233">  ownership_costs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(d <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> ({</span>
+<span id="cb3-234">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-235">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Principal</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Principal</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-236">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Interest</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Interest</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-237">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//Mortgage: Math.round(d.Mortgage),</span></span>
+<span id="cb3-238">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Property Tax"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Property Tax"</span>])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-239">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Insurance</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Insurance</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-240">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Maintenance</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Maintenance</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-241">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Total</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Total</span>)</span>
+<span id="cb3-242">  }))</span>
+<span id="cb3-243">)</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-8" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-9" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-10" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-3-11" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+<p>Finally we have taxes and fees for selling the home at the end of the comparison period.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="251" data-source-offset="-2" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 250;"><span id="cb4-251">viewof selling_costs_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb4-252">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-253">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-254">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Selling costs (% of home price)"</span></span>
+<span id="cb4-255">})</span>
+<span id="cb4-256"></span>
+<span id="cb4-257">viewof capital_gains_tax_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb4-258">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-259">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-260">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Capital gains tax on home sale (%)"</span></span>
+<span id="cb4-261">})</span>
+<span id="cb4-262"></span>
+<span id="cb4-263">final_home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span></span>
+<span id="cb4-264">  home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> home_price_growth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> comparison_years</span>
+<span id="cb4-265"></span>
+<span id="cb4-266">selling_costs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> final_home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> selling_costs_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb4-267"></span>
+<span id="cb4-268">capital_gains <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> final_home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> closing_costs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> selling_costs)</span>
+<span id="cb4-269"></span>
+<span id="cb4-270">capital_gains_tax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> capital_gains <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> capital_gains_tax_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb4-271"></span>
+<span id="cb4-272">net_sale_proceeds <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> final_home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> selling_costs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> capital_gains_tax</span>
+<span id="cb4-273"></span>
+<span id="cb4-274">Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">table</span>([</span>
+<span id="cb4-275">  {</span>
+<span id="cb4-276">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Initial home price"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(home_price)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-277">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Closing costs"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(closing_costs)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-278">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Selling costs"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(selling_costs)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-279">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Final home price"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_home_price)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-280">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Capital gains"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(capital_gains)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-281">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Capital gains tax"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(capital_gains_tax)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb4-282">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Net sale proceeds"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(net_sale_proceeds)</span>
+<span id="cb4-283">  }</span>
+<span id="cb4-284">])</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-8" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-renters-necessary-cashflows" class="level1">
+<h1>The Renter’s Necessary Cashflows</h1>
+<p>The renter’s cash-flows are simpler. They consist of the rent payments, and renters insurance, and the growth of each over time. We’ll assume rent insurance grows with inflation, and rent grows with its own growth rate.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="292" data-source-offset="-0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 291;"><span id="cb5-292">viewof initial_rent <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">number</span>({</span>
+<span id="cb5-293">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3000</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-294">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">min</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-295">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-296">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Initial monthly rent"</span></span>
+<span id="cb5-297">})</span>
+<span id="cb5-298"></span>
+<span id="cb5-299">viewof rent_growth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb5-300">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-301">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-302">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Rent growth (% / year)"</span></span>
+<span id="cb5-303">})</span>
+<span id="cb5-304"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// renters insurance is absolute not  percent</span></span>
+<span id="cb5-305">viewof renters_insurance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">number</span>({</span>
+<span id="cb5-306">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-307">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">min</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-308">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-309">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Initial monthly renters insurance"</span></span>
+<span id="cb5-310">})</span>
+<span id="cb5-311"></span>
+<span id="cb5-312">rental_costs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Array</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">from</span>({ <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> comparison_years }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> (_<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> {</span>
+<span id="cb5-313">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> rent <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span></span>
+<span id="cb5-314">    initial_rent <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rent_growth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> i</span>
+<span id="cb5-315"></span>
+<span id="cb5-316">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> insurance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span></span>
+<span id="cb5-317">    renters_insurance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> inflation_rate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> i</span>
+<span id="cb5-318"></span>
+<span id="cb5-319">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> {</span>
+<span id="cb5-320">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-321">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Rent</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> rent<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-322">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renters Insurance"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> insurance<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-323">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Total</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> rent <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> insurance</span>
+<span id="cb5-324">  }</span>
+<span id="cb5-325">})</span>
+<span id="cb5-326"></span>
+<span id="cb5-327">Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">table</span>(</span>
+<span id="cb5-328">  rental_costs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(d <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> ({</span>
+<span id="cb5-329">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-330">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Rent</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Rent</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-331">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renters Insurance"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renters Insurance"</span>])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-332">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Total</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Total</span>)</span>
+<span id="cb5-333">  }))</span>
+<span id="cb5-334">)</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-5" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="who-ends-up-ahead" class="level1">
+<h1>Who Ends Up Ahead?</h1>
+<p>We’re almost ready to compare who comes out ahead. We just need to calculate how much the buyer and renter invest each year.</p>
+<p>Remember that the buyer and renter are given the maximum of the two cash-flows each year, so if the buyer has a cash-flow of $20k and the renter has a cash-flow of $25k, then both the buyer and renter are given an income of $25k. The buyer invests $5k and the renter invests $0. If in the next year, the buyer has a cash-flow of $30k and the renter has a cash-flow of $28k, then both are given an income of $30k. The buyer invests $0 and the renter invests $2k.</p>
+<p>Some might argue that this is unrealistic. In reality, it’s actually a fairly irrelevant assumption. The important thing is that the buyer and renter are given the same income each year, and that they invest the difference between their cash-flow and that income. The maximum of the two cash-flows is just a convenient way to ensure we don’t end up with negative investments. In the years below where it shows the buyer investing, we could equivalently assume the buyer is investing zero and the renter is removing money from their investments to cover the income shortfall. If we decrease both their incomes $1 in a year, the impact on their final net worth will be the same, and the decision of who is ahead will be the same. Same goes for increasing their incomes by $1 in a year.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="348" data-source-offset="-58" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 347;"><span id="cb6-348">cashflows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb6-349">  {</span>
+<span id="cb6-350">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-351">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Buyer</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> total_upfront_cost<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-352">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Renter</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb6-353">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-354">  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">...</span>ownership_costs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> ({</span>
+<span id="cb6-355">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-356">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Buyer</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Total</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-357">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Renter</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> rental_costs[i]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Total</span></span>
+<span id="cb6-358">  }))</span>
+<span id="cb6-359">]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(d <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> {</span>
+<span id="cb6-360">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> Max <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Buyer</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Renter</span>)</span>
+<span id="cb6-361">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> {</span>
+<span id="cb6-362">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">...</span>d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-363">    Max<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-364">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">BuyerInvestment</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> Max <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Buyer</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-365">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">RenterInvestment</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> Max <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Renter</span></span>
+<span id="cb6-366">  }</span>
+<span id="cb6-367">})</span>
+<span id="cb6-368"></span>
+<span id="cb6-369"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// calculate investment and accumulated</span></span>
+<span id="cb6-370">buyer_investment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(d <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Max</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Buyer</span>)</span>
+<span id="cb6-371">renter_investment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(d <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Max</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Renter</span>)</span>
+<span id="cb6-372"></span>
+<span id="cb6-373">Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">table</span>(</span>
+<span id="cb6-374">  cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> ({</span>
+<span id="cb6-375">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-376">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Buyer Cashflow"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Buyer</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-377">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renter Cashflow"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Renter</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-378">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Buyer Investment"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(buyer_investment[i])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-379">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renter Investment"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(renter_investment[i])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-380">  }))</span>
+<span id="cb6-381">)</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-6-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-6-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-6-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-6-4" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+<p>Finally we can compare who is better off at the end of the comparison period by looking at the net home equity for the buyer and the accumulated investments for both. The buyer’s net home equity is the net sale proceeds minus the remaining mortgage balance.</p>
+<p>All we need is the return on investments and capital gains tax. Then we can calculate the accumulated investments for the buyer and renter, and the net home equity for the buyer.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="389" data-source-offset="-0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 388;"><span id="cb7-389">viewof investment_return <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb7-390">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-391">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-392">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Investment return (% / year)"</span></span>
+<span id="cb7-393">})</span>
+<span id="cb7-394"></span>
+<span id="cb7-395">viewof capital_gains_tax_investments_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> {</span>
+<span id="cb7-396">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-397">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-398">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Capital gains tax on investments (%)"</span></span>
+<span id="cb7-399">})</span>
+<span id="cb7-400"></span>
+<span id="cb7-401"></span>
+<span id="cb7-402"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ---------- FIX: safe accumulation ----------</span></span>
+<span id="cb7-403">buyer_accumulated <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb7-404">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> arr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [buyer_investment[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]]</span>
+<span id="cb7-405">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">++</span>) {</span>
+<span id="cb7-406">    arr<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">push</span>(</span>
+<span id="cb7-407">      arr[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> investment_return <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-408">      buyer_investment[i]</span>
+<span id="cb7-409">    )</span>
+<span id="cb7-410">  }</span>
+<span id="cb7-411">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> arr</span>
+<span id="cb7-412">}</span>
+<span id="cb7-413">renter_accumulated <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb7-414">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> arr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [renter_investment[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]]</span>
+<span id="cb7-415">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">++</span>) {</span>
+<span id="cb7-416">    arr<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">push</span>(</span>
+<span id="cb7-417">      arr[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> investment_return <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-418">      renter_investment[i]</span>
+<span id="cb7-419">    )</span>
+<span id="cb7-420">  }</span>
+<span id="cb7-421">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> arr</span>
+<span id="cb7-422">}</span>
+<span id="cb7-423">buyer_cost_basis <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb7-424">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> arr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [buyer_investment[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]]</span>
+<span id="cb7-425">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">++</span>) {</span>
+<span id="cb7-426">    arr<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">push</span>(</span>
+<span id="cb7-427">      arr[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>buyer_investment[i]</span>
+<span id="cb7-428">    )</span>
+<span id="cb7-429">  }</span>
+<span id="cb7-430">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> arr</span>
+<span id="cb7-431">}</span>
+<span id="cb7-432">renter_cost_basis <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb7-433">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> arr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [renter_investment[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]]</span>
+<span id="cb7-434">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">++</span>) {</span>
+<span id="cb7-435">    arr<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">push</span>(</span>
+<span id="cb7-436">      arr[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>renter_investment[i]</span>
+<span id="cb7-437">    )</span>
+<span id="cb7-438">  }</span>
+<span id="cb7-439">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> arr</span>
+<span id="cb7-440">}</span>
+<span id="cb7-441"></span>
+<span id="cb7-442"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ---------- gains ----------</span></span>
+<span id="cb7-443">buyer_capital_gains <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> buyer_accumulated<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((a<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> a <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> buyer_cost_basis[i])</span>
+<span id="cb7-444">renter_capital_gains <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> renter_accumulated<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((a<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> a <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> renter_cost_basis[i])</span>
+<span id="cb7-445"></span>
+<span id="cb7-446">buyer_capital_gains_tax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> buyer_capital_gains<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(g <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> g <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> capital_gains_tax_investments_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb7-447">renter_capital_gains_tax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> renter_capital_gains<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(g <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> g <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> capital_gains_tax_investments_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb7-448"></span>
+<span id="cb7-449"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ---------- home price ----------</span></span>
+<span id="cb7-450">annual_home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Array</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">from</span>(</span>
+<span id="cb7-451">  { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> comparison_years <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-452">  (_<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> home_price_growth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> i</span>
+<span id="cb7-453">)</span>
+<span id="cb7-454"></span>
+<span id="cb7-455"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ---------- FIX: deterministic mortgage balance ----------</span></span>
+<span id="cb7-456">mortgage_balance <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (() <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> {</span>
+<span id="cb7-457">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> arr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [loan_amount]</span>
+<span id="cb7-458"></span>
+<span id="cb7-459">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">let</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> comparison_years<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">++</span>) {</span>
+<span id="cb7-460">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> mortgage_term) {</span>
+<span id="cb7-461">      arr<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">push</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb7-462">      <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">continue</span></span>
+<span id="cb7-463">    }</span>
+<span id="cb7-464"></span>
+<span id="cb7-465">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> interest <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> arr[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> mortgage_rate_decimal</span>
+<span id="cb7-466">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> principal <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mortgage_payment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> interest</span>
+<span id="cb7-467"></span>
+<span id="cb7-468">    arr<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">push</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> arr[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> principal))</span>
+<span id="cb7-469">  }</span>
+<span id="cb7-470"></span>
+<span id="cb7-471">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> arr</span>
+<span id="cb7-472">})()</span>
+<span id="cb7-473"></span>
+<span id="cb7-474"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ---------- selling / taxes ----------</span></span>
+<span id="cb7-475">selling_costs2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> annual_home_price<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(p <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> selling_costs_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb7-476"></span>
+<span id="cb7-477">capital_gains2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> annual_home_price<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span></span>
+<span id="cb7-478">  <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> home_price <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> closing_costs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> selling_costs2[i])</span>
+<span id="cb7-479">)</span>
+<span id="cb7-480"></span>
+<span id="cb7-481">capital_gains_tax2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> capital_gains2<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(g <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span></span>
+<span id="cb7-482">  g <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> capital_gains_tax_pct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb7-483">)</span>
+<span id="cb7-484"></span>
+<span id="cb7-485">net_sale_proceeds2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> annual_home_price<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span></span>
+<span id="cb7-486">  p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> selling_costs2[i] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> capital_gains_tax2[i]</span>
+<span id="cb7-487">)</span>
+<span id="cb7-488"></span>
+<span id="cb7-489">buyer_net_investments <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> buyer_accumulated<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((a<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> a <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> buyer_capital_gains_tax[i])</span>
+<span id="cb7-490">buyer_net_worth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> net_sale_proceeds2<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((proceeds<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span></span>
+<span id="cb7-491">  proceeds <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> buyer_net_investments[i] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> mortgage_balance[i]</span>
+<span id="cb7-492">)</span>
+<span id="cb7-493">renter_net_worth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> renter_accumulated<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>((a<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> a <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> renter_capital_gains_tax[i])</span>
+<span id="cb7-494"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ---------- FINAL TABLE ----------</span></span>
+<span id="cb7-495">Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">table</span>(</span>
+<span id="cb7-496">  <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Array</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">from</span>({ <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> comparison_years <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> (_<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> ({</span>
+<span id="cb7-497">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-498"></span>
+<span id="cb7-499">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//"Home Price": Math.round(annual_home_price[i]),</span></span>
+<span id="cb7-500">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mortgage Balance"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(mortgage_balance[i])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-501">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//"Selling Costs": Math.round(selling_costs2[i]),</span></span>
+<span id="cb7-502">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//"Capital Gains Tax": Math.round(capital_gains_tax2[i]),</span></span>
+<span id="cb7-503">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Buyer Net Home Sale"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(net_sale_proceeds2[i])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-504"></span>
+<span id="cb7-505">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//"Buyer Investments": Math.round(buyer_accumulated[i]),</span></span>
+<span id="cb7-506">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//"Buyer Investment Capital Gains Tax": Math.round(buyer_capital_gains_tax[i]),</span></span>
+<span id="cb7-507">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Buyer Net Investments"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(buyer_net_investments[i])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-508"></span>
+<span id="cb7-509">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Buyer Net Worth"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(buyer_net_worth[i])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb7-510"></span>
+<span id="cb7-511">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//"Renter Investments": Math.round(renter_accumulated[i]),</span></span>
+<span id="cb7-512">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">//"Renter Capital Gains Tax": Math.round(renter_capital_gains_tax[i]),</span></span>
+<span id="cb7-513">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renter Net Worth"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(renter_net_worth[i])</span>
+<span id="cb7-514">  }))</span>
+<span id="cb7-515">)</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-8" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-9" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-10" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-11" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-12" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-13" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-14" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-15" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-16" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-17" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-18" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-19" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-20" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="518" data-source-offset="-3827" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 517;"><span id="cb8-518">final_buyer_net_worth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> buyer_net_worth[comparison_years]</span>
+<span id="cb8-519">final_renter_net_worth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> renter_net_worth[comparison_years]</span>
+<span id="cb8-520">final_comparison <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> final_buyer_net_worth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> final_renter_net_worth</span>
+<span id="cb8-521">{</span>
+<span id="cb8-522">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (final_comparison <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) {</span>
+<span id="cb8-523">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">md</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`**After </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>comparison_years<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> years, the buyer has a net worth of $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_buyer_net_worth)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> and the renter has a net worth of $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_renter_net_worth)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, so the buyer is ahead by $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_comparison)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.**`</span></span>
+<span id="cb8-524">  } <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (final_comparison <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) {</span>
+<span id="cb8-525">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">md</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`**After </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>comparison_years<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> years, the buyer has a net worth of $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_buyer_net_worth)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> and the renter has a net worth of $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_renter_net_worth)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, so the renter is ahead by $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>final_comparison)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.**`</span></span>
+<span id="cb8-526">  } <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> {</span>
+<span id="cb8-527">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">md</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`**After </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>comparison_years<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> years, the buyer and renter have the same net worth of $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_buyer_net_worth)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.**`</span></span>
+<span id="cb8-528">  }</span>
+<span id="cb8-529">}</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-21" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-22" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-23" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-24" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="531" data-source-offset="-4862" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 530;"><span id="cb9-531"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">md</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Note: In present dollars (i.e. discounted by inflation), the buyer's net worth is $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_buyer_net_worth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> inflation_rate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> comparison_years)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> and the renter's net worth is $</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(final_renter_net_worth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> inflation_rate <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> comparison_years)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">toLocaleString</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.`</span></span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-25" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+<p>So who is ahead? It depends on the assumptions. Try changing the assumptions to see how it affects the outcome.</p>
+<p>Lastly, lets end with some plots. First we’ll plot the net worth of the buyer and renter over time. Then we’ll plot the annual change in net worth for both the buyer and renter over time, first in absolute terms and then in percentage terms.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="538" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 537;"><span id="cb10-538">Plot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>({</span>
+<span id="cb10-539">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">width</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-540">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">height</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">400</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-541"></span>
+<span id="cb10-542">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">marginLeft</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">80</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-543"></span>
+<span id="cb10-544">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb10-545">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Year"</span></span>
+<span id="cb10-546">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-547"></span>
+<span id="cb10-548">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb10-549">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Net Worth ($)"</span></span>
+<span id="cb10-550">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-551"></span>
+<span id="cb10-552">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">color</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb10-553">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">legend</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">true</span></span>
+<span id="cb10-554">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-555"></span>
+<span id="cb10-556">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">marks</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> [</span>
+<span id="cb10-557">    Plot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">line</span>(</span>
+<span id="cb10-558">      cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">flatMap</span>((d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> [</span>
+<span id="cb10-559">        {</span>
+<span id="cb10-560">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-561">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> buyer_net_worth[i]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-562">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Buyer"</span></span>
+<span id="cb10-563">        }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-564">        {</span>
+<span id="cb10-565">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-566">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> renter_net_worth[i]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-567">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renter"</span></span>
+<span id="cb10-568">        }</span>
+<span id="cb10-569">      ])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-570">      {</span>
+<span id="cb10-571">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Year"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-572">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Value"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb10-573">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">stroke</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Series"</span></span>
+<span id="cb10-574">      }</span>
+<span id="cb10-575">    )</span>
+<span id="cb10-576">  ]</span>
+<span id="cb10-577">})</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-8" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="581" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 580;"><span id="cb11-581">Plot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>({</span>
+<span id="cb11-582">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">width</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-583">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">height</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">400</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-584"></span>
+<span id="cb11-585">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">marginLeft</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">90</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-586"></span>
+<span id="cb11-587">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb11-588">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Year"</span></span>
+<span id="cb11-589">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-590"></span>
+<span id="cb11-591">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb11-592">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Annual Change in Net Worth ($)"</span></span>
+<span id="cb11-593">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-594"></span>
+<span id="cb11-595">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">color</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb11-596">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">legend</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">true</span></span>
+<span id="cb11-597">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-598"></span>
+<span id="cb11-599">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">marks</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> [</span>
+<span id="cb11-600">    Plot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">line</span>(</span>
+<span id="cb11-601">      cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">flatMap</span>((d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> [</span>
+<span id="cb11-602">        {</span>
+<span id="cb11-603">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-604">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> buyer_net_worth[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> buyer_net_worth[i]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-605">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Buyer"</span></span>
+<span id="cb11-606">        }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-607">        {</span>
+<span id="cb11-608">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-609">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> renter_net_worth[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> renter_net_worth[i]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-610">          <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renter"</span></span>
+<span id="cb11-611">        }</span>
+<span id="cb11-612">      ])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-613">      {</span>
+<span id="cb11-614">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Year"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-615">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Value"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb11-616">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">stroke</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Series"</span></span>
+<span id="cb11-617">      }</span>
+<span id="cb11-618">    )</span>
+<span id="cb11-619">  ]</span>
+<span id="cb11-620">})</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="624" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 623;"><span id="cb12-624">Plot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>({</span>
+<span id="cb12-625">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">width</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-626">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">height</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">400</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-627"></span>
+<span id="cb12-628">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">marginLeft</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">90</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-629"></span>
+<span id="cb12-630">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb12-631">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Year"</span></span>
+<span id="cb12-632">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-633"></span>
+<span id="cb12-634">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb12-635">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Annual Change in Net Worth (%)"</span></span>
+<span id="cb12-636">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-637"></span>
+<span id="cb12-638">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">color</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> {</span>
+<span id="cb12-639">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">legend</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">true</span></span>
+<span id="cb12-640">  }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-641"></span>
+<span id="cb12-642">  <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">marks</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> [</span>
+<span id="cb12-643">    Plot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">line</span>(</span>
+<span id="cb12-644">      cashflows<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">flatMap</span>((d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> {</span>
+<span id="cb12-645">        <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> buyer_base <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">abs</span>(buyer_net_worth[i]))</span>
+<span id="cb12-646">        <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> renter_base <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">abs</span>(renter_net_worth[i]))</span>
+<span id="cb12-647"></span>
+<span id="cb12-648">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> [</span>
+<span id="cb12-649">          {</span>
+<span id="cb12-650">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-651">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span></span>
+<span id="cb12-652">              ((buyer_net_worth[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> buyer_net_worth[i]) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span></span>
+<span id="cb12-653">                buyer_base) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb12-654">              <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-655">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Buyer"</span></span>
+<span id="cb12-656">          }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-657">          {</span>
+<span id="cb12-658">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-659">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span></span>
+<span id="cb12-660">              ((renter_net_worth[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> renter_net_worth[i]) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span></span>
+<span id="cb12-661">                renter_base) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb12-662">              <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-663">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renter"</span></span>
+<span id="cb12-664">          }</span>
+<span id="cb12-665">        ]</span>
+<span id="cb12-666">      })<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-667">      {</span>
+<span id="cb12-668">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Year"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-669">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Value"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-670">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">stroke</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Series"</span></span>
+<span id="cb12-671">      }</span>
+<span id="cb12-672">    )</span>
+<span id="cb12-673">  ]</span>
+<span id="cb12-674">})</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-10" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+
+
+</section>
+
+ ]]></description>
+  <category>personal finance</category>
+  <category>tools</category>
+  <guid>https://shonczinner.github.io/posts/buyrent/</guid>
+  <pubDate>Thu, 28 May 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://shonczinner.github.io/posts/buyrent/buyrent.png" medium="image" type="image/png" height="89" width="144"/>
+</item>
 <item>
   <title>Getting ONNX Models Working In A Quarto Blog</title>
   <dc:creator>Shon Czinner</dc:creator>

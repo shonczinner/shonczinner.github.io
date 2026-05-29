@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/buyrent/index.html",
       "/posts/onnx-quarto/index.html",
       "/posts/embedding-prediction/index.html",
       "/posts/small-jepa-language-model/index.html",
