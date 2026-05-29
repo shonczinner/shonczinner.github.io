@@ -3416,7 +3416,7 @@ font-style: inherit;">.`</span></span></code></pre></div></div>
 </div>
 </div>
 <p>So who is ahead? It depends on the assumptions. Try changing the assumptions to see how it affects the outcome.</p>
-<p>Lastly, lets end with some plots. First we’ll plot the net worth of the buyer and renter over time. Then we’ll plot the annual change in net worth for both the buyer and renter over time, first in absolute terms and then in percentage terms.</p>
+<p>Lastly, lets end with some plots. First we’ll plot the net worth of the buyer and renter over time. Then we’ll plot the difference in net worth, first in absolute terms (renter - buyer) and then in percentage terms (renter - buyer) / buyer.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="538" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 537;"><span id="cb10-538">Plot<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3647,7 +3647,7 @@ font-style: inherit;">marginLeft</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">90</span><span class="op" style="color: #5E5E5E;
+font-style: inherit;">80</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
 <span id="cb11-586"></span>
@@ -3678,7 +3678,7 @@ font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Annual Change in Net Worth ($)"</span></span>
+font-style: inherit;">"Difference in Net Worth (Renter - Buyer) ($)"</span></span>
 <span id="cb11-593">  }<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
@@ -3714,20 +3714,13 @@ font-style: inherit;">line</span>(</span>
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">slice</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">flatMap</span>((d<span class="op" style="color: #5E5E5E;
+font-style: inherit;">map</span>((d<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
-font-style: inherit;">=&gt;</span> [</span>
-<span id="cb11-602">        {</span>
-<span id="cb11-603">          <span class="dt" style="color: #AD0000;
+font-style: inherit;">=&gt;</span> ({</span>
+<span id="cb11-602">        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3738,42 +3731,7 @@ background-color: null;
 font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb11-604">          <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> buyer_net_worth[i <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> buyer_net_worth[i]<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb11-605">          <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Buyer"</span></span>
-<span id="cb11-606">        }<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb11-607">        {</span>
-<span id="cb11-608">          <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb11-609">          <span class="dt" style="color: #AD0000;
+<span id="cb11-603">        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3783,22 +3741,16 @@ font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">-</span> renter_net_worth[i]<span class="op" style="color: #5E5E5E;
+font-style: inherit;">-</span> buyer_net_worth[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb11-604">      }))<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb11-610">          <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Renter"</span></span>
-<span id="cb11-611">        }</span>
-<span id="cb11-612">      ])<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb11-613">      {</span>
-<span id="cb11-614">        <span class="dt" style="color: #AD0000;
+<span id="cb11-605">      {</span>
+<span id="cb11-606">        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3807,26 +3759,17 @@ background-color: null;
 font-style: inherit;">"Year"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb11-615">        <span class="dt" style="color: #AD0000;
+<span id="cb11-607">        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Value"</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb11-616">        <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">stroke</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Series"</span></span>
-<span id="cb11-617">      }</span>
-<span id="cb11-618">    )</span>
-<span id="cb11-619">  ]</span>
-<span id="cb11-620">})</span></code></pre></div></div>
+font-style: inherit;">"Value"</span></span>
+<span id="cb11-608">      }</span>
+<span id="cb11-609">    )</span>
+<span id="cb11-610">  ]</span>
+<span id="cb11-611">})</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-9" data-nodetype="expression">
 
@@ -3834,12 +3777,12 @@ font-style: inherit;">"Series"</span></span>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="624" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 623;"><span id="cb12-624">Plot<span class="op" style="color: #5E5E5E;
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="615" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 614;"><span id="cb12-615">Plot<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">plot</span>({</span>
-<span id="cb12-625">  <span class="dt" style="color: #AD0000;
+<span id="cb12-616">  <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">width</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3848,7 +3791,7 @@ background-color: null;
 font-style: inherit;">700</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-626">  <span class="dt" style="color: #AD0000;
+<span id="cb12-617">  <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">height</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3857,8 +3800,8 @@ background-color: null;
 font-style: inherit;">400</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-627"></span>
-<span id="cb12-628">  <span class="dt" style="color: #AD0000;
+<span id="cb12-618"></span>
+<span id="cb12-619">  <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">marginLeft</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3867,45 +3810,45 @@ background-color: null;
 font-style: inherit;">90</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-629"></span>
-<span id="cb12-630">  <span class="dt" style="color: #AD0000;
+<span id="cb12-620"></span>
+<span id="cb12-621">  <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> {</span>
-<span id="cb12-631">    <span class="dt" style="color: #AD0000;
+<span id="cb12-622">    <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Year"</span></span>
-<span id="cb12-632">  }<span class="op" style="color: #5E5E5E;
+<span id="cb12-623">  }<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-633"></span>
-<span id="cb12-634">  <span class="dt" style="color: #AD0000;
+<span id="cb12-624"></span>
+<span id="cb12-625">  <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> {</span>
-<span id="cb12-635">    <span class="dt" style="color: #AD0000;
+<span id="cb12-626">    <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Annual Change in Net Worth (%)"</span></span>
-<span id="cb12-636">  }<span class="op" style="color: #5E5E5E;
+font-style: inherit;">"Difference in Net Worth (Renter - Buyer) / Buyer (%)"</span></span>
+<span id="cb12-627">  }<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-637"></span>
-<span id="cb12-638">  <span class="dt" style="color: #AD0000;
+<span id="cb12-628"></span>
+<span id="cb12-629">  <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">color</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> {</span>
-<span id="cb12-639">    <span class="dt" style="color: #AD0000;
+<span id="cb12-630">    <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">legend</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3913,87 +3856,31 @@ font-style: inherit;">:</span> <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">true</span></span>
-<span id="cb12-640">  }<span class="op" style="color: #5E5E5E;
+<span id="cb12-631">  }<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-641"></span>
-<span id="cb12-642">  <span class="dt" style="color: #AD0000;
+<span id="cb12-632"></span>
+<span id="cb12-633">  <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">marks</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> [</span>
-<span id="cb12-643">    Plot<span class="op" style="color: #5E5E5E;
+<span id="cb12-634">    Plot<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">line</span>(</span>
-<span id="cb12-644">      cashflows<span class="op" style="color: #5E5E5E;
+<span id="cb12-635">      cashflows<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">slice</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">flatMap</span>((d<span class="op" style="color: #5E5E5E;
+font-style: inherit;">map</span>((d<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
-font-style: inherit;">=&gt;</span> {</span>
-<span id="cb12-645">        <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">const</span> buyer_base <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">max</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">abs</span>(buyer_net_worth[i]))</span>
-<span id="cb12-646">        <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">const</span> renter_base <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">max</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">abs</span>(renter_net_worth[i]))</span>
-<span id="cb12-647"></span>
-<span id="cb12-648">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> [</span>
-<span id="cb12-649">          {</span>
-<span id="cb12-650">            <span class="dt" style="color: #AD0000;
+font-style: inherit;">=&gt;</span> ({</span>
+<span id="cb12-636">        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -4004,86 +3891,30 @@ background-color: null;
 font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-651">            <span class="dt" style="color: #AD0000;
+<span id="cb12-637">        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">:</span></span>
-<span id="cb12-652">              ((buyer_net_worth[i <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+font-style: inherit;">:</span> (renter_net_worth[i] <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-</span> buyer_net_worth[i]) <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">/</span></span>
-<span id="cb12-653">                buyer_base) <span class="op" style="color: #5E5E5E;
+font-style: inherit;">/</span> <span class="bu" style="color: null;
 background-color: null;
-font-style: inherit;">*</span></span>
-<span id="cb12-654">              <span class="dv" style="color: #AD0000;
+font-style: inherit;">Math</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">100</span><span class="op" style="color: #5E5E5E;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb12-655">            <span class="dt" style="color: #AD0000;
+font-style: inherit;">abs</span>(buyer_net_worth[i]) <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Buyer"</span></span>
-<span id="cb12-656">          }<span class="op" style="color: #5E5E5E;
+font-style: inherit;">100</span></span>
+<span id="cb12-638">      }))<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-657">          {</span>
-<span id="cb12-658">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> d<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span><span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">Year</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb12-659">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Value</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span></span>
-<span id="cb12-660">              ((renter_net_worth[i <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> renter_net_worth[i]) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span></span>
-<span id="cb12-661">                renter_base) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span></span>
-<span id="cb12-662">              <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">100</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb12-663">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">Series</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Renter"</span></span>
-<span id="cb12-664">          }</span>
-<span id="cb12-665">        ]</span>
-<span id="cb12-666">      })<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb12-667">      {</span>
-<span id="cb12-668">        <span class="dt" style="color: #AD0000;
+<span id="cb12-639">      {</span>
+<span id="cb12-640">        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">x</span><span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -4092,26 +3923,17 @@ background-color: null;
 font-style: inherit;">"Year"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">,</span></span>
-<span id="cb12-669">        <span class="dt" style="color: #AD0000;
+<span id="cb12-641">        <span class="dt" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">y</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Value"</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb12-670">        <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">stroke</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Series"</span></span>
-<span id="cb12-671">      }</span>
-<span id="cb12-672">    )</span>
-<span id="cb12-673">  ]</span>
-<span id="cb12-674">})</span></code></pre></div></div>
+font-style: inherit;">"Value"</span></span>
+<span id="cb12-642">      }</span>
+<span id="cb12-643">    )</span>
+<span id="cb12-644">  ]</span>
+<span id="cb12-645">})</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-10" data-nodetype="expression">
 
