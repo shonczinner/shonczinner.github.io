@@ -40,3 +40,4 @@ format:
     css: styles.css
     include-in-header:
       - includes/schema.html
+      - includes/google-verification.html
