@@ -1,0 +1,672 @@
+---
+title: "Another Buying versus Renting Housing Calculator"
+author: "Shon Czinner"
+description: "An explanation of how buy vs. rent calculators work, and their limitations."
+date: "2026-05-28"
+categories: [personal finance, tools]
+execute:
+ freeze: true
+ echo: false
+bibliography: citations.bib
+---
+
+Buying versus renting a home is divisive. Some believe buying a home to be a good path to wealth largely relying on the overwhelming amount of data showing homeowners to be wealthier than renters. On the other hand, correlation is not a causation. Homes have always been expensive and most of the time require more cash-flow than renting. So is it that owning a home makes you wealthier or is that wealthier people own? The point of a calculator is to definitively resolve whether you'd be wealthier buying or renting.
+
+Here are many existing calculators:
+
+1.  https://www.calculator.net/rent-vs-buy-calculator.html
+2.  https://michaelbluejay.com/house/rentvsbuy.html
+3.  https://www.nbc.ca/personal/mortgages/calculators/rent-or-buy.html
+4.  https://research-tools.pwlcapital.com/research/rent-vs-buy
+
+These models generally use a simple methodology, although I can't speak for all of them, nor can I guarantee their accuracy. 
+
+The general methodology is as follows: Take two individuals with identical income. One of them buys a home with a mortgage, and the other rents. Any income unspent in a period is invested. At the end of so many years, you compare how much they could liquidate their assets (i.e. home and investments) for. In practice, this means calculating the cashflow for each individual in each period and giving both of them an income equal to the maximum of the two.
+
+These calculators are approximations. Most calculators for example assume future housing price growth is deterministic. Performing Monte-Carlo simulations with stochastic values still requires assumptions that might be wrong.
+
+The choice is even more complicated when you consider that buying and renting is often an apples to oranges comparison. [“More than 85 percent of single-family dwellings are owner occupied; more than 85 percent of dwellings in homes with more than three units are rented.”](https://www.huduser.gov/portal/periodicals/cityscpe/vol13num2/cityscape_july2011_rethinking.pdf) The average homes available for renting and buying likely have different sizes, forms, lots, nearby jobs, quality and proximity of schools, and necessary transportation costs. These calculators work best assuming you are deciding whether to rent or buy the exact same home.
+
+The calculators assume a level of fiscal discipline and rationality that may not be realistic. For example, the buyer may be more likely to make home improvements that increase the value of the home, or they might be more likely to invest in a diversified portfolio. The renter might be more likely to spend their savings on consumption rather than investing.
+
+Finally, these calculators are usually limited regarding refinancing and investing with leverage. Sophisticated individuals may buy a home and then keep their home leveraged instead of increasing equity in order to invest more elsewhere. They might also borrow against their investments.
+
+In this post I present an interactive description of the calculations for buyers and renters. You may modify the assumptions. Finally at the end, I present who ends up ahead.
+
+First lets decide on our comparison horizon and the general rate of inflation.
+
+```{ojs}
+viewof comparison_years = Inputs.number({
+  value: 30,
+  min: 1,
+  max: 100,
+  step: 1,
+  label: "Years"
+})
+
+viewof inflation_rate = Inputs.range([0, 15], {
+  value: 2,
+  step: 0.1,
+  label: "Inflation rate (% / year)"
+})
+```
+
+# The Buyer's Necessary Cashflows 
+
+The first transactions for a buyer are the down payment and closing costs. These involve the price of the home, real estate transfer taxes and fees, and down payment.
+
+```{ojs}
+viewof home_price = Inputs.number({
+  value: 750000,
+  min: 0,
+  step: 10000,
+  label: "Home price"
+})
+
+viewof downpayment_pct = Inputs.range([0, 100], {
+  value: 20,
+  step: 1,
+  label: "Down payment (%)"
+})
+
+viewof closing_costs_pct = Inputs.range([0, 100], {
+  value: 5,
+  step: 0.5,
+  label: "Closing costs (%)"
+})
+
+downpayment = home_price * downpayment_pct/100
+
+closing_costs = home_price * closing_costs_pct/100
+
+total_upfront_cost =  downpayment + closing_costs
+
+Inputs.table([
+  {
+    "Down payment": downpayment,
+    "Closing costs": closing_costs,
+    "Total upfront": total_upfront_cost
+  }
+])
+```
+
+
+Next we have the annual payments (the error from using annual numbers instead of monthly is small). These include the mortgage payments and expenses like property taxes, insurance, and maintenance. Property taxes will grow with the home price, insurance and maintenance will grow with inflation. 
+
+Note that the mortgage payment is calculated via the following equation,
+
+$\text{Loan Amount} = \sum_{i=1}^{n} \frac{\text{Payment}}{(1 + r)^i}$
+
+where $r$ is the mortgage rate and $n$ is the mortgage term. In other words, the present value of the loan is the sum of the present values of all future payments using mortgage rate for the discounting. 
+
+The remaining loan amount at time $t$ is,
+
+$\text{Balance}_t = \sum_{i=t+1}^{n} \frac{\text{Payment}}{(1 + r)^{i-t}}$
+
+where $\text{Balance}_0=\text{Loan Amount}$. The interest payment at time $t$ is $\text{Balance}_{t-1} \cdot r$ and the principal payment is $\text{Payment} - \text{Interest}_t$. The total mortgage payment is the sum of the interest and principal payments and can be calculated via the partial sum of the geometric series,
+
+$\text{Payment} = \frac{\text{Loan Amount} \cdot r \cdot (1 + r)^n}{(1 + r)^n - 1}$
+
+
+```{ojs}
+// =========================
+// INPUTS 
+// =========================
+viewof home_price_growth = Inputs.range([0, 15], {
+  value: 3,
+  step: 0.1,
+  label: "Home price growth (% / year)"
+})
+
+viewof mortgage_rate = Inputs.range([0, 15], {
+  value: 5,
+  step: 0.1,
+  label: "Mortgage rate (%)"
+})
+
+viewof mortgage_term = Inputs.number({
+  value: 25,
+  min: 1,
+  max: comparison_years,
+  step: 1,
+  label: "Mortgage term (years)"
+})
+
+viewof property_tax_pct = Inputs.range([0, 5], {
+  value: 1,
+  step: 0.1,
+  label: "Property tax (% of home price)"
+})
+
+viewof insurance_pct = Inputs.range([0, 5], {
+  value: 0.4,
+  step: 0.1,
+  label: "Insurance (% of home price)"
+})
+
+
+viewof maintenance_pct = Inputs.range([0, 10], {
+  value: 1,
+  step: 0.1,
+  label: "Maintenance (% of home price)"
+})
+
+
+// =========================
+// MORTGAGE SETUP
+// =========================
+
+loan_amount = home_price - downpayment
+
+mortgage_rate_decimal = mortgage_rate / 100
+
+mortgage_payment =
+  mortgage_rate_decimal === 0
+    ? loan_amount / mortgage_term
+    : (
+        loan_amount *
+        mortgage_rate_decimal *
+        (1 + mortgage_rate_decimal) ** mortgage_term
+      ) /
+      (
+        (1 + mortgage_rate_decimal) ** mortgage_term - 1
+      )
+
+// =========================
+// COST MODEL WITH AMORTIZATION
+// =========================
+
+ownership_costs = (() => {
+
+  let balance = loan_amount
+
+  return Array.from({ length: comparison_years }, (_, i) => {
+
+    // ----- non-mortgage -----
+    const property_tax =
+      home_price *
+      property_tax_pct / 100 *
+      (1 + home_price_growth / 100) ** i
+
+    const insurance =
+      home_price *
+      insurance_pct / 100 *
+      (1 + inflation_rate / 100) ** i
+
+    const maintenance =
+      home_price *
+      maintenance_pct / 100 *
+      (1 + inflation_rate / 100) ** i
+
+    // ----- mortgage split -----
+    let interest = 0
+    let principal = 0
+    let payment = 0
+
+    if (i < mortgage_term) {
+      interest = balance * mortgage_rate_decimal
+      payment = mortgage_payment
+      principal = payment - interest
+      balance = Math.max(0, balance - principal)
+    }
+
+    const mortgage_total = principal + interest
+
+    return {
+      Year: i + 1,
+      Principal: principal,
+      Interest: interest,
+      Mortgage: mortgage_total,
+      "Property Tax": property_tax,
+      Insurance: insurance,
+      Maintenance: maintenance,
+      Total: mortgage_total + property_tax + insurance + maintenance
+    }
+  })
+})()
+
+// =========================
+// DISPLAY
+// =========================
+
+Inputs.table(
+  ownership_costs.map(d => ({
+    Year: d.Year,
+    Principal: Math.round(d.Principal),
+    Interest: Math.round(d.Interest),
+    //Mortgage: Math.round(d.Mortgage),
+    "Property Tax": Math.round(d["Property Tax"]),
+    Insurance: Math.round(d.Insurance),
+    Maintenance: Math.round(d.Maintenance),
+    Total: Math.round(d.Total)
+  }))
+)
+```
+
+Finally we have taxes and fees for selling the home at the end of the comparison period.
+
+```{ojs}
+
+
+viewof selling_costs_pct = Inputs.range([0, 10], {
+  value: 6,
+  step: 0.1,
+  label: "Selling costs (% of home price)"
+})
+
+viewof capital_gains_tax_pct = Inputs.range([0, 50], {
+  value: 0,
+  step: 1,
+  label: "Capital gains tax on home sale (%)"
+})
+
+final_home_price =
+  home_price * (1 + home_price_growth / 100) ** comparison_years
+
+selling_costs = final_home_price * selling_costs_pct / 100
+
+capital_gains = Math.max(0, final_home_price - home_price - closing_costs - selling_costs)
+
+capital_gains_tax = capital_gains * capital_gains_tax_pct / 100
+
+net_sale_proceeds = final_home_price - selling_costs - capital_gains_tax
+
+Inputs.table([
+  {
+    "Initial home price": Math.round(home_price),
+    "Closing costs": Math.round(closing_costs),
+    "Selling costs": Math.round(selling_costs),
+    "Final home price": Math.round(final_home_price),
+    "Capital gains": Math.round(capital_gains),
+    "Capital gains tax": Math.round(capital_gains_tax),
+    "Net sale proceeds": Math.round(net_sale_proceeds)
+  }
+])
+```
+
+# The Renter's Necessary Cashflows
+
+The renter's cash-flows are simpler. They consist of the rent payments, and renters insurance, and the growth of each over time. We'll assume rent insurance grows with inflation, and rent grows with its own growth rate. 
+
+```{ojs}
+viewof initial_rent = Inputs.number({
+  value: 3000,
+  min: 0,
+  step: 100,
+  label: "Initial monthly rent"
+})
+
+viewof rent_growth = Inputs.range([0, 15], {
+  value: 3,
+  step: 0.1,
+  label: "Rent growth (% / year)"
+})
+// renters insurance is absolute not  percent
+viewof renters_insurance = Inputs.number({
+  value: 50,
+  min: 0,
+  step: 1,
+  label: "Initial monthly renters insurance"
+})
+
+rental_costs = Array.from({ length: comparison_years }, (_, i) => {
+  const rent =
+    initial_rent * 12 * (1 + rent_growth / 100) ** i
+
+  const insurance =
+    renters_insurance * 12 * (1 + inflation_rate / 100) ** i
+
+  return {
+    Year: i + 1,
+    Rent: rent,
+    "Renters Insurance": insurance,
+    Total: rent + insurance
+  }
+})
+
+Inputs.table(
+  rental_costs.map(d => ({
+    Year: d.Year,
+    Rent: Math.round(d.Rent),
+    "Renters Insurance": Math.round(d["Renters Insurance"]),
+    Total: Math.round(d.Total)
+  }))
+)
+```
+
+# Who Ends Up Ahead?
+
+We're almost ready to compare who comes out ahead. We just need to calculate how much the buyer and renter invest each year.
+
+
+```{ojs}
+// Calculate accumulated investments for buyer and renter
+cashflows = [
+  {
+    Year: 0,
+    Buyer: total_upfront_cost,
+    Renter: 0
+  },
+  ...ownership_costs.map((d, i) => ({
+    Year: d.Year,
+    Buyer: d.Total,
+    Renter: rental_costs[i].Total
+  }))
+].map(d => {
+  const Max = Math.max(d.Buyer, d.Renter)
+  return {
+    ...d,
+    Max,
+    BuyerInvestment: Max - d.Buyer,
+    RenterInvestment: Max - d.Renter
+  }
+})
+
+// calculate investment and accumulated
+buyer_investment = cashflows.map(d => d.Max - d.Buyer)
+renter_investment = cashflows.map(d => d.Max - d.Renter)
+
+Inputs.table(
+  cashflows.map((d, i) => ({
+    Year: d.Year,
+    "Buyer Cashflow": Math.round(d.Buyer),
+    "Renter Cashflow": Math.round(d.Renter),
+    "Buyer Investment": Math.round(buyer_investment[i]),
+    "Renter Investment": Math.round(renter_investment[i]),
+  }))
+)
+```
+
+Finally we can compare  who is better off at the end of the comparison period by looking at the net home equity for the buyer and the accumulated investments for both. The buyer's net home equity is the net sale proceeds minus the remaining mortgage balance.
+
+All we need is the return on investments and capital gains tax. Then we can calculate the accumulated investments for the buyer and renter, and the net home equity for the buyer.
+
+```{ojs}
+viewof investment_return = Inputs.range([0, 15], {
+  value: 7,
+  step: 0.1,
+  label: "Investment return (% / year)"
+})
+
+viewof capital_gains_tax_investments_pct = Inputs.range([0, 50], {
+  value: 25,
+  step: 1,
+  label: "Capital gains tax on investments (%)"
+})
+
+
+// ---------- FIX: safe accumulation ----------
+buyer_accumulated = {
+  let arr = [buyer_investment[0]]
+  for(let i = 1; i < cashflows.length; i++) {
+    arr.push(
+      arr[i - 1] * (1 + investment_return / 100) +
+      buyer_investment[i]
+    )
+  }
+  return arr
+}
+renter_accumulated = {
+  let arr = [renter_investment[0]]
+  for(let i = 1; i < cashflows.length; i++) {
+    arr.push(
+      arr[i - 1] * (1 + investment_return / 100) +
+      renter_investment[i]
+    )
+  }
+  return arr
+}
+buyer_cost_basis = {
+  let arr = [buyer_investment[0]]
+  for(let i = 1; i < cashflows.length; i++) {
+    arr.push(
+      arr[i - 1]+buyer_investment[i]
+    )
+  }
+  return arr
+}
+renter_cost_basis = {
+  let arr = [renter_investment[0]]
+  for(let i = 1; i < cashflows.length; i++) {
+    arr.push(
+      arr[i - 1]+renter_investment[i]
+    )
+  }
+  return arr
+}
+
+// ---------- gains ----------
+buyer_capital_gains = buyer_accumulated.map((a, i) => a - buyer_cost_basis[i])
+renter_capital_gains = renter_accumulated.map((a, i) => a - renter_cost_basis[i])
+
+buyer_capital_gains_tax = buyer_capital_gains.map(g => g * capital_gains_tax_investments_pct / 100)
+renter_capital_gains_tax = renter_capital_gains.map(g => g * capital_gains_tax_investments_pct / 100)
+
+// ---------- home price ----------
+annual_home_price = Array.from(
+  { length: comparison_years + 1 },
+  (_, i) => home_price * (1 + home_price_growth / 100) ** i
+)
+
+// ---------- FIX: deterministic mortgage balance ----------
+mortgage_balance = (() => {
+  const arr = [loan_amount]
+
+  for (let i = 1; i <= comparison_years; i++) {
+    if (i > mortgage_term) {
+      arr.push(0)
+      continue
+    }
+
+    const interest = arr[i - 1] * mortgage_rate_decimal
+    const principal = mortgage_payment - interest
+
+    arr.push(Math.max(0, arr[i - 1] - principal))
+  }
+
+  return arr
+})()
+
+// ---------- selling / taxes ----------
+selling_costs2 = annual_home_price.map(p => p * selling_costs_pct / 100)
+
+capital_gains2 = annual_home_price.map((p, i) =>
+  Math.max(0, p - home_price - closing_costs - selling_costs2[i])
+)
+
+capital_gains_tax2 = capital_gains2.map(g =>
+  g * capital_gains_tax_pct / 100
+)
+
+net_sale_proceeds2 = annual_home_price.map((p, i) =>
+  p - selling_costs2[i] - capital_gains_tax2[i]
+)
+
+buyer_net_investments = buyer_accumulated.map((a, i) => a - buyer_capital_gains_tax[i])
+buyer_net_worth = net_sale_proceeds2.map((proceeds, i) =>
+  proceeds + buyer_net_investments[i] - mortgage_balance[i]
+)
+renter_net_worth = renter_accumulated.map((a, i) => a - renter_capital_gains_tax[i])
+// ---------- FINAL TABLE ----------
+Inputs.table(
+  Array.from({ length: comparison_years + 1 }, (_, i) => ({
+    Year: i,
+
+    //"Home Price": Math.round(annual_home_price[i]),
+    "Mortgage Balance": Math.round(mortgage_balance[i]),
+    //"Selling Costs": Math.round(selling_costs2[i]),
+    //"Capital Gains Tax": Math.round(capital_gains_tax2[i]),
+    "Buyer Net Home Sale": Math.round(net_sale_proceeds2[i]),
+
+    //"Buyer Investments": Math.round(buyer_accumulated[i]),
+    //"Buyer Investment Capital Gains Tax": Math.round(buyer_capital_gains_tax[i]),
+    "Buyer Net Investments": Math.round(buyer_net_investments[i]),
+
+    "Buyer Net Worth": Math.round(buyer_net_worth[i]),
+
+    //"Renter Investments": Math.round(renter_accumulated[i]),
+    //"Renter Capital Gains Tax": Math.round(renter_capital_gains_tax[i]),
+    "Renter Net Worth": Math.round(renter_net_worth[i])
+  }))
+)
+
+// summary output e.g. "After 30 years, the buyer has a net worth of $X and the renter has a net worth of $Y, so the buyer is ahead by $Z."
+final_buyer_net_worth = buyer_net_worth[comparison_years]
+final_renter_net_worth = renter_net_worth[comparison_years]
+final_comparison = final_buyer_net_worth - final_renter_net_worth
+{
+  if (final_comparison > 0) {
+    return md`**After ${comparison_years} years, the buyer has a net worth of $${Math.round(final_buyer_net_worth).toLocaleString()} and the renter has a net worth of $${Math.round(final_renter_net_worth).toLocaleString()}, so the buyer is ahead by $${Math.round(final_comparison).toLocaleString()}.**`
+  } else if (final_comparison < 0) {
+    return md`**After ${comparison_years} years, the buyer has a net worth of $${Math.round(final_buyer_net_worth).toLocaleString()} and the renter has a net worth of $${Math.round(final_renter_net_worth).toLocaleString()}, so the renter is ahead by $${Math.round(-final_comparison).toLocaleString()}.**`
+  } else {
+    return md`**After ${comparison_years} years, the buyer and renter have the same net worth of $${Math.round(final_buyer_net_worth).toLocaleString()}.**`
+  }
+}
+
+md`Note: In present dollars (i.e. discounted by inflation), the buyer's net worth is $${Math.round(final_buyer_net_worth / (1 + inflation_rate / 100) ** comparison_years).toLocaleString()} and the renter's net worth is $${Math.round(final_renter_net_worth / (1 + inflation_rate / 100) ** comparison_years).toLocaleString()}.`
+```
+
+So who is ahead? It depends on the assumptions. Try changing the assumptions to see how it affects the outcome. 
+
+Lastly, lets end with some plots. First we'll plot the net worth of the buyer and renter over time. Then we'll plot the annual change in net worth for both the buyer and renter over time, first in absolute terms and then in percentage terms.
+
+```{ojs}
+Plot.plot({
+  width: 700,
+  height: 400,
+
+  marginLeft: 80,
+
+  x: {
+    label: "Year"
+  },
+
+  y: {
+    label: "Net Worth ($)"
+  },
+
+  color: {
+    legend: true
+  },
+
+  marks: [
+    Plot.line(
+      cashflows.flatMap((d, i) => [
+        {
+          Year: d.Year,
+          Value: buyer_net_worth[i],
+          Series: "Buyer"
+        },
+        {
+          Year: d.Year,
+          Value: renter_net_worth[i],
+          Series: "Renter"
+        }
+      ]),
+      {
+        x: "Year",
+        y: "Value",
+        stroke: "Series"
+      }
+    )
+  ]
+})
+```
+
+```{ojs}
+Plot.plot({
+  width: 700,
+  height: 400,
+
+  marginLeft: 90,
+
+  x: {
+    label: "Year"
+  },
+
+  y: {
+    label: "Annual Change in Net Worth ($)"
+  },
+
+  color: {
+    legend: true
+  },
+
+  marks: [
+    Plot.line(
+      cashflows.slice(1).flatMap((d, i) => [
+        {
+          Year: d.Year,
+          Value: buyer_net_worth[i + 1] - buyer_net_worth[i],
+          Series: "Buyer"
+        },
+        {
+          Year: d.Year,
+          Value: renter_net_worth[i + 1] - renter_net_worth[i],
+          Series: "Renter"
+        }
+      ]),
+      {
+        x: "Year",
+        y: "Value",
+        stroke: "Series"
+      }
+    )
+  ]
+})
+```
+
+```{ojs}
+Plot.plot({
+  width: 700,
+  height: 400,
+
+  marginLeft: 90,
+
+  x: {
+    label: "Year"
+  },
+
+  y: {
+    label: "Annual Change in Net Worth (%)"
+  },
+
+  color: {
+    legend: true
+  },
+
+  marks: [
+    Plot.line(
+      cashflows.slice(1).flatMap((d, i) => {
+        const buyer_base = Math.max(1, Math.abs(buyer_net_worth[i]))
+        const renter_base = Math.max(1, Math.abs(renter_net_worth[i]))
+
+        return [
+          {
+            Year: d.Year,
+            Value:
+              ((buyer_net_worth[i + 1] - buyer_net_worth[i]) /
+                buyer_base) *
+              100,
+            Series: "Buyer"
+          },
+          {
+            Year: d.Year,
+            Value:
+              ((renter_net_worth[i + 1] - renter_net_worth[i]) /
+                renter_base) *
+              100,
+            Series: "Renter"
+          }
+        ]
+      }),
+      {
+        x: "Year",
+        y: "Value",
+        stroke: "Series"
+      }
+    )
+  ]
+})
+```
