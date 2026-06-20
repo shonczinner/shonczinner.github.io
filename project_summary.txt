@@ -11,3 +11,4 @@ Desired features:
     1. Download .ipynb button
     2. RSS Feed
     3. Email subscription
+    4. https://search.google.com/search-console/about

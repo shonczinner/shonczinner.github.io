@@ -41,3 +41,6 @@ format:
     include-in-header:
       - includes/schema.html
       - includes/google-verification.html
+
+csl: https://www.zotero.org/styles/ieee
+citeproc: true
