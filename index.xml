@@ -1363,7 +1363,7 @@ font-style: inherit;">Total</span>)</span>
 </div>
 </div>
 </div>
-<p>Finally we have taxes and fees for selling the home at the end of the comparison period.</p>
+<p>Finally we have taxes and fees for selling the home at the end of the comparison period. Note that closing and selling costs are deducted from home capital gains.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="251" data-source-offset="-2" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 250;"><span id="cb4-251">viewof selling_costs_pct <span class="op" style="color: #5E5E5E;
 background-color: null;
