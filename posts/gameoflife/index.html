@@ -6,8 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Shon Czinner">
+<meta name="dcterms.date" content="2026-06-20">
+<meta name="description" content="Teaching cellular automata to actually do things">
 
-<title>Shon Czinner’s Blog</title>
+<title>Neural Cellular Automata and Recurrent Architectures – Shon Czinner’s Blog</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,29 +26,47 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./favicon.png" rel="icon" type="image/png">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-bba5ebae505b5c03f3f0d8040a416a6b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-bba5ebae505b5c03f3f0d8040a416a6b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -73,35 +94,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-subtitle','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-subtitle","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-44Q7K7T86R"></script>
 
 <script type="text/javascript">
@@ -152,24 +144,30 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="Shon Czinner's Blog" href="index.xml" data-external="1"><meta property="og:title" content="Shon Czinner’s Blog">
-<meta property="og:image" content="https://shonczinner.github.io/profile.jpg">
+<link rel="stylesheet" href="../../styles.css">
+<meta property="og:title" content="Neural Cellular Automata and Recurrent Architectures – Shon Czinner’s Blog">
+<meta property="og:description" content="Teaching cellular automata to actually do things">
+<meta property="og:image" content="https://shonczinner.github.io/posts/gameoflife/life.png">
 <meta property="og:site_name" content="Shon Czinner’s Blog">
 <meta property="og:locale" content="en_CA">
-<meta name="twitter:title" content="Shon Czinner’s Blog">
-<meta name="twitter:image" content="https://shonczinner.github.io/profile.jpg">
+<meta property="og:image:height" content="274">
+<meta property="og:image:width" content="265">
+<meta name="twitter:title" content="Neural Cellular Automata and Recurrent Architectures – Shon Czinner’s Blog">
+<meta name="twitter:description" content="Teaching cellular automata to actually do things">
+<meta name="twitter:image" content="https://shonczinner.github.io/posts/gameoflife/life.png">
+<meta name="twitter:image-height" content="274">
+<meta name="twitter:image-width" content="265">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+  <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Shon Czinner’s Blog</span>
     </a>
   </div>
@@ -180,7 +178,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -194,7 +192,7 @@ window.Quarto = {
 <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./index.xml"> <i class="bi bi-rss" role="img">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -206,280 +204,218 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<header id="title-block-header" class="quarto-title-block"></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(7)</span></div><div class="category" data-category="YWk=">ai <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Y25u">cnn <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y29kZQ==">code <span class="quarto-category-count">(2)</span></div><div class="category" data-category="ZnVu">fun <span class="quarto-category-count">(1)</span></div><div class="category" data-category="amVwYQ==">jepa <span class="quarto-category-count">(3)</span></div><div class="category" data-category="bWV0YQ==">meta <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cGVyc29uYWwlMjBmaW5hbmNl">personal finance <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cXVhcnRv">quarto <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cm5u">rnn <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dG9vbHM=">tools <span class="quarto-category-count">(1)</span></div></div></div>
+    
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Neural Cellular Automata and Recurrent Architectures</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">ai</div>
+    <div class="quarto-category">cnn</div>
+    <div class="quarto-category">rnn</div>
+    <div class="quarto-category">fun</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Teaching cellular automata to actually do things
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Shon Czinner </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 20, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="conways-game-of-life" class="level1">
+<h1>Conway’s Game of Life</h1>
+<p>Here’s Wikipedia’s description of <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway’s Game of Life</a>:</p>
+<blockquote class="blockquote">
+<p>The universe of the Game of Life is an infinite, two-dimensional orthogonal grid of square cells, each of which is in one of two possible states, live or dead (or populated and unpopulated, respectively). Every cell interacts with its eight neighbours (its Moore neighborhood), which are the cells that are horizontally, vertically, or diagonally adjacent. At each step in time, the following transitions occur:</p>
+<ol type="1">
+<li>Any live cell with fewer than two live neighbours dies, as if by underpopulation.</li>
+<li>Any live cell with two or three live neighbours lives on to the next generation.</li>
+<li>Any live cell with more than three live neighbours dies, as if by overpopulation.</li>
+<li>Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.</li>
+</ol>
+</blockquote>
+<p>You can “play” it below. The living cells are green and dead cells are black. You can pause and click/drag to change individual cells.</p>
+<p>Cells have local receptive fields only being impacted by their neighbours. By applying the same set of rules to itself recursively, cells can have a global impact on any other cell.</p>
+<div id="gol-app">
+
+</div>
+<script src="./gameoflife.js"></script>
+</section>
+<section id="cellular-automata-as-convolutional-neural-networks" class="level1">
+<h1>Cellular Automata as Convolutional Neural Networks</h1>
+<p>We can cast Conway’s Game of Life as a single convolutional layer followed by a non-linear function. This has been studied before <span class="citation" data-cites="Gilpin_2019"><a href="#ref-Gilpin_2019" role="doc-biblioref">[1]</a></span>.</p>
+<p>Convolutional layers in neural networks slide a local filter over an input, multiply element-wise, and then sum.. Convolutional neural networks (CNNs) stack convolutional layers and simple non-linear functions so they can learn complex non-linear functions.</p>
+<p>Suppose we have a cell and its surrounding cells with the following configuration. 1 means alive and 0 means dead.</p>
+<table style="border-collapse: collapse; background-color: #000; font-family: monospace; font-size: 18px; font-weight: bold; text-align: center;">
+<tbody><tr>
+<td style="width: 40px; height: 40px; border: 1px solid #222; background-color: #00ff88;">
+1
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; background-color: #00ff88;">
+1
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+</tr>
+<tr>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; background-color: #00ff88;">
+1
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; background-color: #00ff88;">
+1
+</td>
+</tr>
+<tr>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+</tr>
+</tbody></table>
+<p>Now let’s apply this filter to that 3x3 section:</p>
+<p><span class="math display">\[
+\begin{pmatrix}
+1 &amp; 1 &amp; 1 \\
+1 &amp; 10 &amp; 1 \\
+1 &amp; 1 &amp; 1
+\end{pmatrix}
+\]</span></p>
+<p>First we do the element wise multiplication:</p>
+<p><span class="math display">\[
+\begin{pmatrix}
+1 &amp; 1 &amp; 0 \\
+0 &amp; 1 &amp; 1 \\
+0 &amp; 0 &amp; 0
+\end{pmatrix}
+\odot
+\begin{pmatrix}
+1 &amp; 1 &amp; 1 \\
+1 &amp; 10 &amp; 1 \\
+1 &amp; 1 &amp; 1
+\end{pmatrix}
+=
+\begin{pmatrix}
+1 \times 1 &amp; 1 \times 1 &amp; 0 \times 1 \\
+0 \times 1 &amp; 1 \times 10 &amp; 1 \times 1 \\
+0 \times 1 &amp; 0 \times 1 &amp; 0 \times 1
+\end{pmatrix}
+=
+\begin{pmatrix}
+1 &amp; 1 &amp; 0 \\
+0 &amp; 10 &amp; 1 \\
+0 &amp; 0 &amp; 0
+\end{pmatrix}
+\]</span></p>
+<p>Then we take the sum of all the elements. This counts the number of living neighbours and adds 10 if the cell is living itself. In this case we calculate 13.</p>
+<p>According to Conway’s rules, the value of this cell is a non-linear function based on this sum.</p>
+<p>What we want is:</p>
+<p><span class="math display">\[f(S) = \begin{cases}
+1 &amp; \text{if } S = 3 \quad \text{(Dead cell with 3 neighbors $\rightarrow$ alive)} \\
+1 &amp; \text{if } S = 12 \quad \text{(Alive cell with 2 neighbors $\rightarrow$ alive)} \\
+1 &amp; \text{if } S = 13 \quad \text{(Alive cell with 3 neighbors $\rightarrow$ alive)} \\
+0 &amp; \text{otherwise} \quad \text{(All other cases $\rightarrow$ dead)}
+\end{cases}\]</span></p>
+<p>So this cell would update to 1 and remain living.</p>
+<p>Conway’s Game of Life does this same operation for all cells, and then repeats.</p>
+</section>
+<section id="neural-cellular-automata" class="level1">
+<h1>Neural Cellular Automata</h1>
+<p>Neural Cellular Automata learn neural network weights to solve problems. Effectively, they are changing the rules in Conway’s Game of Life in such a way that they actually compute some goal rather than just resulting in an interesting simulation.</p>
+<p>There are cool examples of NCA <a href="https://distill.pub/2020/selforg/mnist/">performing MNIST digit classification</a> and <a href="https://umu1729.github.io/pages-neural-cellular-maze-solver/">solving mazes</a>. Here’s a video of NCA <a href="https://www.youtube.com/watch?v=0w_cVJoD2uk">playing Pong</a>.</p>
+<p>NCA adds multiple channels to the 2D images which can be thought of also as each cell containing a vector. This is shown in <a href="#fig-life-layer">Figure 1</a>. The stochastic update updates a cell with 50% probability and can be thought of as a form of dropout.</p>
+<figure id="nca-arch" style="text-align: center; margin: 20px 0;" class="figure">
+<img src="maze-endo.svg" alt="The NCA model architecture" style="max-width: 100%; height: auto;" class="figure-img">
+<figcaption style="font-size: 0.85em; color: #555; margin-top: 8px;">
+Figure 1: The NCA model architecture. Image source: <a href="https://umu1729.github.io/pages-neural-cellular-maze-solver/" target="_blank" rel="noopener">Katsuhiro Endo / Kenji Yasuoka</a>.
+</figcaption>
+</figure>
+<p><a href="https://umu1729.github.io/pages-neural-cellular-maze-solver/" target="_blank" rel="noopener">Katsuhiro Endo / Kenji Yasuoka</a> also provide a good verbal description of the architecture. I’ve placed some emphasis on what elements of the methodology make it similar to many of the other neural network methodologies which solve problems iteratively via recurrence.</p>
+<blockquote class="blockquote">
+<p>The model used in this article is a simplified version of the model used in Growing Neural Cellular Automata. Each cell consists of 16 real channels. <strong><em>The first of the 16 channels is used to input the state of the maze</em></strong>. The wall is +1, the road is 0, and the endpoint is -1. <strong><em>The second channel is used to output the solution of the maze</em></strong>. The road on the shortest path is +1 and the other roads are -1, as a target value. The other 14 channels are used as hidden variables.</p>
+</blockquote>
+</section>
+<section id="beyond-neural-cellular-automata-with-recurrent-architectures" class="level1">
+<h1>Beyond Neural Cellular Automata With Recurrent Architectures</h1>
+<p>There are many neural network architectures that share some key features of Neural Cellular Automata.</p>
+<ol type="1">
+<li>Injecting the initial input/problem to solve at all steps.</li>
+<li>Keeping track of a current model prediction which is iteratively improved.</li>
+<li>Applying the same neural network repeatedly i.e.&nbsp;recurrence.</li>
+</ol>
+<p>Most of these architectures feature global receptive fields rather than local receptive fields. In practice this means replacing CNNs with Transformers, MLP-Mixer <span class="citation" data-cites="tolstikhin2021mlpmixerallmlparchitecturevision"><a href="#ref-tolstikhin2021mlpmixerallmlparchitecturevision" role="doc-biblioref">[2]</a></span> or gMLP <span class="citation" data-cites="liu2021payattentionmlps"><a href="#ref-liu2021payattentionmlps" role="doc-biblioref">[3]</a></span>.</p>
+<p>These related architectures include Tiny Recursive Models <span class="citation" data-cites="alexia2025"><a href="#ref-alexia2025" role="doc-biblioref">[4]</a></span>, Think Again Networks <span class="citation" data-cites="salle2019thinknetworksdeltaloss"><a href="#ref-salle2019thinknetworksdeltaloss" role="doc-biblioref">[5]</a></span>, Deep Thinking Networks <span class="citation" data-cites="schwarzschild2021learnalgorithmgeneralizingeasy"><a href="#ref-schwarzschild2021learnalgorithmgeneralizingeasy" role="doc-biblioref">[6]</a></span>, Adaptive Computation Time RNNs <span class="citation" data-cites="graves2017adaptivecomputationtimerecurrent"><a href="#ref-graves2017adaptivecomputationtimerecurrent" role="doc-biblioref">[7]</a></span> and Recurrent Relational Networks <span class="citation" data-cites="palm2018recurrentrelationalnetworks"><a href="#ref-palm2018recurrentrelationalnetworks" role="doc-biblioref">[8]</a></span>.</p>
+<p>This is a growing and interesting direction for neural networks and intelligent systems.</p>
 
 
 
+</section>
 
-
-
-
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="YWklMkNjbm4lMkNybm4lMkNmdW4=" data-listing-date-sort="1781913600000" data-listing-file-modified-sort="1781978010086" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1048">
-<div class="thumbnail"><a href="./posts/gameoflife/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/gameoflife/life.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/gameoflife/index.html" class="no-external">Neural Cellular Automata and Recurrent Architectures</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/gameoflife/index.html" class="no-external"></a>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
+<div id="ref-Gilpin_2019" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">W. Gilpin, <span>“Cellular automata as convolutional neural networks,”</span> <em>Physical Review E</em>, vol. 100, no. 3, 2019, doi: <a href="https://doi.org/10.1103/physreve.100.032402">10.1103/physreve.100.032402</a>.</div>
 </div>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('YWk='); return false;">ai</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('Y25u'); return false;">cnn</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cm5u'); return false;">rnn</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('ZnVu'); return false;">fun</div>
-
+<div id="ref-tolstikhin2021mlpmixerallmlparchitecturevision" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">I. Tolstikhin <em>et al.</em>, <span>“MLP-mixer: An all-MLP architecture for vision.”</span> 2021. Available: <a href="https://arxiv.org/abs/2105.01601">https://arxiv.org/abs/2105.01601</a></div>
 </div>
-<div class="delink listing-description"><a href="./posts/gameoflife/index.html" class="no-external">
-<p>Teaching cellular automata to actually do things</p>
-</a></div>
+<div id="ref-liu2021payattentionmlps" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">H. Liu, Z. Dai, D. R. So, and Q. V. Le, <span>“Pay attention to MLPs.”</span> 2021. Available: <a href="https://arxiv.org/abs/2105.08050">https://arxiv.org/abs/2105.08050</a></div>
 </div>
-<div class="metadata">
-<a href="./posts/gameoflife/index.html" class="no-external">
-<div class="listing-date">
-Jun 20, 2026
+<div id="ref-alexia2025" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">A. Jolicoeur-Martineau, <span>“Less is more: Recursive reasoning with tiny networks.”</span> 2025. Available: <a href="https://arxiv.org/abs/2510.04871">https://arxiv.org/abs/2510.04871</a></div>
 </div>
-<div class="listing-author">
-Shon Czinner
+<div id="ref-salle2019thinknetworksdeltaloss" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">A. Salle and M. Prates, <span>“Think again networks and the delta loss.”</span> 2019. Available: <a href="https://arxiv.org/abs/1904.11816">https://arxiv.org/abs/1904.11816</a></div>
 </div>
-</a>
+<div id="ref-schwarzschild2021learnalgorithmgeneralizingeasy" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">A. Schwarzschild <em>et al.</em>, <span>“Can you learn an algorithm? Generalizing from easy to hard problems with recurrent networks.”</span> 2021. Available: <a href="https://arxiv.org/abs/2106.04537">https://arxiv.org/abs/2106.04537</a></div>
 </div>
+<div id="ref-graves2017adaptivecomputationtimerecurrent" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">A. Graves, <span>“Adaptive computation time for recurrent neural networks.”</span> 2017. Available: <a href="https://arxiv.org/abs/1603.08983">https://arxiv.org/abs/1603.08983</a></div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="cGVyc29uYWwlMjBmaW5hbmNlJTJDdG9vbHM=" data-listing-date-sort="1779926400000" data-listing-file-modified-sort="1781978010086" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17" data-listing-word-count-sort="3383">
-<div class="thumbnail"><a href="./posts/buyrent/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/buyrent/buyrent.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/buyrent/index.html" class="no-external">Another Buying versus Renting Housing Calculator</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/buyrent/index.html" class="no-external"></a>
+<div id="ref-palm2018recurrentrelationalnetworks" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[8] </div><div class="csl-right-inline">R. B. Palm, U. Paquet, and O. Winther, <span>“Recurrent relational networks.”</span> 2018. Available: <a href="https://arxiv.org/abs/1711.08028">https://arxiv.org/abs/1711.08028</a></div>
 </div>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('cGVyc29uYWwlMjBmaW5hbmNl'); return false;">personal finance</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('dG9vbHM='); return false;">tools</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/buyrent/index.html" class="no-external">
-<p>An explanation of how buy vs.&nbsp;rent calculators work, and their limitations.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/buyrent/index.html" class="no-external">
-<div class="listing-date">
-May 28, 2026
-</div>
-<div class="listing-author">
-Shon Czinner
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="YWklMkNxdWFydG8lMkNtZXRh" data-listing-date-sort="1778198400000" data-listing-file-modified-sort="1781978010087" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="173">
-<div class="thumbnail"><a href="./posts/onnx-quarto/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/onnx-quarto/index.html" class="no-external">Getting ONNX Models Working In A Quarto Blog</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/onnx-quarto/index.html" class="no-external">A step-by-step guide to integrating ONNX models into a Quarto blog post.</a>
-</div>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('YWk='); return false;">ai</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cXVhcnRv'); return false;">quarto</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('bWV0YQ=='); return false;">meta</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/onnx-quarto/index.html" class="no-external">
-<p>Learn how to use ONNX models in your Quarto blog with this comprehensive guide.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/onnx-quarto/index.html" class="no-external">
-<div class="listing-date">
-May 8, 2026
-</div>
-<div class="listing-author">
-Shon Czinner
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="YWklMkNqZXBh" data-listing-date-sort="1777852800000" data-listing-file-modified-sort="1781978010086" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="741">
-<div class="thumbnail"><a href="./posts/embedding-prediction/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/embedding-prediction/noisy_matrix_with_marginals.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/embedding-prediction/index.html" class="no-external">The 90-year-old idea behind JEPA models: Canonical Correlation Analysis (CCA)</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/embedding-prediction/index.html" class="no-external">Embedding prediction</a>
-</div>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('YWk='); return false;">ai</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('amVwYQ=='); return false;">jepa</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/embedding-prediction/index.html" class="no-external">
-<p>Harold Hotelling’s 1936 Canonical Correlation Analysis (CCA) forms the theoretical and intuitive foundation for modern embedding prediction techniques, including JEPA models.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/embedding-prediction/index.html" class="no-external">
-<div class="listing-date">
-May 4, 2026
-</div>
-<div class="listing-author">
-Shon Czinner
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="4" data-categories="YWklMkNjb2RlJTJDamVwYQ==" data-listing-date-sort="1777507200000" data-listing-file-modified-sort="1781978010095" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="616">
-<div class="thumbnail"><a href="./posts/small-jepa-language-model/index.html" class="no-external">
-
-<p class="card-img-top"><img loading='lazy' src="posts/small-jepa-language-model/index_files/figure-html/fig-embspace-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/small-jepa-language-model/index.html" class="no-external">A Small JEPA Word Embedding Model</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/small-jepa-language-model/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('YWk='); return false;">ai</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('Y29kZQ=='); return false;">code</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('amVwYQ=='); return false;">jepa</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/small-jepa-language-model/index.html" class="no-external">
-After my prior blog post about SIGReg, I figured I’d train a small Joint-Embedding Predictive Architecture (JEPA) model to demonstrate it.
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/small-jepa-language-model/index.html" class="no-external">
-<div class="listing-date">
-Apr 30, 2026
-</div>
-<div class="listing-author">
-Shon Czinner
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="5" data-categories="YWklMkNjb2RlJTJDamVwYQ==" data-listing-date-sort="1777161600000" data-listing-file-modified-sort="1781978010094" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="957">
-<div class="thumbnail"><a href="./posts/sigreg-sketched-isotropic-gaussian-regularization/index.html" class="no-external">
-
-<p class="card-img-top"><img loading='lazy' src="posts/sigreg-sketched-isotropic-gaussian-regularization/index_files/figure-html/fig-ecdfs-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/sigreg-sketched-isotropic-gaussian-regularization/index.html" class="no-external">Sketched Isotropic Gaussian Regularization (SIGReg) Explained</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/sigreg-sketched-isotropic-gaussian-regularization/index.html" class="no-external">Gaussianizing to Prevent Latent Collapse in JEPA Models</a>
-</div>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('YWk='); return false;">ai</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('Y29kZQ=='); return false;">code</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('amVwYQ=='); return false;">jepa</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/sigreg-sketched-isotropic-gaussian-regularization/index.html" class="no-external">
-The paper “LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics”<span class="citation" data-cites="balestriero2025">[1]</span> proposed an interesting method of regularizing latent spaces that I thought I’d…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/sigreg-sketched-isotropic-gaussian-regularization/index.html" class="no-external">
-<div class="listing-date">
-Apr 26, 2026
-</div>
-<div class="listing-author">
-Shon Czinner
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="6" data-categories="bWV0YQ==" data-listing-date-sort="1777075200000" data-listing-file-modified-sort="1781978010095" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="61">
-<div class="thumbnail"><a href="./posts/welcome/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/welcome/index.html" class="no-external">Motivation To Write</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/welcome/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('bWV0YQ=='); return false;">meta</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/welcome/index.html" class="no-external">
-I plan to write about AI, statistics, quantitative finance, economics, and more.
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/welcome/index.html" class="no-external">
-<div class="listing-date">
-Apr 25, 2026
-</div>
-<div class="listing-author">
-Shon Czinner
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

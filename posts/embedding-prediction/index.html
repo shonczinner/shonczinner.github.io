@@ -30,6 +30,7 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -65,7 +66,7 @@ div.csl-indent {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-94b323657c735dfe3b1bf6ebb2c33a55.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bba5ebae505b5c03f3f0d8040a416a6b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -256,12 +257,12 @@ window.Quarto = {
 <blockquote class="blockquote">
 <p>Concepts of correlation and regression may be applied not only to ordinary one-dimensional variates but also to variates of two or more dimensions.</p>
 </blockquote>
-<p>This is the first sentence from the paper “Relations Between Two Sets of Variates” <span class="citation" data-cites="hotelling1936">(<a href="#ref-hotelling1936" role="doc-biblioref">Hotelling 1936</a>)</span> by statistician and economist Harold Hotelling. This paper introduced Canonical Correlation Analysis (CCA). In modern terminology, “CCA is used to find a common signal among two large matrices” <span class="citation" data-cites="bykhovskaya2025">(<a href="#ref-bykhovskaya2025" role="doc-biblioref">Bykhovskaya and Gorin 2025</a>)</span>.</p>
-<p>In JEPA, the objective is the same except the second data matrix happens to be simply a different view of the same data in the first dataset (e.g.&nbsp;via data augmentation or spatial or temporal proximity). One of the recent papers to acknowledge a connection states, “JEPA-based models implicitly perform a non-linear generalization of Canonical Correlation Analysis”. <span class="citation" data-cites="huang2026">(<a href="#ref-huang2026" role="doc-biblioref">Huang 2026</a>)</span></p>
+<p>This is the first sentence from the paper “Relations Between Two Sets of Variates” <span class="citation" data-cites="hotelling1936"><a href="#ref-hotelling1936" role="doc-biblioref">[1]</a></span> by statistician and economist Harold Hotelling. This paper introduced Canonical Correlation Analysis (CCA). In modern terminology, “CCA is used to find a common signal among two large matrices” <span class="citation" data-cites="bykhovskaya2025"><a href="#ref-bykhovskaya2025" role="doc-biblioref">[2]</a></span>.</p>
+<p>In JEPA, the objective is the same except the second data matrix happens to be simply a different view of the same data in the first dataset (e.g.&nbsp;via data augmentation or spatial or temporal proximity). One of the recent papers to acknowledge a connection states, “JEPA-based models implicitly perform a non-linear generalization of Canonical Correlation Analysis”. <span class="citation" data-cites="huang2026"><a href="#ref-huang2026" role="doc-biblioref">[3]</a></span></p>
 <p>CCA’s connection to JEPA is relevant to Schmidhuber’s debate on <a href="https://people.idsia.ch/~juergen/who-invented-jepa.html">who invented JEPA</a>, which is directed at Yann LeCun. Personally, I think Hotelling deserves the credit for the idea of maximizing correlation in embedding space.</p>
 <p>Of course, the CCA model has many differences from JEPA.</p>
-<p>For one, CCA does not enforce a shared encoder. But the biggest difference is that CCA is linear. Non-linear neural variants of CCA have been researched with the earliest usage of the term “Deep CCA” being <span class="citation" data-cites="andrew2013">(<a href="#ref-andrew2013" role="doc-biblioref">Andrew et al. 2013</a>)</span>.</p>
-<p>Connecting JEPA models back to its CCA roots is genuinely useful. Another Deep CCA paper <span class="citation" data-cites="benton2017">(<a href="#ref-benton2017" role="doc-biblioref">Benton et al. 2017</a>)</span> relaxed the assumption of two sets of variables to an arbitrary number based on a generalization of CCA proposed in 1961 <span class="citation" data-cites="horst1961">(<a href="#ref-horst1961" role="doc-biblioref">Horst 1961</a>)</span>. Conceivably, JEPAs could be expanded to handle more than two views as well.</p>
+<p>For one, CCA does not enforce a shared encoder. But the biggest difference is that CCA is linear. Non-linear neural variants of CCA have been researched with the earliest usage of the term “Deep CCA” being <span class="citation" data-cites="andrew2013"><a href="#ref-andrew2013" role="doc-biblioref">[4]</a></span>.</p>
+<p>Connecting JEPA models back to its CCA roots is genuinely useful. Another Deep CCA paper <span class="citation" data-cites="benton2017"><a href="#ref-benton2017" role="doc-biblioref">[5]</a></span> relaxed the assumption of two sets of variables to an arbitrary number based on a generalization of CCA proposed in 1961 <span class="citation" data-cites="horst1961"><a href="#ref-horst1961" role="doc-biblioref">[6]</a></span>. Conceivably, JEPAs could be expanded to handle more than two views as well.</p>
 </section>
 <section id="cca-vs.-jepa-overview" class="level1">
 <h1>CCA vs.&nbsp;JEPA Overview</h1>
@@ -284,7 +285,7 @@ window.Quarto = {
 <p>Then we solve,</p>
 <p><span class="math display">\[\min_{\theta,\varphi}\frac{1}{n} \sum_{i=1}^n ||z_x^{(i)}-z_y^{(i)}||^2\]</span></p>
 <p>Note the similarity in the objective function but the lack of whitening constraints. The lack of whitening constraints results in representational and dimensional collapse. For example, a trivial solution to the above problem is <span class="math inline">\(z_x^{(i)}=z_y^{(i)}=c\)</span>.</p>
-<p>As discussed in my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">previous blog post</a> SIGReg <span class="citation" data-cites="balestriero2025">(<a href="#ref-balestriero2025" role="doc-biblioref">Balestriero and LeCun 2025</a>)</span> fixes this problem. What does it do? It encourages the embeddings <span class="math inline">\(z_x\)</span> and <span class="math inline">\(z_y\)</span> to have an isotropic (i.e.&nbsp;unit variance, uncorrelated) Gaussian distribution. As a result it encourages,</p>
+<p>As discussed in my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">previous blog post</a> SIGReg <span class="citation" data-cites="balestriero2025"><a href="#ref-balestriero2025" role="doc-biblioref">[7]</a></span> fixes this problem. What does it do? It encourages the embeddings <span class="math inline">\(z_x\)</span> and <span class="math inline">\(z_y\)</span> to have an isotropic (i.e.&nbsp;unit variance, uncorrelated) Gaussian distribution. As a result it encourages,</p>
 <p><span class="math display">\[\frac{1}{n}z_x^Tz_x=\frac{1}{n}z_y^Tz_y=I\]</span></p>
 </section>
 </section>
@@ -308,27 +309,27 @@ window.Quarto = {
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
-<div id="ref-andrew2013" class="csl-entry" role="listitem">
-Andrew, Galen, Raman Arora, Jeff Bilmes, and Karen Livescu. 2013. <span>“Deep Canonical Correlation Analysis.”</span> <em>International Conference on Machine Learning</em>, 1247–55. <a href="https://proceedings.mlr.press/v28/andrew13.html">https://proceedings.mlr.press/v28/andrew13.html</a>.
-</div>
-<div id="ref-balestriero2025" class="csl-entry" role="listitem">
-Balestriero, Randall, and Yann LeCun. 2025. <em>LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics</em>. <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a>.
-</div>
-<div id="ref-benton2017" class="csl-entry" role="listitem">
-Benton, Adrian, Huda Khayrallah, Biman Gujral, Dee Ann Reisinger, Sheng Zhang, and Raman Arora. 2017. <em>Deep Generalized Canonical Correlation Analysis</em>. <a href="https://arxiv.org/abs/1702.02519">https://arxiv.org/abs/1702.02519</a>.
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
+<div id="ref-hotelling1936" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">H. Hotelling, <span>“Relations between two sets of variates,”</span> <em>Biometrika</em>, vol. 28, no. 3/4, pp. 321–377, 1936, Accessed: May 03, 2026. [Online]. Available: <a href="http://www.jstor.org/stable/2333955">http://www.jstor.org/stable/2333955</a></div>
 </div>
 <div id="ref-bykhovskaya2025" class="csl-entry" role="listitem">
-Bykhovskaya, Anna, and Vadim Gorin. 2025. <em>Canonical Correlation Analysis: Review</em>. <a href="https://arxiv.org/abs/2411.15625">https://arxiv.org/abs/2411.15625</a>.
-</div>
-<div id="ref-horst1961" class="csl-entry" role="listitem">
-Horst, Paul. 1961. <em>Generalized Canonical Correlations and Their Application to Experimental Data</em>. Journal of clinical psychology.
-</div>
-<div id="ref-hotelling1936" class="csl-entry" role="listitem">
-Hotelling, Harold. 1936. <span>“Relations Between Two Sets of Variates.”</span> <em>Biometrika</em> 28 (3/4): 321–77. <a href="http://www.jstor.org/stable/2333955">http://www.jstor.org/stable/2333955</a>.
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">A. Bykhovskaya and V. Gorin, <span>“Canonical correlation analysis: review.”</span> 2025. Available: <a href="https://arxiv.org/abs/2411.15625">https://arxiv.org/abs/2411.15625</a></div>
 </div>
 <div id="ref-huang2026" class="csl-entry" role="listitem">
-Huang, Yongchao. 2026. <em>VJEPA: Variational Joint Embedding Predictive Architectures as Probabilistic World Models</em>. <a href="https://arxiv.org/abs/2601.14354">https://arxiv.org/abs/2601.14354</a>.
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">Y. Huang, <span>“VJEPA: Variational joint embedding predictive architectures as probabilistic world models.”</span> 2026. Available: <a href="https://arxiv.org/abs/2601.14354">https://arxiv.org/abs/2601.14354</a></div>
+</div>
+<div id="ref-andrew2013" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">G. Andrew, R. Arora, J. Bilmes, and K. Livescu, <span>“Deep canonical correlation analysis,”</span> in <em>International conference on machine learning</em>, PMLR, 2013, pp. 1247–1255. Available: <a href="https://proceedings.mlr.press/v28/andrew13.html">https://proceedings.mlr.press/v28/andrew13.html</a></div>
+</div>
+<div id="ref-benton2017" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">A. Benton, H. Khayrallah, B. Gujral, D. A. Reisinger, S. Zhang, and R. Arora, <span>“Deep generalized canonical correlation analysis.”</span> 2017. Available: <a href="https://arxiv.org/abs/1702.02519">https://arxiv.org/abs/1702.02519</a></div>
+</div>
+<div id="ref-horst1961" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">P. Horst, <em>Generalized canonical correlations and their application to experimental data</em>. Journal of clinical psychology, 1961.</div>
+</div>
+<div id="ref-balestriero2025" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">R. Balestriero and Y. LeCun, <span>“LeJEPA: Provable and scalable self-supervised learning without the heuristics.”</span> 2025. Available: <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a></div>
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

@@ -64,6 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -99,7 +100,7 @@ div.csl-indent {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-94b323657c735dfe3b1bf6ebb2c33a55.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bba5ebae505b5c03f3f0d8040a416a6b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -284,8 +285,8 @@ window.Quarto = {
 
 
 <p>After my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">prior blog post about SIGReg</a>, I figured I’d train a small Joint-Embedding Predictive Architecture (JEPA) model to demonstrate it.</p>
-<p>The paper “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels” <span class="citation" data-cites="maes2026">(<a href="#ref-maes2026" role="doc-biblioref">Maes et al. 2026</a>)</span> suggested significantly reducing the complexity of JEPA models by removing stop-gradients, and the exponential-moving-average encoder. This was in the context of world models and planning.</p>
-<p>In this case, I’m applying JEPA to the task of creating word embeddings. Prior methodologies include Word2vec <span class="citation" data-cites="mikolov2013">(<a href="#ref-mikolov2013" role="doc-biblioref">Mikolov et al. 2013</a>)</span> which uses a log-linear model and negative sampling, MLP next-word prediction <span class="citation" data-cites="bengio2000">(<a href="#ref-bengio2000" role="doc-biblioref">Bengio et al. 2000</a>)</span>, applying CCA to small context windows <span class="citation" data-cites="dhillon2011">(<a href="#ref-dhillon2011" role="doc-biblioref">Dhillon et al. 2011</a>)</span>, and training an autoencoder on small context windows <span class="citation" data-cites="shao2025">(<a href="#ref-shao2025" role="doc-biblioref">Shao et al. 2025</a>)</span>.</p>
+<p>The paper “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels” <span class="citation" data-cites="maes2026"><a href="#ref-maes2026" role="doc-biblioref">[1]</a></span> suggested significantly reducing the complexity of JEPA models by removing stop-gradients, and the exponential-moving-average encoder. This was in the context of world models and planning.</p>
+<p>In this case, I’m applying JEPA to the task of creating word embeddings. Prior methodologies include Word2vec <span class="citation" data-cites="mikolov2013"><a href="#ref-mikolov2013" role="doc-biblioref">[2]</a></span> which uses a log-linear model and negative sampling, MLP next-word prediction <span class="citation" data-cites="bengio2000"><a href="#ref-bengio2000" role="doc-biblioref">[3]</a></span>, applying CCA to small context windows <span class="citation" data-cites="dhillon2011"><a href="#ref-dhillon2011" role="doc-biblioref">[4]</a></span>, and training an autoencoder on small context windows <span class="citation" data-cites="shao2025"><a href="#ref-shao2025" role="doc-biblioref">[5]</a></span>.</p>
 <p>We’ll be training a linear JEPA model with SIGReg on a small shakespeare dataset to show that it learns some informative embeddings. In other words, we’ll train an encoder that turns two words into word embeddings, and train a linear predictor that predicts the second word embedding from the first. It would be easy to extend this methodology to non-linear encoders and use larger contexts than single words.</p>
 <section id="overview" class="level1">
 <h1>Overview</h1>
@@ -701,30 +702,30 @@ Figure&nbsp;1
 <h1>Future Directions</h1>
 <p>As I mentioned earlier, it would be easy to extend this methodology to non-linear (e.g.&nbsp;MLP, CNN, RNN, Transformer) models and use larger contexts and targets than single words. It’s also possible to play around with other hyperparameters like SIGReg regularizer coefficient, embedding dimension, and hidden dimension and try larger datasets.</p>
 <p>Compared to many prior methods for getting word embeddings, this does appear to be less complicated than things like negative sampling (e.g.&nbsp;word2vec).</p>
-<p>There’s also recent work on approximations to SIGReg that are likely more computationally efficient with very little downside <span class="citation" data-cites="akbar2026">(<a href="#ref-akbar2026" role="doc-biblioref">Akbar 2026</a>)</span>.</p>
+<p>There’s also recent work on approximations to SIGReg that are likely more computationally efficient with very little downside <span class="citation" data-cites="akbar2026"><a href="#ref-akbar2026" role="doc-biblioref">[6]</a></span>.</p>
 
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
-<div id="ref-akbar2026" class="csl-entry" role="listitem">
-Akbar, Habibullah. 2026. <em>Weak-SIGReg: Covariance Regularization for Stable Deep Learning</em>. <a href="https://arxiv.org/abs/2603.05924">https://arxiv.org/abs/2603.05924</a>.
-</div>
-<div id="ref-bengio2000" class="csl-entry" role="listitem">
-Bengio, Yoshua, Réjean Ducharme, and Pascal Vincent. 2000. <span>“A Neural Probabilistic Language Model.”</span> In <em>Advances in Neural Information Processing Systems</em>, edited by T. Leen, T. Dietterich, and V. Tresp, vol. 13. MIT Press. <a href="https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf</a>.
-</div>
-<div id="ref-dhillon2011" class="csl-entry" role="listitem">
-Dhillon, Paramveer, Dean P Foster, and Lyle Ungar. 2011. <span>“Multi-View Learning of Word Embeddings via CCA.”</span> In <em>Advances in Neural Information Processing Systems</em>, edited by J. Shawe-Taylor, R. Zemel, P. Bartlett, F. Pereira, and K. Weinberger, vol. 24. Curran Associates, Inc. <a href="https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf</a>.
-</div>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
 <div id="ref-maes2026" class="csl-entry" role="listitem">
-Maes, Lucas, Quentin Le Lidec, Damien Scieur, Yann LeCun, and Randall Balestriero. 2026. <em>LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels</em>. <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a>.
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">L. Maes, Q. L. Lidec, D. Scieur, Y. LeCun, and R. Balestriero, <span>“LeWorldModel: Stable end-to-end joint-embedding predictive architecture from pixels.”</span> 2026. Available: <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a></div>
 </div>
 <div id="ref-mikolov2013" class="csl-entry" role="listitem">
-Mikolov, Tomas, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013. <em>Efficient Estimation of Word Representations in Vector Space</em>. <a href="https://arxiv.org/abs/1301.3781">https://arxiv.org/abs/1301.3781</a>.
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">T. Mikolov, K. Chen, G. Corrado, and J. Dean, <span>“Efficient estimation of word representations in vector space.”</span> 2013. Available: <a href="https://arxiv.org/abs/1301.3781">https://arxiv.org/abs/1301.3781</a></div>
+</div>
+<div id="ref-bengio2000" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">Y. Bengio, R. Ducharme, and P. Vincent, <span>“A neural probabilistic language model,”</span> in <em>Advances in neural information processing systems</em>, T. Leen, T. Dietterich, and V. Tresp, Eds., MIT Press, 2000. Available: <a href="https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf</a></div>
+</div>
+<div id="ref-dhillon2011" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">P. Dhillon, D. P. Foster, and L. Ungar, <span>“Multi-view learning of word embeddings via CCA,”</span> in <em>Advances in neural information processing systems</em>, J. Shawe-Taylor, R. Zemel, P. Bartlett, F. Pereira, and K. Weinberger, Eds., Curran Associates, Inc., 2011. Available: <a href="https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf</a></div>
 </div>
 <div id="ref-shao2025" class="csl-entry" role="listitem">
-Shao, Chenze, Darren Li, Fandong Meng, and Jie Zhou. 2025. <em>Continuous Autoregressive Language Models</em>. <a href="https://arxiv.org/abs/2510.27688">https://arxiv.org/abs/2510.27688</a>.
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">C. Shao, D. Li, F. Meng, and J. Zhou, <span>“Continuous autoregressive language models.”</span> 2025. Available: <a href="https://arxiv.org/abs/2510.27688">https://arxiv.org/abs/2510.27688</a></div>
+</div>
+<div id="ref-akbar2026" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">H. Akbar, <span>“Weak-SIGReg: Covariance regularization for stable deep learning.”</span> 2026. Available: <a href="https://arxiv.org/abs/2603.05924">https://arxiv.org/abs/2603.05924</a></div>
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

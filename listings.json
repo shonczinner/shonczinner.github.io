@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/gameoflife/index.html",
       "/posts/buyrent/index.html",
       "/posts/onnx-quarto/index.html",
       "/posts/embedding-prediction/index.html",

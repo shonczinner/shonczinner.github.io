@@ -64,6 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -99,7 +100,7 @@ div.csl-indent {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-94b323657c735dfe3b1bf6ebb2c33a55.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bba5ebae505b5c03f3f0d8040a416a6b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -281,7 +282,7 @@ window.Quarto = {
 </header>
 
 
-<p>The paper “LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics”<span class="citation" data-cites="balestriero2025">(<a href="#ref-balestriero2025" role="doc-biblioref">Balestriero and LeCun 2025</a>)</span> proposed an interesting method of regularizing latent spaces that I thought I’d explore.</p>
+<p>The paper “LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics”<span class="citation" data-cites="balestriero2025"><a href="#ref-balestriero2025" role="doc-biblioref">[1]</a></span> proposed an interesting method of regularizing latent spaces that I thought I’d explore.</p>
 <p>This is a regularization technique to make latent embeddings have isotropic Gaussian distribution - each dimension is encouraged to be uncorrelated and independent, and gaussian distributed. They argue that gaussian latent embeddings are optimal because they are unbiased and lower variance for downstream tasks.</p>
 <p>They make latent embeddings have Gaussian distribution using one-dimensional tests of normality in random directions via characteristic functions.</p>
 <section id="one-dimension" class="level1">
@@ -1066,19 +1067,19 @@ Epoch 1000/1000, Loss: 0.2580392360687256</code></pre>
 </div>
 </div>
 <p>And now after training, the output is more Gaussian. So adding this regularizer to your objective function encourages Gaussian latent embeddings.</p>
-<p>In a future blog post, I’d like to train a small JEPA model using SIGReg as in “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels”<span class="citation" data-cites="maes2026">(<a href="#ref-maes2026" role="doc-biblioref">Maes et al. 2026</a>)</span>.</p>
+<p>In a future blog post, I’d like to train a small JEPA model using SIGReg as in “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels”<span class="citation" data-cites="maes2026"><a href="#ref-maes2026" role="doc-biblioref">[2]</a></span>.</p>
 
 
 
 </section>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
 <div id="ref-balestriero2025" class="csl-entry" role="listitem">
-Balestriero, Randall, and Yann LeCun. 2025. <em>LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics</em>. <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a>.
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">R. Balestriero and Y. LeCun, <span>“LeJEPA: Provable and scalable self-supervised learning without the heuristics.”</span> 2025. Available: <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a></div>
 </div>
 <div id="ref-maes2026" class="csl-entry" role="listitem">
-Maes, Lucas, Quentin Le Lidec, Damien Scieur, Yann LeCun, and Randall Balestriero. 2026. <em>LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels</em>. <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a>.
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">L. Maes, Q. L. Lidec, D. Scieur, Y. LeCun, and R. Balestriero, <span>“LeWorldModel: Stable end-to-end joint-embedding predictive architecture from pixels.”</span> 2026. Available: <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a></div>
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

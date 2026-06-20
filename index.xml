@@ -15,7 +15,152 @@
 <link>https://shonczinner.github.io/</link>
 </image>
 <generator>quarto-1.9.38</generator>
-<lastBuildDate>Thu, 28 May 2026 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 20 Jun 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Neural Cellular Automata and Recurrent Architectures</title>
+  <dc:creator>Shon Czinner</dc:creator>
+  <link>https://shonczinner.github.io/posts/gameoflife/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="conways-game-of-life" class="level1">
+<h1>Conway’s Game of Life</h1>
+<p>Here’s Wikipedia’s description of <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway’s Game of Life</a>:</p>
+<blockquote class="blockquote">
+<p>The universe of the Game of Life is an infinite, two-dimensional orthogonal grid of square cells, each of which is in one of two possible states, live or dead (or populated and unpopulated, respectively). Every cell interacts with its eight neighbours (its Moore neighborhood), which are the cells that are horizontally, vertically, or diagonally adjacent. At each step in time, the following transitions occur:</p>
+<ol type="1">
+<li>Any live cell with fewer than two live neighbours dies, as if by underpopulation.</li>
+<li>Any live cell with two or three live neighbours lives on to the next generation.</li>
+<li>Any live cell with more than three live neighbours dies, as if by overpopulation.</li>
+<li>Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.</li>
+</ol>
+</blockquote>
+<p>You can “play” it below. The living cells are green and dead cells are black. You can pause and click/drag to change individual cells.</p>
+<p>Cells have local receptive fields only being impacted by their neighbours. By applying the same set of rules to itself recursively, cells can have a global impact on any other cell.</p>
+<div id="gol-app">
+
+</div>
+<script src="./gameoflife.js"></script>
+</section>
+<section id="cellular-automata-as-convolutional-neural-networks" class="level1">
+<h1>Cellular Automata as Convolutional Neural Networks</h1>
+<p>We can cast Conway’s Game of Life as a single convolutional layer followed by a non-linear function. This has been studied before <span class="citation" data-cites="Gilpin_2019">[1]</span>.</p>
+<p>Convolutional layers in neural networks slide a local filter over an input, multiply element-wise, and then sum.. Convolutional neural networks (CNNs) stack convolutional layers and simple non-linear functions so they can learn complex non-linear functions.</p>
+<p>Suppose we have a cell and its surrounding cells with the following configuration. 1 means alive and 0 means dead.</p>
+<table style="border-collapse: collapse; background-color: #000; font-family: monospace; font-size: 18px; font-weight: bold; text-align: center;">
+<tbody><tr>
+<td style="width: 40px; height: 40px; border: 1px solid #222; background-color: #00ff88;">
+1
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; background-color: #00ff88;">
+1
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+</tr>
+<tr>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; background-color: #00ff88;">
+1
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; background-color: #00ff88;">
+1
+</td>
+</tr>
+<tr>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+<td style="width: 40px; height: 40px; border: 1px solid #222; color: #fff;">
+0
+</td>
+</tr>
+</tbody></table>
+<p>Now let’s apply this filter to that 3x3 section:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bpmatrix%7D%0A1%20&amp;%201%20&amp;%201%20%5C%5C%0A1%20&amp;%2010%20&amp;%201%20%5C%5C%0A1%20&amp;%201%20&amp;%201%0A%5Cend%7Bpmatrix%7D%0A"></p>
+<p>First we do the element wise multiplication:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bpmatrix%7D%0A1%20&amp;%201%20&amp;%200%20%5C%5C%0A0%20&amp;%201%20&amp;%201%20%5C%5C%0A0%20&amp;%200%20&amp;%200%0A%5Cend%7Bpmatrix%7D%0A%5Codot%0A%5Cbegin%7Bpmatrix%7D%0A1%20&amp;%201%20&amp;%201%20%5C%5C%0A1%20&amp;%2010%20&amp;%201%20%5C%5C%0A1%20&amp;%201%20&amp;%201%0A%5Cend%7Bpmatrix%7D%0A=%0A%5Cbegin%7Bpmatrix%7D%0A1%20%5Ctimes%201%20&amp;%201%20%5Ctimes%201%20&amp;%200%20%5Ctimes%201%20%5C%5C%0A0%20%5Ctimes%201%20&amp;%201%20%5Ctimes%2010%20&amp;%201%20%5Ctimes%201%20%5C%5C%0A0%20%5Ctimes%201%20&amp;%200%20%5Ctimes%201%20&amp;%200%20%5Ctimes%201%0A%5Cend%7Bpmatrix%7D%0A=%0A%5Cbegin%7Bpmatrix%7D%0A1%20&amp;%201%20&amp;%200%20%5C%5C%0A0%20&amp;%2010%20&amp;%201%20%5C%5C%0A0%20&amp;%200%20&amp;%200%0A%5Cend%7Bpmatrix%7D%0A"></p>
+<p>Then we take the sum of all the elements. This counts the number of living neighbours and adds 10 if the cell is living itself. In this case we calculate 13.</p>
+<p>According to Conway’s rules, the value of this cell is a non-linear function based on this sum.</p>
+<p>What we want is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?f(S)%20=%20%5Cbegin%7Bcases%7D%0A1%20&amp;%20%5Ctext%7Bif%20%7D%20S%20=%203%20%5Cquad%20%5Ctext%7B(Dead%20cell%20with%203%20neighbors%20$%5Crightarrow$%20alive)%7D%20%5C%5C%0A1%20&amp;%20%5Ctext%7Bif%20%7D%20S%20=%2012%20%5Cquad%20%5Ctext%7B(Alive%20cell%20with%202%20neighbors%20$%5Crightarrow$%20alive)%7D%20%5C%5C%0A1%20&amp;%20%5Ctext%7Bif%20%7D%20S%20=%2013%20%5Cquad%20%5Ctext%7B(Alive%20cell%20with%203%20neighbors%20$%5Crightarrow$%20alive)%7D%20%5C%5C%0A0%20&amp;%20%5Ctext%7Botherwise%7D%20%5Cquad%20%5Ctext%7B(All%20other%20cases%20$%5Crightarrow$%20dead)%7D%0A%5Cend%7Bcases%7D"></p>
+<p>So this cell would update to 1 and remain living.</p>
+<p>Conway’s Game of Life does this same operation for all cells, and then repeats.</p>
+</section>
+<section id="neural-cellular-automata" class="level1">
+<h1>Neural Cellular Automata</h1>
+<p>Neural Cellular Automata learn neural network weights to solve problems. Effectively, they are changing the rules in Conway’s Game of Life in such a way that they actually compute some goal rather than just resulting in an interesting simulation.</p>
+<p>There are cool examples of NCA <a href="https://distill.pub/2020/selforg/mnist/">performing MNIST digit classification</a> and <a href="https://umu1729.github.io/pages-neural-cellular-maze-solver/">solving mazes</a>. Here’s a video of NCA <a href="https://www.youtube.com/watch?v=0w_cVJoD2uk">playing Pong</a>.</p>
+<p>NCA adds multiple channels to the 2D images which can be thought of also as each cell containing a vector. This is shown in Figure 1. The stochastic update updates a cell with 50% probability and can be thought of as a form of dropout.</p>
+<figure id="nca-arch" style="text-align: center; margin: 20px 0;" class="figure">
+<img src="https://shonczinner.github.io/posts/gameoflife/maze-endo.svg" alt="The NCA model architecture" style="max-width: 100%; height: auto;" class="figure-img">
+<figcaption style="font-size: 0.85em; color: #555; margin-top: 8px;">
+Figure 1: The NCA model architecture. Image source: <a href="https://umu1729.github.io/pages-neural-cellular-maze-solver/" target="_blank" rel="noopener">Katsuhiro Endo / Kenji Yasuoka</a>.
+</figcaption>
+</figure>
+<p><a href="https://umu1729.github.io/pages-neural-cellular-maze-solver/" target="_blank" rel="noopener">Katsuhiro Endo / Kenji Yasuoka</a> also provide a good verbal description of the architecture. I’ve placed some emphasis on what elements of the methodology make it similar to many of the other neural network methodologies which solve problems iteratively via recurrence.</p>
+<blockquote class="blockquote">
+<p>The model used in this article is a simplified version of the model used in Growing Neural Cellular Automata. Each cell consists of 16 real channels. <strong><em>The first of the 16 channels is used to input the state of the maze</em></strong>. The wall is +1, the road is 0, and the endpoint is -1. <strong><em>The second channel is used to output the solution of the maze</em></strong>. The road on the shortest path is +1 and the other roads are -1, as a target value. The other 14 channels are used as hidden variables.</p>
+</blockquote>
+</section>
+<section id="beyond-neural-cellular-automata-with-recurrent-architectures" class="level1">
+<h1>Beyond Neural Cellular Automata With Recurrent Architectures</h1>
+<p>There are many neural network architectures that share some key features of Neural Cellular Automata.</p>
+<ol type="1">
+<li>Injecting the initial input/problem to solve at all steps.</li>
+<li>Keeping track of a current model prediction which is iteratively improved.</li>
+<li>Applying the same neural network repeatedly i.e.&nbsp;recurrence.</li>
+</ol>
+<p>Most of these architectures feature global receptive fields rather than local receptive fields. In practice this means replacing CNNs with Transformers, MLP-Mixer <span class="citation" data-cites="tolstikhin2021mlpmixerallmlparchitecturevision">[2]</span> or gMLP <span class="citation" data-cites="liu2021payattentionmlps">[3]</span>.</p>
+<p>These related architectures include Tiny Recursive Models <span class="citation" data-cites="alexia2025">[4]</span>, Think Again Networks <span class="citation" data-cites="salle2019thinknetworksdeltaloss">[5]</span>, Deep Thinking Networks <span class="citation" data-cites="schwarzschild2021learnalgorithmgeneralizingeasy">[6]</span>, Adaptive Computation Time RNNs <span class="citation" data-cites="graves2017adaptivecomputationtimerecurrent">[7]</span> and Recurrent Relational Networks <span class="citation" data-cites="palm2018recurrentrelationalnetworks">[8]</span>.</p>
+<p>This is a growing and interesting direction for neural networks and intelligent systems.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0">
+<div id="ref-Gilpin_2019" class="csl-entry">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">W. Gilpin, <span>“Cellular automata as convolutional neural networks,”</span> <em>Physical Review E</em>, vol. 100, no. 3, 2019, doi: <a href="https://doi.org/10.1103/physreve.100.032402">10.1103/physreve.100.032402</a>.</div>
+</div>
+<div id="ref-tolstikhin2021mlpmixerallmlparchitecturevision" class="csl-entry">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">I. Tolstikhin <em>et al.</em>, <span>“MLP-mixer: An all-MLP architecture for vision.”</span> 2021. Available: <a href="https://arxiv.org/abs/2105.01601">https://arxiv.org/abs/2105.01601</a></div>
+</div>
+<div id="ref-liu2021payattentionmlps" class="csl-entry">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">H. Liu, Z. Dai, D. R. So, and Q. V. Le, <span>“Pay attention to MLPs.”</span> 2021. Available: <a href="https://arxiv.org/abs/2105.08050">https://arxiv.org/abs/2105.08050</a></div>
+</div>
+<div id="ref-alexia2025" class="csl-entry">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">A. Jolicoeur-Martineau, <span>“Less is more: Recursive reasoning with tiny networks.”</span> 2025. Available: <a href="https://arxiv.org/abs/2510.04871">https://arxiv.org/abs/2510.04871</a></div>
+</div>
+<div id="ref-salle2019thinknetworksdeltaloss" class="csl-entry">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">A. Salle and M. Prates, <span>“Think again networks and the delta loss.”</span> 2019. Available: <a href="https://arxiv.org/abs/1904.11816">https://arxiv.org/abs/1904.11816</a></div>
+</div>
+<div id="ref-schwarzschild2021learnalgorithmgeneralizingeasy" class="csl-entry">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">A. Schwarzschild <em>et al.</em>, <span>“Can you learn an algorithm? Generalizing from easy to hard problems with recurrent networks.”</span> 2021. Available: <a href="https://arxiv.org/abs/2106.04537">https://arxiv.org/abs/2106.04537</a></div>
+</div>
+<div id="ref-graves2017adaptivecomputationtimerecurrent" class="csl-entry">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">A. Graves, <span>“Adaptive computation time for recurrent neural networks.”</span> 2017. Available: <a href="https://arxiv.org/abs/1603.08983">https://arxiv.org/abs/1603.08983</a></div>
+</div>
+<div id="ref-palm2018recurrentrelationalnetworks" class="csl-entry">
+<div class="csl-left-margin">[8] </div><div class="csl-right-inline">R. B. Palm, U. Paquet, and O. Winther, <span>“Recurrent relational networks.”</span> 2018. Available: <a href="https://arxiv.org/abs/1711.08028">https://arxiv.org/abs/1711.08028</a></div>
+</div>
+</div></section></div> ]]></description>
+  <category>ai</category>
+  <category>cnn</category>
+  <category>rnn</category>
+  <category>fun</category>
+  <guid>https://shonczinner.github.io/posts/gameoflife/</guid>
+  <pubDate>Sat, 20 Jun 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://shonczinner.github.io/posts/gameoflife/life.png" medium="image" type="image/png" height="149" width="144"/>
+</item>
 <item>
   <title>Another Buying versus Renting Housing Calculator</title>
   <dc:creator>Shon Czinner</dc:creator>
@@ -5397,12 +5542,12 @@ font-style: inherit;">&gt;</span></span></code></pre></div></div>
 <blockquote class="blockquote">
 <p>Concepts of correlation and regression may be applied not only to ordinary one-dimensional variates but also to variates of two or more dimensions.</p>
 </blockquote>
-<p>This is the first sentence from the paper “Relations Between Two Sets of Variates” <span class="citation" data-cites="hotelling1936">(Hotelling 1936)</span> by statistician and economist Harold Hotelling. This paper introduced Canonical Correlation Analysis (CCA). In modern terminology, “CCA is used to find a common signal among two large matrices” <span class="citation" data-cites="bykhovskaya2025">(Bykhovskaya and Gorin 2025)</span>.</p>
-<p>In JEPA, the objective is the same except the second data matrix happens to be simply a different view of the same data in the first dataset (e.g.&nbsp;via data augmentation or spatial or temporal proximity). One of the recent papers to acknowledge a connection states, “JEPA-based models implicitly perform a non-linear generalization of Canonical Correlation Analysis”. <span class="citation" data-cites="huang2026">(Huang 2026)</span></p>
+<p>This is the first sentence from the paper “Relations Between Two Sets of Variates” <span class="citation" data-cites="hotelling1936">[1]</span> by statistician and economist Harold Hotelling. This paper introduced Canonical Correlation Analysis (CCA). In modern terminology, “CCA is used to find a common signal among two large matrices” <span class="citation" data-cites="bykhovskaya2025">[2]</span>.</p>
+<p>In JEPA, the objective is the same except the second data matrix happens to be simply a different view of the same data in the first dataset (e.g.&nbsp;via data augmentation or spatial or temporal proximity). One of the recent papers to acknowledge a connection states, “JEPA-based models implicitly perform a non-linear generalization of Canonical Correlation Analysis”. <span class="citation" data-cites="huang2026">[3]</span></p>
 <p>CCA’s connection to JEPA is relevant to Schmidhuber’s debate on <a href="https://people.idsia.ch/~juergen/who-invented-jepa.html">who invented JEPA</a>, which is directed at Yann LeCun. Personally, I think Hotelling deserves the credit for the idea of maximizing correlation in embedding space.</p>
 <p>Of course, the CCA model has many differences from JEPA.</p>
-<p>For one, CCA does not enforce a shared encoder. But the biggest difference is that CCA is linear. Non-linear neural variants of CCA have been researched with the earliest usage of the term “Deep CCA” being <span class="citation" data-cites="andrew2013">(Andrew et al. 2013)</span>.</p>
-<p>Connecting JEPA models back to its CCA roots is genuinely useful. Another Deep CCA paper <span class="citation" data-cites="benton2017">(Benton et al. 2017)</span> relaxed the assumption of two sets of variables to an arbitrary number based on a generalization of CCA proposed in 1961 <span class="citation" data-cites="horst1961">(Horst 1961)</span>. Conceivably, JEPAs could be expanded to handle more than two views as well.</p>
+<p>For one, CCA does not enforce a shared encoder. But the biggest difference is that CCA is linear. Non-linear neural variants of CCA have been researched with the earliest usage of the term “Deep CCA” being <span class="citation" data-cites="andrew2013">[4]</span>.</p>
+<p>Connecting JEPA models back to its CCA roots is genuinely useful. Another Deep CCA paper <span class="citation" data-cites="benton2017">[5]</span> relaxed the assumption of two sets of variables to an arbitrary number based on a generalization of CCA proposed in 1961 <span class="citation" data-cites="horst1961">[6]</span>. Conceivably, JEPAs could be expanded to handle more than two views as well.</p>
 </section>
 <section id="cca-vs.-jepa-overview" class="level1">
 <h1>CCA vs.&nbsp;JEPA Overview</h1>
@@ -5425,7 +5570,7 @@ font-style: inherit;">&gt;</span></span></code></pre></div></div>
 <p>Then we solve,</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Cmin_%7B%5Ctheta,%5Cvarphi%7D%5Cfrac%7B1%7D%7Bn%7D%20%5Csum_%7Bi=1%7D%5En%20%7C%7Cz_x%5E%7B(i)%7D-z_y%5E%7B(i)%7D%7C%7C%5E2"></p>
 <p>Note the similarity in the objective function but the lack of whitening constraints. The lack of whitening constraints results in representational and dimensional collapse. For example, a trivial solution to the above problem is <img src="https://latex.codecogs.com/png.latex?z_x%5E%7B(i)%7D=z_y%5E%7B(i)%7D=c">.</p>
-<p>As discussed in my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">previous blog post</a> SIGReg <span class="citation" data-cites="balestriero2025">(Balestriero and LeCun 2025)</span> fixes this problem. What does it do? It encourages the embeddings <img src="https://latex.codecogs.com/png.latex?z_x"> and <img src="https://latex.codecogs.com/png.latex?z_y"> to have an isotropic (i.e.&nbsp;unit variance, uncorrelated) Gaussian distribution. As a result it encourages,</p>
+<p>As discussed in my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">previous blog post</a> SIGReg <span class="citation" data-cites="balestriero2025">[7]</span> fixes this problem. What does it do? It encourages the embeddings <img src="https://latex.codecogs.com/png.latex?z_x"> and <img src="https://latex.codecogs.com/png.latex?z_y"> to have an isotropic (i.e.&nbsp;unit variance, uncorrelated) Gaussian distribution. As a result it encourages,</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7Bn%7Dz_x%5ETz_x=%5Cfrac%7B1%7D%7Bn%7Dz_y%5ETz_y=I"></p>
 </section>
 </section>
@@ -5449,27 +5594,27 @@ font-style: inherit;">&gt;</span></span></code></pre></div></div>
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-andrew2013" class="csl-entry">
-Andrew, Galen, Raman Arora, Jeff Bilmes, and Karen Livescu. 2013. <span>“Deep Canonical Correlation Analysis.”</span> <em>International Conference on Machine Learning</em>, 1247–55. <a href="https://proceedings.mlr.press/v28/andrew13.html">https://proceedings.mlr.press/v28/andrew13.html</a>.
-</div>
-<div id="ref-balestriero2025" class="csl-entry">
-Balestriero, Randall, and Yann LeCun. 2025. <em>LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics</em>. <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a>.
-</div>
-<div id="ref-benton2017" class="csl-entry">
-Benton, Adrian, Huda Khayrallah, Biman Gujral, Dee Ann Reisinger, Sheng Zhang, and Raman Arora. 2017. <em>Deep Generalized Canonical Correlation Analysis</em>. <a href="https://arxiv.org/abs/1702.02519">https://arxiv.org/abs/1702.02519</a>.
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0">
+<div id="ref-hotelling1936" class="csl-entry">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">H. Hotelling, <span>“Relations between two sets of variates,”</span> <em>Biometrika</em>, vol. 28, no. 3/4, pp. 321–377, 1936, Accessed: May 03, 2026. [Online]. Available: <a href="http://www.jstor.org/stable/2333955">http://www.jstor.org/stable/2333955</a></div>
 </div>
 <div id="ref-bykhovskaya2025" class="csl-entry">
-Bykhovskaya, Anna, and Vadim Gorin. 2025. <em>Canonical Correlation Analysis: Review</em>. <a href="https://arxiv.org/abs/2411.15625">https://arxiv.org/abs/2411.15625</a>.
-</div>
-<div id="ref-horst1961" class="csl-entry">
-Horst, Paul. 1961. <em>Generalized Canonical Correlations and Their Application to Experimental Data</em>. Journal of clinical psychology.
-</div>
-<div id="ref-hotelling1936" class="csl-entry">
-Hotelling, Harold. 1936. <span>“Relations Between Two Sets of Variates.”</span> <em>Biometrika</em> 28 (3/4): 321–77. <a href="http://www.jstor.org/stable/2333955">http://www.jstor.org/stable/2333955</a>.
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">A. Bykhovskaya and V. Gorin, <span>“Canonical correlation analysis: review.”</span> 2025. Available: <a href="https://arxiv.org/abs/2411.15625">https://arxiv.org/abs/2411.15625</a></div>
 </div>
 <div id="ref-huang2026" class="csl-entry">
-Huang, Yongchao. 2026. <em>VJEPA: Variational Joint Embedding Predictive Architectures as Probabilistic World Models</em>. <a href="https://arxiv.org/abs/2601.14354">https://arxiv.org/abs/2601.14354</a>.
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">Y. Huang, <span>“VJEPA: Variational joint embedding predictive architectures as probabilistic world models.”</span> 2026. Available: <a href="https://arxiv.org/abs/2601.14354">https://arxiv.org/abs/2601.14354</a></div>
+</div>
+<div id="ref-andrew2013" class="csl-entry">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">G. Andrew, R. Arora, J. Bilmes, and K. Livescu, <span>“Deep canonical correlation analysis,”</span> in <em>International conference on machine learning</em>, PMLR, 2013, pp. 1247–1255. Available: <a href="https://proceedings.mlr.press/v28/andrew13.html">https://proceedings.mlr.press/v28/andrew13.html</a></div>
+</div>
+<div id="ref-benton2017" class="csl-entry">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">A. Benton, H. Khayrallah, B. Gujral, D. A. Reisinger, S. Zhang, and R. Arora, <span>“Deep generalized canonical correlation analysis.”</span> 2017. Available: <a href="https://arxiv.org/abs/1702.02519">https://arxiv.org/abs/1702.02519</a></div>
+</div>
+<div id="ref-horst1961" class="csl-entry">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">P. Horst, <em>Generalized canonical correlations and their application to experimental data</em>. Journal of clinical psychology, 1961.</div>
+</div>
+<div id="ref-balestriero2025" class="csl-entry">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">R. Balestriero and Y. LeCun, <span>“LeJEPA: Provable and scalable self-supervised learning without the heuristics.”</span> 2025. Available: <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a></div>
 </div>
 </div></section></div> ]]></description>
   <category>ai</category>
@@ -5488,8 +5633,8 @@ Huang, Yongchao. 2026. <em>VJEPA: Variational Joint Embedding Predictive Archite
 
 
 <p>After my <a href="../../posts/sigreg-sketched-isotropic-gaussian-regularization/">prior blog post about SIGReg</a>, I figured I’d train a small Joint-Embedding Predictive Architecture (JEPA) model to demonstrate it.</p>
-<p>The paper “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels” <span class="citation" data-cites="maes2026">(Maes et al. 2026)</span> suggested significantly reducing the complexity of JEPA models by removing stop-gradients, and the exponential-moving-average encoder. This was in the context of world models and planning.</p>
-<p>In this case, I’m applying JEPA to the task of creating word embeddings. Prior methodologies include Word2vec <span class="citation" data-cites="mikolov2013">(Mikolov et al. 2013)</span> which uses a log-linear model and negative sampling, MLP next-word prediction <span class="citation" data-cites="bengio2000">(Bengio et al. 2000)</span>, applying CCA to small context windows <span class="citation" data-cites="dhillon2011">(Dhillon et al. 2011)</span>, and training an autoencoder on small context windows <span class="citation" data-cites="shao2025">(Shao et al. 2025)</span>.</p>
+<p>The paper “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels” <span class="citation" data-cites="maes2026">[1]</span> suggested significantly reducing the complexity of JEPA models by removing stop-gradients, and the exponential-moving-average encoder. This was in the context of world models and planning.</p>
+<p>In this case, I’m applying JEPA to the task of creating word embeddings. Prior methodologies include Word2vec <span class="citation" data-cites="mikolov2013">[2]</span> which uses a log-linear model and negative sampling, MLP next-word prediction <span class="citation" data-cites="bengio2000">[3]</span>, applying CCA to small context windows <span class="citation" data-cites="dhillon2011">[4]</span>, and training an autoencoder on small context windows <span class="citation" data-cites="shao2025">[5]</span>.</p>
 <p>We’ll be training a linear JEPA model with SIGReg on a small shakespeare dataset to show that it learns some informative embeddings. In other words, we’ll train an encoder that turns two words into word embeddings, and train a linear predictor that predicts the second word embedding from the first. It would be easy to extend this methodology to non-linear encoders and use larger contexts than single words.</p>
 <section id="overview" class="level1">
 <h1>Overview</h1>
@@ -6592,30 +6737,30 @@ font-style: inherit;">5</span>)</span></code></pre></div></div>
 <h1>Future Directions</h1>
 <p>As I mentioned earlier, it would be easy to extend this methodology to non-linear (e.g.&nbsp;MLP, CNN, RNN, Transformer) models and use larger contexts and targets than single words. It’s also possible to play around with other hyperparameters like SIGReg regularizer coefficient, embedding dimension, and hidden dimension and try larger datasets.</p>
 <p>Compared to many prior methods for getting word embeddings, this does appear to be less complicated than things like negative sampling (e.g.&nbsp;word2vec).</p>
-<p>There’s also recent work on approximations to SIGReg that are likely more computationally efficient with very little downside <span class="citation" data-cites="akbar2026">(Akbar 2026)</span>.</p>
+<p>There’s also recent work on approximations to SIGReg that are likely more computationally efficient with very little downside <span class="citation" data-cites="akbar2026">[6]</span>.</p>
 
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-akbar2026" class="csl-entry">
-Akbar, Habibullah. 2026. <em>Weak-SIGReg: Covariance Regularization for Stable Deep Learning</em>. <a href="https://arxiv.org/abs/2603.05924">https://arxiv.org/abs/2603.05924</a>.
-</div>
-<div id="ref-bengio2000" class="csl-entry">
-Bengio, Yoshua, Réjean Ducharme, and Pascal Vincent. 2000. <span>“A Neural Probabilistic Language Model.”</span> In <em>Advances in Neural Information Processing Systems</em>, edited by T. Leen, T. Dietterich, and V. Tresp, vol. 13. MIT Press. <a href="https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf</a>.
-</div>
-<div id="ref-dhillon2011" class="csl-entry">
-Dhillon, Paramveer, Dean P Foster, and Lyle Ungar. 2011. <span>“Multi-View Learning of Word Embeddings via CCA.”</span> In <em>Advances in Neural Information Processing Systems</em>, edited by J. Shawe-Taylor, R. Zemel, P. Bartlett, F. Pereira, and K. Weinberger, vol. 24. Curran Associates, Inc. <a href="https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf</a>.
-</div>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0">
 <div id="ref-maes2026" class="csl-entry">
-Maes, Lucas, Quentin Le Lidec, Damien Scieur, Yann LeCun, and Randall Balestriero. 2026. <em>LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels</em>. <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a>.
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">L. Maes, Q. L. Lidec, D. Scieur, Y. LeCun, and R. Balestriero, <span>“LeWorldModel: Stable end-to-end joint-embedding predictive architecture from pixels.”</span> 2026. Available: <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a></div>
 </div>
 <div id="ref-mikolov2013" class="csl-entry">
-Mikolov, Tomas, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013. <em>Efficient Estimation of Word Representations in Vector Space</em>. <a href="https://arxiv.org/abs/1301.3781">https://arxiv.org/abs/1301.3781</a>.
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">T. Mikolov, K. Chen, G. Corrado, and J. Dean, <span>“Efficient estimation of word representations in vector space.”</span> 2013. Available: <a href="https://arxiv.org/abs/1301.3781">https://arxiv.org/abs/1301.3781</a></div>
+</div>
+<div id="ref-bengio2000" class="csl-entry">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">Y. Bengio, R. Ducharme, and P. Vincent, <span>“A neural probabilistic language model,”</span> in <em>Advances in neural information processing systems</em>, T. Leen, T. Dietterich, and V. Tresp, Eds., MIT Press, 2000. Available: <a href="https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2000/file/728f206c2a01bf572b5940d7d9a8fa4c-Paper.pdf</a></div>
+</div>
+<div id="ref-dhillon2011" class="csl-entry">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">P. Dhillon, D. P. Foster, and L. Ungar, <span>“Multi-view learning of word embeddings via CCA,”</span> in <em>Advances in neural information processing systems</em>, J. Shawe-Taylor, R. Zemel, P. Bartlett, F. Pereira, and K. Weinberger, Eds., Curran Associates, Inc., 2011. Available: <a href="https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2011/file/6c4b761a28b734fe93831e3fb400ce87-Paper.pdf</a></div>
 </div>
 <div id="ref-shao2025" class="csl-entry">
-Shao, Chenze, Darren Li, Fandong Meng, and Jie Zhou. 2025. <em>Continuous Autoregressive Language Models</em>. <a href="https://arxiv.org/abs/2510.27688">https://arxiv.org/abs/2510.27688</a>.
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">C. Shao, D. Li, F. Meng, and J. Zhou, <span>“Continuous autoregressive language models.”</span> 2025. Available: <a href="https://arxiv.org/abs/2510.27688">https://arxiv.org/abs/2510.27688</a></div>
+</div>
+<div id="ref-akbar2026" class="csl-entry">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">H. Akbar, <span>“Weak-SIGReg: Covariance regularization for stable deep learning.”</span> 2026. Available: <a href="https://arxiv.org/abs/2603.05924">https://arxiv.org/abs/2603.05924</a></div>
 </div>
 </div></section></div> ]]></description>
   <category>ai</category>
@@ -6633,7 +6778,7 @@ Shao, Chenze, Darren Li, Fandong Meng, and Jie Zhou. 2025. <em>Continuous Autore
 
 
 
-<p>The paper “LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics”<span class="citation" data-cites="balestriero2025">(Balestriero and LeCun 2025)</span> proposed an interesting method of regularizing latent spaces that I thought I’d explore.</p>
+<p>The paper “LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics”<span class="citation" data-cites="balestriero2025">[1]</span> proposed an interesting method of regularizing latent spaces that I thought I’d explore.</p>
 <p>This is a regularization technique to make latent embeddings have isotropic Gaussian distribution - each dimension is encouraged to be uncorrelated and independent, and gaussian distributed. They argue that gaussian latent embeddings are optimal because they are unbiased and lower variance for downstream tasks.</p>
 <p>They make latent embeddings have Gaussian distribution using one-dimensional tests of normality in random directions via characteristic functions.</p>
 <section id="one-dimension" class="level1">
@@ -9081,19 +9226,19 @@ Epoch 1000/1000, Loss: 0.2580392360687256</code></pre>
 </div>
 </div>
 <p>And now after training, the output is more Gaussian. So adding this regularizer to your objective function encourages Gaussian latent embeddings.</p>
-<p>In a future blog post, I’d like to train a small JEPA model using SIGReg as in “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels”<span class="citation" data-cites="maes2026">(Maes et al. 2026)</span>.</p>
+<p>In a future blog post, I’d like to train a small JEPA model using SIGReg as in “LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels”<span class="citation" data-cites="maes2026">[2]</span>.</p>
 
 
 
 </section>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0">
 <div id="ref-balestriero2025" class="csl-entry">
-Balestriero, Randall, and Yann LeCun. 2025. <em>LeJEPA: Provable and Scalable Self-Supervised Learning Without the Heuristics</em>. <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a>.
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">R. Balestriero and Y. LeCun, <span>“LeJEPA: Provable and scalable self-supervised learning without the heuristics.”</span> 2025. Available: <a href="https://arxiv.org/abs/2511.08544">https://arxiv.org/abs/2511.08544</a></div>
 </div>
 <div id="ref-maes2026" class="csl-entry">
-Maes, Lucas, Quentin Le Lidec, Damien Scieur, Yann LeCun, and Randall Balestriero. 2026. <em>LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels</em>. <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a>.
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">L. Maes, Q. L. Lidec, D. Scieur, Y. LeCun, and R. Balestriero, <span>“LeWorldModel: Stable end-to-end joint-embedding predictive architecture from pixels.”</span> 2026. Available: <a href="https://arxiv.org/abs/2603.19312">https://arxiv.org/abs/2603.19312</a></div>
 </div>
 </div></section></div> ]]></description>
   <category>ai</category>
