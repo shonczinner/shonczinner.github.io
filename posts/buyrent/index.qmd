@@ -243,7 +243,7 @@ Inputs.table(
 )
 ```
 
-Finally we have taxes and fees for selling the home at the end of the comparison period.
+Finally we have taxes and fees for selling the home at the end of the comparison period. Note that closing and selling costs are deducted from home capital gains.
 
 ```{ojs}
 
