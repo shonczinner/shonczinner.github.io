@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/gradient-descent/index.html",
       "/posts/gameoflife/index.html",
       "/posts/buyrent/index.html",
       "/posts/onnx-quarto/index.html",
