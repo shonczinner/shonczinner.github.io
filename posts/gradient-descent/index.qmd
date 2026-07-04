@@ -1,0 +1,156 @@
+---
+author: "Shon Czinner"
+date: "2026-07-04"
+title:  An Interactive Introduction To Gradient Descent (How LLMs Learn)
+description: Motivating Gradient Descent by hand.
+categories: [ai, fun]
+format:
+  html:
+    code-fold: true
+execute:
+ freeze: true
+image: loss.png
+resources:
+  - minfn.js
+  - linear.js
+  - nonlinear.js
+---
+
+At the root of Large Language Models, deep learning, neural networks, and artificial intelligence is "Gradient Descent". These models work by minimizing the error between a model's predictions and known outputs. Computers do this using derivatives from calculus, but in this post I just want to illustrate this by hand. The goal is to build some intuition about what is "descending". 
+
+To start, let's start by just minimizing a function. Use the slider to move the point to the lowest value of the given function. Note the plot beneath shows the value of the function as you move the slider. 
+
+
+<div class="wrap" style="max-width: 600px; margin: 0 auto; font-family: sans-serif;">
+<div style="font-weight: bold; margin-bottom: 8px;">
+<strong>Move slider to minimize f(x):</strong>
+</div>
+<strong><span id="valuex"></span></strong>
+<input id="slider" type="range" min="-4" max="4" step="0.01" value="2" style="width: 100%; margin: 0; display: block;">
+
+<div id="plot" style="height: 300px; margin-top: -10px;"></div>
+<strong><span id="valuef"></span></strong>
+<div id="plot2" style="height: 200px; margin-top: 20px;"></div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+<script src="minfn.js"></script>
+
+
+Next we can illustrate fitting a line to points (in this case estimating home prices vs. home size). Importantly, we need to quantify how good a line is. In our case, we'll add up all the distances between points and the line, indicated by the vertical bars. 
+
+Now we're finding the best model by minimizing a function which represents the error between a model's predictions and known outputs.
+
+<div class="wrap" style="font-family: sans-serif;">
+<strong>Move slider to minimize the sum of absolute errors:</strong>
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+
+<div>
+<div style="margin-bottom: 8px;">
+<strong>slope (m):<br></strong> <span id="slopeVal" style="font-family: monospace;"></span>
+</div>
+<input id="slope" type="range" min="0" max="4" step="0.01" value="1" style="width: 100%; margin: 0; display: block;">
+<div id="lin_plot4" style="height:160px; margin-top: 4px;"></div>
+</div>
+
+<div>
+<div style="margin-bottom: 8px;">
+<strong>intercept (b):<br></strong> <span id="interceptVal" style="font-family: monospace;"></span>
+</div>
+<input id="intercept" type="range" min="-20" max="100" step="0.1" value="0" style="width: 100%; margin: 0; display: block;">
+<div id="lin_plot3" style="height:160px; margin-top: 4px;"></div>
+</div>
+
+</div>
+
+<div style="margin-top: 24px; padding: 16px; border-radius: 8px; background-color: #f9f9f9;">
+<div id="mae" style="font-size: 1.3em; font-weight: bold; color: #d9534f; margin-bottom: 16px;"></div>
+
+<div id="lin_plot1" style="height:350px; margin-bottom: 20px;"></div>
+
+<div id="lin_plot2" style="height:180px;"></div>
+</div>
+
+</div>
+
+<script src="linear.js"></script>
+
+Instead of a home price, LLMs predict the probability of every subsequent token (e.g., words, or rather fragments of words and collections of characters). For example, given the context "I pet the...", an LLM has learned to output a higher value for "cat" than for "plane", indicating a higher probability of "cat" and a lower probability of "plane". The model then selects the token with the highest value, in this case "cat", and then reruns with "I pet the cat". 
+
+In practice, the next token is not always the highest one, especially when several tokens have similar values. For example, "cat" might have a value of 1.0 and "dog" might have 0.98. While "cat" is more likely, sometimes "dog" is chosen instead.
+
+When the context is "I flew the...", the LLM with the same weights needs to also learn to output a higher value for "plane" than for "cat". 
+
+For a taste, try moving these four sliders to give "cat" a value of 1.0 and "plane" a value of 0 for context "I pet the..." and to give "plane" a value of 1.0 and "cat" a value of 0 for context "I flew the...". Once again, you can see the error update as you move the sliders. 
+
+<div class="wrap" style="font-family: sans-serif;">
+<strong>Move slider to minimize total dataset error:</strong>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+<div>
+<label style="font-weight: bold;">w₁₁ (Feature 1 → Cat): <span id="w11Val"></span></label>
+<input id="w11" type="range" min="-2" max="2" step="0.01" value="0.5" style="width: 100%;">
+<div id="plot_w11" style="height: 150px;"></div>
+</div>
+
+<div>
+<label style="font-weight: bold;">w₁₂ (Feature 2 → Cat): <span id="w12Val"></span></label>
+<input id="w12" type="range" min="-2" max="2" step="0.01" value="-0.2" style="width: 100%;">
+<div id="plot_w12" style="height: 150px;"></div>
+</div>
+
+<div>
+<label style="font-weight: bold;">w₂₁ (Feature 1 → Plane): <span id="w21Val"></span></label>
+<input id="w21" type="range" min="-2" max="2" step="0.01" value="-0.3" style="width: 100%;">
+<div id="plot_w21" style="height: 150px;"></div>
+</div>
+
+<div>
+<label style="font-weight: bold;">w₂₂ (Feature 2 → Plane): <span id="w22Val"></span></label>
+<input id="w22" type="range" min="-2" max="2" step="0.01" value="0.6" style="width: 100%;">
+<div id="plot_w22" style="height: 150px;"></div>
+</div>
+</div>
+
+<div style="margin-top: 24px; padding: 16px; border-radius: 8px; background-color: #f9f9f9;">
+
+<div style="margin-bottom: 16px;">
+<div id="nl_loss" style="font-size: 1.5em; font-weight: bold; color: #d9534f;"></div>
+</div>
+
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left; font-size: 0.95em;">
+<thead>
+<tr style="border-bottom: 2px solid #ddd; color: #555;">
+<th style="padding: 8px 4px;">Training Input (Prompt)</th>
+<th style="padding: 8px 4px;">Target Output</th>
+<th style="padding: 8px 4px;">Model Prediction</th>
+<th style="padding: 8px 4px; text-align: right;">Error</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid #eee;">
+<td style="padding: 12px 4px;"><strong>"I pet the..."</strong></td>
+<td style="padding: 12px 4px; color: #28a745;">Cat (1.0), Plane (0.0)</td>
+<td style="padding: 12px 4px;">Cat: <span id="out_pet_cat"></span>, Plane: <span id="out_pet_air"></span></td>
+<td id="loss_pet" style="padding: 12px 4px; text-align: right; font-family: monospace;">0.0000</td>
+</tr>
+<tr style="border-bottom: 1px solid #eee;">
+<td style="padding: 12px 4px;"><strong>"I flew the..."</strong></td>
+<td style="padding: 12px 4px; color: #28a745;">Cat (0.0), Plane (1.0)</td>
+<td style="padding: 12px 4px;">Cat: <span id="out_flew_cat"></span>, Plane: <span id="out_flew_air"></span></td>
+<td id="loss_flew" style="padding: 12px 4px; text-align: right; font-family: monospace;">0.0000</td>
+</tr>
+</tbody>
+</table>
+
+<div id="nl_loss_history" style="height: 180px;"></div>
+</div>
+</div>
+
+<script src="nonlinear.js"></script>
+
+
+Instead of a few sliders, LLMs have billions or trillions of weights and are trained on billions of samples of texts from books, Wikipedia, social media sites, and code repositories.
+
+For a given prompt and conversation history, the model uses these weights to calculate a value for tens of thousands of different tokens, choosing the next one based on which values are highest.
+
+That is where Gradient Descent comes in. Humans can't manually tune a trillion sliders to get those token values right. But using calculus, the computer can instantly calculate exactly which direction to nudge all one trillion sliders simultaneously to make the model just a tiny bit smarter. Repeat that process billions of times, and you get an AI that can write essays, code software, and chat with you just like a human.
