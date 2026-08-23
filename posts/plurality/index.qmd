@@ -10,7 +10,7 @@ execute:
  echo: false
 ---
 
-The way we vote is central to democracy. In this post, I will explain why single-marked ballots and plurality voting (aka first-past-the-post) are biased against moderates.
+The way we vote is central to democracy. Most places currently have you mark only one candidate on the ballot (single-marked ballots) and the candidate with the most votes wins (plurality voting/first-past-the-post). In this post, I will explain why single-marked ballots and plurality voting are biased against moderates.
 
 First we need a model of voting.
 
