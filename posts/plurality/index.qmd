@@ -1,0 +1,305 @@
+---
+title: "What's Wrong With Your Voting System?"
+description: "Why single-marked ballots, plurality voting, and first-past-the-post are biased against moderates"
+author: "Shon Czinner"
+date: "2026-08-22"
+categories: [voting, social choice, political science]
+bibliography: citations.bib
+execute:
+ freeze: true
+ echo: false
+---
+
+The way we vote is central to democracy. In this post, I will explain why single-marked ballots and plurality voting (aka first-past-the-post) are biased against moderates.
+
+First we need a model of voting.
+
+# The Spatial Model
+
+A common model of voting is the spatial model [@hotelling1929; @downs1957]. In the spatial model of voting, candidates and voters are represented as points in a space. Voters prefer candidates that are closer to them in this space. In this post, we will use a one-dimensional model where the left-right political spectrum is represented as a line. 
+
+This "closest is best" assumption is really a claim about **utility**. In the underlying model each voter has a single-peaked utility function over candidate positions, written as some function of the distance $d = |v - x|$ between the voter's ideal point $v$ and candidate position $x$. The utility function $f$ is symmetric and single-peaked, meaning that it has a single maximum at the voter's ideal point and decreases as the distance from that point increases [@black1948; @enelow1984]. 
+
+The linear form $u_v(x) = 1 - |d|$ is just one simple example; a quadratic or any other bump-shaped curve would equally qualify.
+
+
+```{ojs}
+Plotly = await require("https://cdn.plot.ly/plotly-2.35.2.min.js")
+
+import { elecData } from "./src/plots.js"
+import { ELEC } from "./src/electorate.js"
+
+elec = ELEC
+```
+
+```{ojs}
+function render(fig) {
+  const el = document.createElement("div");
+  el.style.border = "1px solid #eee";
+  el.style.borderRadius = "6px";
+  el.style.margin = "0.5rem 0 1.5rem";
+  Plotly.newPlot(el, fig.data, fig.layout, { displayModeBar: false, responsive: true });
+  return el;
+}
+```
+
+```{ojs}
+render((() => {
+  const d = Array.from({ length: 201 }, (_, i) => -1 + 2 * i / 200);
+  const u = d.map(x => 1 - Math.abs(x));
+  const fig = {
+    data: [{
+      x: d, y: u, mode: "lines", line: { color: "#1f77b4", width: 2 },
+      fill: "tozeroy", fillcolor: "rgba(31,119,180,0.15)"
+    }],
+    layout: {
+      title: { text: "u(d) = 1 − |d|  (example single-peaked utility)", font: { size: 13 } },
+      margin: { l: 60, r: 20, t: 38, b: 44 }, height: 280,
+      xaxis: { title: "distance d = |pᵢ − x|", zeroline: true, zerolinecolor: "#bbb" },
+      yaxis: { title: "utility uᵢ", range: [0, 1.05], zeroline: false },
+      paper_bgcolor: "#fff", plot_bgcolor: "#fff", showlegend: false,
+    }
+  };
+  return fig;
+})())
+```
+
+This is a deliberately stripped-down model. It says nothing about candidate valence:
+charisma, experience, a scandal, a strong ground game. Two candidates at the same
+point on the axis are treated as perfectly interchangeable here. Valence could be
+added by incorporating it in the voter's utility function, but that analysis is unlikely to change the main conclusions of this post. The spatial model is a simple, elegant, and widely used model of voting that captures the essence of the problem.
+
+We can visualize who votes for different candidates in this model under **honest single-marked ballots** and get our first hint of the issue. The following figure shows a simple electorate with three candidates. We can see that the candidate in the middle (A) gets squeezed out by the two candidates on its left and right (B and C). This is a simple example of how single-marked ballots and plurality voting can be biased against moderates.
+
+```{ojs}
+import { pluralityBallotData, densityWeightedData, winnerHeatmap, candShapesAt } from "./src/plots.js"
+import { assess, METHODS, NAMES, COLORS } from "./src/methods.js"
+import { strategicWinner } from "./src/strategic.js"
+
+viewof Bballot = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position"})
+viewof Cballot = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position" })
+
+posBallot = [0, Bballot, Cballot]
+```
+
+<p style="display:flex; gap:1.25rem; flex-wrap:wrap; margin:0 0 0.25rem;">
+  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#2ca02c; margin-right:4px;"></span>Votes for A</span>
+  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#d62728; margin-right:4px;"></span>Votes for B</span>
+  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#ff7f0e; margin-right:4px;"></span>Votes for C</span>
+</p>
+
+```{ojs}
+render(pluralityBallotData(elec, posBallot))
+```
+
+Next we need a model of the electorate. 
+
+## The Electorate
+
+Our voters are drawn from a bell curve centered at zero. The result is a smooth mound of opinion with its peak (the mode)
+at the center, and the mean and median both sitting at the same point, $0$. There are fewer voters at the extremes of the political spectrum, just like in the real world [@dataforprogress2018; @cdnsurveystuff2021]. 
+
+```{ojs}
+render(elecData(elec))
+```
+
+Weighting each column by the number of voters at that location plots not just who is voting for each candidate, but how many votes each candidate is receiving. The area under the curve now represents the actual plurality vote total for that candidate. This illustrates the problem with single-marked ballots and plurality voting: the candidate in the middle (A) is getting squeezed out by the two candidates on either side (B and C). Unless candidates B and C have very extreme positions, the candidate in the middle is not getting enough votes to win even though their policy is the mean, median, and mode of the electorate.
+
+```{ojs}
+viewof Bballot2 = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position"})
+viewof Cballot2 = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position" })
+
+posBallot2 = [0, Bballot2, Cballot2]
+```
+
+```{ojs}
+render(densityWeightedData(elec, posBallot2, "plurality", undefined, `Plurality — density-weighted (A=0, B=${Bballot2}, C=${Cballot2})`))
+```
+
+```{ojs}
+totalsEl = {
+  const vs = assess(posBallot2, elec);
+  const ballots = vs.map(v => METHODS.plurality.ballot(v));
+  const tot = [0, 0, 0];
+  vs.forEach((v, k) => ballots[k].forEach((x, c) => { tot[c] += x * v.w; }));
+  const sum = tot.reduce((a, b) => a + b, 0);
+  const el = document.createElement("div");
+  el.style.display = "flex";
+  el.style.gap = "1rem";
+  el.style.flexWrap = "wrap";
+  el.style.margin = "0.5rem 0 1.5rem";
+  for (let c = 0; c < 3; c++) {
+    const pct = (100 * tot[c] / sum).toFixed(1);
+    const card = document.createElement("div");
+    card.style.flex = "1 1 120px";
+    card.style.minWidth = "120px";
+    card.style.border = "1px solid #eee";
+    card.style.borderRadius = "6px";
+    card.style.padding = "0.5rem 0.7rem";
+    card.style.borderTop = `3px solid ${COLORS[c]}`;
+    card.innerHTML = `<div style="font-weight:600;color:${COLORS[c]}">${NAMES[c]}</div>` +
+      `<div style="font-size:1.3rem">${tot[c].toLocaleString()}</div>` +
+      `<div style="color:#666;font-size:0.85rem">${pct}% of vote</div>`;
+    el.appendChild(card);
+  }
+  return el;
+}
+```
+
+```{ojs}
+pluralityWinner = {
+  const vs = assess(posBallot2, elec);
+  const ballots = vs.map(v => METHODS.plurality.ballot(v));
+  return METHODS.plurality.winner(vs, ballots);
+}
+
+winnerEl = {
+  const w = pluralityWinner;
+  const el = document.createElement("p");
+  el.style.fontSize = "1.1rem";
+  el.style.margin = "0.5rem 0 1.5rem";
+  el.style.padding = "0.6rem 0.8rem";
+  el.style.border = "1px solid #eee";
+  el.style.borderRadius = "6px";
+  el.style.background = "#fafafa";
+  if (w < 0) {
+    el.textContent = "Plurality winner: none (tie).";
+  } else {
+    const name = NAMES[w];
+    el.innerHTML = `Plurality winner: <strong style="color:${COLORS[w]}">${name}</strong> ` +
+      `(at position ${posBallot2[w].toFixed(2)}).`;
+  }
+  return el;
+}
+```
+
+Now, everything above assumed honest voting. But what if voters are strategic? What if they vote for the candidate they think has the best chance of winning, rather than their true preference?
+
+# Strategic Voting
+
+If your favorite is headed for a loss, you may reason that your vote is wasted and instead back the lesser evil you think can actually win. The classic plurality strategy is to vote for the candidate you like best among the two front-runners. We can visualize this occuring over iterations,
+
+```{ojs}
+viewof Bstrat = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position (red)" })
+viewof Cstrat = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position (orange)" })
+
+posStrat = [0, Bstrat, Cstrat]
+```
+
+```{ojs}
+strat = strategicWinner(posStrat, "plurality")
+stratVs = assess(posStrat, elec)
+stratWinners = strat.steps.map(b => METHODS.plurality.winner(stratVs, b))
+```
+
+```{ojs}
+stratStripsEl = {
+  const container = document.createElement("div");
+  strat.steps.forEach((ballots, i) => {
+    const w = stratWinners[i];
+    const title = `Iteration ${i} — winner: ${w < 0 ? "none" : NAMES[w]}`;
+    const fig = pluralityBallotData(elec, posStrat, { ballots, title });
+    const el = document.createElement("div");
+    el.style.border = "1px solid #eee"; el.style.borderRadius = "6px"; el.style.margin = "0.3rem 0";
+    Plotly.newPlot(el, fig.data, fig.layout, { displayModeBar: false, responsive: true });
+    container.appendChild(el);
+  });
+  return container;
+}
+```
+```{ojs}
+stratFinalFig = densityWeightedData(
+  elec, posStrat, strat.ballots, undefined,
+  `Strategic plurality — density-weighted (A=0, B=${Bstrat}, C=${Cstrat}) — ${strat.iterations} round${strat.iterations === 1 ? "" : "s"}, winner ${NAMES[stratWinners[stratWinners.length - 1]]}`
+)
+
+render(stratFinalFig)
+```
+
+```{ojs}
+stratWinnerEl = {
+  const w = stratWinners[stratWinners.length - 1];
+  const el = document.createElement("p");
+  el.style.fontSize = "1.1rem";
+  el.style.margin = "0.5rem 0 1.5rem";
+  el.style.padding = "0.6rem 0.8rem";
+  el.style.border = "1px solid #eee";
+  el.style.borderRadius = "6px";
+  el.style.background = "#fafafa";
+  if (w < 0) el.textContent = "Strategic plurality winner: none (tie).";
+  else el.innerHTML = `Strategic plurality winner: <strong style="color:${COLORS[w]}">${NAMES[w]}</strong> `;
+  return el;
+}
+```
+
+In reality strategic voting is the result of a complex interplay of factors, including polling, media coverage, and social influence. But even in this simple model, we can see how even with strategic voting, the candidate in the middle (A) is still at a disadvantage. The two candidates on either side (B and C) can still squeeze out the moderate candidate.
+
+This is what results in the **two-party system** and is known as Duverger's Law [@duverger1954; @cox1997]. A third candidate caught in
+the middle (A) is squeezed out whether voters are honest or strategic; and under
+strategic voting, everyone who backed the doomed middle candidate rationally abandons
+them for one of the two viable wings. The result is a stable equilibrium with exactly two
+viable contenders, the two who sit on the *exterior* of the field. Any newcomer
+who tries to enter between them is punished at the ballot box so they probably won't run in this first place. So plurality doesn't just pick winners; it structurally winnows the field down to two, because only the outer
+candidates can own an uninterrupted region of the axis. 
+
+But how common is this? Is it just the examples I presented above where candidates are positioned very close together? Or is it a more general phenomenon? We can explore this by looking at the plurality winner for all possible positions of candidate C while candidate B is fixed at a certain position with a diagram similar to a Yee diagram [@yee2006].
+
+# 1D Yee-type Diagrams
+
+In typical Yee diagrams, all candidate positions are assumed fixed, the electorate center position is varied, and position is coloured according to the winning candidate. The logic is that when the electorate is centered near a candidate, that candidate should win. Yee diagrams reveal whether that is actually the case.
+
+In our case, we will fix candidate B at a certain position and vary candidate C's position. The diagram is colored according to the winning candidate depending on where candidate C chooses its position. In our case the electorate is always centered around A, and so the ideal scenario is it is always candidate A that wins and the plot should be entirely green. But as we will see, that is not the case.
+
+<p style="display:flex; gap:1.25rem; flex-wrap:wrap; margin:0 0 0.25rem;">
+  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#2ca02c; margin-right:4px;"></span>A wins</span>
+  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#d62728; margin-right:4px;"></span>B wins</span>
+  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#ff7f0e; margin-right:4px;"></span>C wins</span>
+</p>
+
+```{ojs}
+viewof B = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position" })
+
+cGrid = Array.from({ length: 140 }, (_, i) => -4 + 8 * i / 139)
+
+honestRowP = C => {
+  const vs = assess([0, B, C], elec);
+  const bs = vs.map(v => METHODS.plurality.ballot(v));
+  return METHODS.plurality.winner(vs, bs);
+}
+stratRowP = C => strategicWinner([0, B, C], "plurality").winner
+render(winnerHeatmap(
+  ["plurality (strategic)", "plurality (honest)"],
+  [cGrid.map(stratRowP), cGrid.map(honestRowP)],
+  cGrid, B, `B = ${B}`
+))
+```
+
+Neither the honest nor the strategic plurality winner is always candidate A. There are large regions of the diagram where candidate B or C wins instead. This shows that even in a simple one-dimensional model, single-marked ballots and plurality voting can be biased against moderates. 
+
+Moreover, the incentive under plurality is to position yourself on the **exterior**
+of the existing field. In this case, C can win by going to the right of the right-most candidate  That is the perverse
+positional incentive plurality creates. it rewards hugging staying outside the pack, and it is precisely what manufactures the center-squeeze.
+
+# Conclusion
+
+One dimension is enough to break the naive intuition that the mean, median, mode, (and the
+candidate sitting on it) will win. Under both honest and strategic voting, the candidate in the middle can be squeezed out by the two candidates on either side. This is a simple example of how single-marked ballots and plurality voting can be biased against moderates.
+
+This post only scratched the surface with the single-mark plurality ballot. Three natural next steps are to perform the same analysis with:
+
+- **Approval ballots**: each voter marks *every* candidate they find acceptable
+  (utility above some threshold) rather than a single favorite. Does the squeezed
+  centrist get rescued by being approved from both flanks, when the outer voters
+  still find A tolerable?
+- **Ranked ballots**: voters order candidates from most- to least-preferred,
+  enabling instant-runoff (eliminate the last-place candidate and transfer
+  preferences) and Condorcet (who beats all others head-to-head) tabulations. Does
+  recording the full ordering always relieve the center-squeeze?
+- **Score ballots**: voters can grade each candidate on a scale, expressing the intensity
+  of their utility rather than just its ranking. How does the center fare when ballots
+  carry not just rankings, but also intensity?
+
+
+If plurality can cause the obvious "median" ideal candidate lose, imagine what more
+dimensions, many candidates, or lopsided electorates do. We can do better than trusting
+under all election systems the best candidate always wins. We can model election systems, see their flaws, and choose rules that elect the candidates voters actually want. 

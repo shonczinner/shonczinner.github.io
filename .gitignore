@@ -2,3 +2,5 @@
 /_site/
 /.venv/
 **/*.quarto_ipynb
+*/*/.jupyter_cache/
+_freeze/*
