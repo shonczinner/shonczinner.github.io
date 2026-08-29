@@ -1,0 +1,270 @@
+---
+title: "Are Ranked Ballots Better?"
+description: "Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still center-squeeze the median candidate under strategic voting"
+author: "Shon Czinner"
+date: "2026-08-28"
+categories: [voting, social choice, political science]
+bibliography: citations.bib
+execute:
+  freeze: true
+  echo: false
+image: img.PNG
+---
+
+In my previous post on [single-marked ballots](/posts/plurality/), I showed that plurality voting squeezes out the candidate in the middle. A common belief is that we can prevent this by giving voters a ranked ballot that lets voters order all the candidates from favorite to least favorite instead of marking just one. Ranking feels like it should help the moderate: if your favorite is eliminated, your vote transfers to your next choice, so the centrist shouldn't be wasted.
+
+This post asks whether ranked ballots actually fix the center-squeeze. The short answer: **no.** In the same one-dimensional spatial model the median candidate A can still be squeezed out, with honest and strategic voting. The following ranked methods are illustrated: instant-runoff (IRV), Borda, Condorcet, and the Condorcet-completion family (BTR-IRV, Schulze, Ranked Pairs).
+
+We reuse the exact same model, electorate, and code as the single-mark post.
+
+The same electorate from before is plotted below,
+
+```{ojs}
+Plotly = await require("https://cdn.plot.ly/plotly-2.35.2.min.js")
+
+import { elecData } from "./src/plots.js"
+import { ELEC } from "./src/electorate.js"
+
+elec = ELEC
+
+function render(fig) {
+  const el = document.createElement("div");
+  el.style.border = "1px solid #eee";
+  el.style.borderRadius = "6px";
+  el.style.margin = "0.5rem 0 1.5rem";
+  Plotly.newPlot(el, fig.data, fig.layout, { displayModeBar: false, responsive: true });
+  return el;
+}
+
+function winnerLegend(condorcet,strategy) {
+  const sw = (color, label) =>
+    `<span style="display:inline-flex;align-items:center;margin-right:1.25rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:${color};"></span><span style="font-size:0.9rem;">${label}</span></span>`;
+  let html = sw(COLORS[0], "A") + sw(COLORS[1], "B") + sw(COLORS[2], "C");
+  if (condorcet) html += sw("#000000", "Condorcet Cycle");
+  if (strategy) html += sw("#000000", "Tie/Non-convergence");
+  const p = document.createElement("p");
+  p.style.display = "flex";
+  p.style.flexWrap = "wrap";
+  p.style.margin = "0 0 0.25rem";
+  p.innerHTML = html;
+  return p;
+}
+```
+
+```{ojs}
+render(elecData(elec))
+```
+
+For the full spatial-model setup and its justification, see the [single-mark post](singlemark.qmd). The one assumption that actually matters for ranked ballots is the **honest-ranking assumption**: a voter ranks candidate $X$ above candidate $Y$ exactly when $u_v(X) > u_v(Y)$. In words, *higher utility means a higher rank*. So an honest ballot is just the voter's utility ordering over the three candidates. The candidate they like best is ranked first, the next best second, and the least-preferred last.
+
+# Honest ranked ballots
+
+With honest voting, ranked ballots look like this: every voter's ballot is just their distance ordering — the candidate a voter likes best is ranked first, the next best second, and the least-preferred last.
+
+```{ojs}
+import { rankedBallotData, rankedDensityWeightedData, winnerHeatmap } from "./src/plots.js"
+import { assess, METHODS, NAMES, COLORS } from "./src/methods.js"
+import { strategicWinner } from "./src/strategic.js"
+
+viewof Bballot = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position"})
+viewof Cballot = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position" })
+
+posBallot = [0, Bballot, Cballot]
+```
+
+```{ojs}
+winnerLegend(false, false)
+```
+
+```{ojs}
+render(rankedBallotData(elec, posBallot))
+```
+
+We can weight each column by the number of voters at each location to get a sense of how many voters rank each candidate 1st, 2nd, and 3rd:
+
+```{ojs}
+winnerLegend(false, false)
+```
+
+```{ojs}
+render(rankedDensityWeightedData(elec, posBallot,   `Ranked ballot — density-weighted (A=0, B=${Bballot}, C=${Cballot})`))
+```
+
+```{ojs}
+irvWinnerHonest = {
+  const vs = assess(posBallot, elec);
+  const ballots = vs.map(v => METHODS.irv.ballot(v));
+  return METHODS.irv.winner(vs, ballots);
+}
+winnerEl = {
+  const w = irvWinnerHonest;
+  const el = document.createElement("p");
+  el.style.fontSize = "1.1rem";
+  el.style.margin = "0.5rem 0 1.5rem";
+  el.style.padding = "0.6rem 0.8rem";
+  el.style.border = "1px solid #eee";
+  el.style.borderRadius = "6px";
+  el.style.background = "#fafafa";
+  if (w < 0) el.textContent = "Honest winner: none (tie).";
+  else el.innerHTML = `Honest winner: <strong style="color:${COLORS[w]}">${NAMES[w]}</strong> (at position ${posBallot[w].toFixed(2)}).`;
+  return el;
+}
+```
+
+# Instant-Runoff Voting (IRV)
+
+IRV is the most common ranked method. Voters submit a ranking and then the candidate with the fewest first-choice votes is eliminated. If your first choice is eliminated, your second choice becomes your new first choice. This process is repeated until someone has a majority. 
+
+Under honest voting, IRV is not immune to squeezing A. Push B and C close to A, and A can still be eliminated in the first round.
+
+Now let voters be strategic: bury the current leader by ranking them last. Iterating that "bury the leader" dynamic:
+
+```{ojs}
+viewof Bstrat = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position (red)" })
+viewof Cstrat = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position (orange)" })
+
+posStrat = [0, Bstrat, Cstrat]
+```
+
+```{ojs}
+strat = strategicWinner(posStrat, "irv")
+stratVs = assess(posStrat, elec)
+stratWinners = strat.steps.map(b => METHODS.irv.winner(stratVs, b))
+```
+
+```{ojs}
+stratWinnerEl = {
+  const w = stratWinners[stratWinners.length - 1];
+  const el = document.createElement("p");
+  el.style.fontSize = "1.1rem";
+  el.style.margin = "0.5rem 0 1.5rem";
+  el.style.padding = "0.6rem 0.8rem";
+  el.style.border = "1px solid #eee";
+  el.style.borderRadius = "6px";
+  el.style.background = "#fafafa";
+  if (w < 0) el.textContent = "Strategic IRV winner: none (tie).";
+  else el.innerHTML = `Strategic IRV winner: <strong style="color:${COLORS[w]}">${NAMES[w]}</strong>`;
+  return el;
+}
+```
+
+So IRV does not eliminate the center-squeeze. Under honest or strategic voting the ideal moderate candidate can still lose. Let us check how often, across every position of C (with B fixed), the strategic IRV winner is *not* A:
+
+```{ojs}
+winnerLegend(false, false)
+```
+
+```{ojs}
+viewof B = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position (IRV)" })
+
+cGrid = Array.from({ length: 140 }, (_, i) => -4 + 8 * i / 139)
+
+honestRow = (m, Bv) => C => {
+  const vs = assess([0, Bv, C], elec);
+  return METHODS[m].winner(vs, vs.map(v => METHODS[m].ballot(v)));
+}
+stratRow = (m, Bv) => C => strategicWinner([0, Bv, C], m).winner
+
+render(winnerHeatmap(
+  ["IRV (honest)", "IRV (strategic)"],
+  [cGrid.map(honestRow("irv", B)), cGrid.map(stratRow("irv", B))],
+  cGrid, B, `B = ${B}`
+))
+```
+
+Red/orange regions show which locations Candidate C can choose that make the ideal candidate A lose. Honest and strategic voting results are the same for IRV, but in either case, A can lose. The center-squeeze is not eliminated by IRV.
+
+# Borda
+
+Borda is another ranked method: a candidate gets 2 points for a first-place rank, 1 for second, 0 for third, and the highest total wins. With honest voting, it elects the ideal moderate candidate. A, at the median, is everyone's first or second choice, so A wins everywhere with honest voting:
+
+
+But Borda is extremely susceptible to strategic voting. Under the "bury the leader" strategy the map collapses and doesn't even converge. After an election or poll, voters will continually change their strategies and someone other than the ideal moderate candidate can be elected.
+
+```{ojs}
+viewof Bborda = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position (Borda)" })
+winnerLegend(false, true)
+```
+
+```{ojs}
+render(winnerHeatmap(
+  ["Borda (honest)", "Borda (strategic)"],
+  [cGrid.map(honestRow("borda", Bborda)), cGrid.map(stratRow("borda", Bborda))],
+  cGrid, Bborda, `B = ${Bborda}`
+))
+```
+
+# Condorcet
+
+Condorcet voting was created to elect the median candidate but we'll see that with strategic voting, it still does not. The idea of condorcet methods is that a candidate who beats every other candidate head-to-head should win. In this model **A is always the Condorcet winner**. A sits at the median, so a majority of voters (everyone on A's side plus the nearer flank) prefers A to B, and similarly A beats C. So unsurprisingly with honest voting, the Condorcet map is solidly green:
+
+
+But under strategy, "bury the leader" voting destroys the single-peakedness of the ballots and **majority cycles** appear. A no longer beats everyone head-to-head, and sometimes nobody does. The map goes black where the strategic ballots suggest no Condorcet winner exists:
+
+```{ojs}
+viewof Bcond = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position (Condorcet)" })
+winnerLegend(true, false)
+```
+
+```{ojs}
+render(winnerHeatmap(
+  ["Condorcet (honest)", "Condorcet (strategic)"],
+  [cGrid.map(honestRow("condorcet", Bcond)), cGrid.map(stratRow("condorcet", Bcond))],
+  cGrid, Bcond, `B = ${Bcond}`
+))
+```
+
+So Condorcet needs a tie-breaking / cycle resolving rule. That is the job of **Condorcet-completion methods**.
+
+# Condorcet Completion Methods
+
+These methods use the same head-to-head comparisons but specify what to do when there is no Condorcet winner:
+
+- **BTR-IRV**: bottom-two-runoff IRV: eliminate, each round, the pairwise loser of the two lowest first-choice candidates.
+- **Schulze**: strongest beatpath: the winner is the candidate who has the strongest path to every other candidate.
+- **Ranked Pairs**: lock pairwise victories from largest margin to smallest, skipping any that would create a cycle.
+
+Unsurprisingly with honest voting, all three elect A everywhere (they all reduce to the Condorcet winner when one exists):
+
+```{ojs}
+viewof Bcomp = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position (completion)" })
+```
+
+Under strategy, though, the dynamics still can fail to elect A. Black means a genuine condorcet cycle, a tie in the method's pairwise/beatpath relation, **or strategy non-convergence** where the buried-leader iteration never settles. Schulze and Ranked Pairs are black from genuine cycles and ties. BTR-IRV resolves cycles to a definite winner, so it is black only where it fails to converge.
+
+```{ojs}
+winnerLegend(false, true)
+```
+
+```{ojs}
+render(winnerHeatmap(
+  ["BTR-IRV (honest)", "Schulze (honest)", "Ranked Pairs (honest)", "BTR-IRV (strategic)", "Schulze (strategic)", "Ranked Pairs (strategic)"],
+  [
+    cGrid.map(honestRow("btrirv", Bcomp)),
+    cGrid.map(honestRow("schulze", Bcomp)),
+    cGrid.map(honestRow("rankedPairs", Bcomp)),
+    cGrid.map(stratRow("btrirv", Bcomp)),
+    cGrid.map(stratRow("schulze", Bcomp)),
+    cGrid.map(stratRow("rankedPairs", Bcomp)),
+  ],
+  cGrid, Bcomp, `B = ${Bcomp}`
+))
+```
+
+Every ranked method, even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize. **The center-squeeze remains with ranked ballots under strategy.**
+
+This is not a novel observation. @kloeckner2020 studies exactly these "bad cycles" in iterative strategies applied to different voting methods and devoted a section to Condorcet-completion (condorcified) methods,
+
+> We then gave example of bad cycles for other voting systems, in particular Condorcet systems, showing that these issues are not at all specific to Approval Voting. [@kloeckner2020]
+
+The paper's conclusion about condorcified rules mirrors our heatmaps precisely:
+
+> We can therefore ask whether a condorcified voting rule is less susceptible to the presence of bad cycles when a Condorcet winner is present. Unsurprisingly, the answer is negative when voters who do not like the Condorcet winner strategically choose to rank her lower in their ballot. [@kloeckner2020]
+
+It's worth mentioning that the convergence of iterative voting has also been studied directly under **asynchronous** best-response dynamics, where a single voter updates at a time [@koolyk2017] whereas I and [@kloeckner2020] use **synchronous** iterative voting where all voters revise their ballots at once. In the asynchronous case, [@koolyk2017] does find that all methods converge. 
+
+# Conclusion
+
+So ranked ballots do not ensure that the ideal moderate candidate wins. In IRV, honest voting and strategic voting produce the same result, and A can lose. In Borda, Condorcet, and Condorcet-completion methods, A can lose under strategic voting. The center-squeeze is not eliminated by ranked ballots.
+
+In the next post I'll look at score ballots and the methods that use them like Approval, Score, STAR, Highest-Median, and BTR-Score.
