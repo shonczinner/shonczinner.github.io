@@ -11,7 +11,7 @@ execute:
 image: img.PNG
 ---
 
-In my previous post on [single-marked ballots](/posts/plurality/), I showed that plurality voting squeezes out the candidate in the middle. A common belief is that we can prevent this by giving voters a ranked ballot that lets voters order all the candidates from favorite to least favorite instead of marking just one. Ranking feels like it should help the moderate: if your favorite is eliminated, your vote transfers to your next choice, so the centrist shouldn't be wasted.
+In my previous post on [single-marked ballots](/posts/plurality/), I showed that plurality voting squeezes out the candidate in the middle. A common belief is that we can prevent this by giving voters a ranked ballot that lets voters order all the candidates from favorite to least favorite instead of marking just one. Ranking feels like it should help the moderate: if your favorite is eliminated, your vote transfers to your next choice, so the vote for the centrist shouldn't be wasted.
 
 This post asks whether ranked ballots actually fix the center-squeeze. The short answer: **no.** In the same one-dimensional spatial model the median candidate A can still be squeezed out, with honest and strategic voting. The following ranked methods are illustrated: instant-runoff (IRV), Borda, Condorcet, and the Condorcet-completion family (BTR-IRV, Schulze, Ranked Pairs).
 
@@ -199,7 +199,7 @@ render(winnerHeatmap(
 Condorcet voting was created to elect the median candidate but we'll see that with strategic voting, it still does not. The idea of condorcet methods is that a candidate who beats every other candidate head-to-head should win. In this model **A is always the Condorcet winner**. A sits at the median, so a majority of voters (everyone on A's side plus the nearer flank) prefers A to B, and similarly A beats C. So unsurprisingly with honest voting, the Condorcet map is solidly green:
 
 
-But under strategy, "bury the leader" voting destroys the single-peakedness of the ballots and **majority cycles** appear. A no longer beats everyone head-to-head, and sometimes nobody does. The map goes black where the strategic ballots suggest no Condorcet winner exists:
+But under strategy, "bury the leader" voting destroys the single-peakedness of the ballots and **Condorcet cycles** appear. A no longer beats everyone head-to-head, and sometimes nobody does. The map goes black where the strategic ballots suggest no Condorcet winner exists:
 
 ```{ojs}
 viewof Bcond = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position (Condorcet)" })
@@ -251,7 +251,7 @@ render(winnerHeatmap(
 ))
 ```
 
-Every ranked method, even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize. **The center-squeeze remains with ranked ballots under strategy.**
+Even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize. 
 
 This is not a novel observation. @kloeckner2020 studies exactly these "bad cycles" in iterative strategies applied to different voting methods and devoted a section to Condorcet-completion (condorcified) methods,
 
