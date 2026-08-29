@@ -288,7 +288,7 @@ window.Quarto = {
 </header>
 
 
-<p>In my previous post on <a href="../../posts/plurality/">single-marked ballots</a>, I showed that plurality voting squeezes out the candidate in the middle. A common belief is that we can prevent this by giving voters a ranked ballot that lets voters order all the candidates from favorite to least favorite instead of marking just one. Ranking feels like it should help the moderate: if your favorite is eliminated, your vote transfers to your next choice, so the centrist shouldn’t be wasted.</p>
+<p>In my previous post on <a href="../../posts/plurality/">single-marked ballots</a>, I showed that plurality voting squeezes out the candidate in the middle. A common belief is that we can prevent this by giving voters a ranked ballot that lets voters order all the candidates from favorite to least favorite instead of marking just one. Ranking feels like it should help the moderate: if your favorite is eliminated, your vote transfers to your next choice, so the vote for the centrist shouldn’t be wasted.</p>
 <p>This post asks whether ranked ballots actually fix the center-squeeze. The short answer: <strong>no.</strong> In the same one-dimensional spatial model the median candidate A can still be squeezed out, with honest and strategic voting. The following ranked methods are illustrated: instant-runoff (IRV), Borda, Condorcet, and the Condorcet-completion family (BTR-IRV, Schulze, Ranked Pairs).</p>
 <p>We reuse the exact same model, electorate, and code as the single-mark post.</p>
 <p>The same electorate from before is plotted below,</p>
@@ -676,7 +676,7 @@ window.Quarto = {
 <section id="condorcet" class="level1">
 <h1>Condorcet</h1>
 <p>Condorcet voting was created to elect the median candidate but we’ll see that with strategic voting, it still does not. The idea of condorcet methods is that a candidate who beats every other candidate head-to-head should win. In this model <strong>A is always the Condorcet winner</strong>. A sits at the median, so a majority of voters (everyone on A’s side plus the nearer flank) prefers A to B, and similarly A beats C. So unsurprisingly with honest voting, the Condorcet map is solidly green:</p>
-<p>But under strategy, “bury the leader” voting destroys the single-peakedness of the ballots and <strong>majority cycles</strong> appear. A no longer beats everyone head-to-head, and sometimes nobody does. The map goes black where the strategic ballots suggest no Condorcet winner exists:</p>
+<p>But under strategy, “bury the leader” voting destroys the single-peakedness of the ballots and <strong>Condorcet cycles</strong> appear. A no longer beats everyone head-to-head, and sometimes nobody does. The map goes black where the strategic ballots suggest no Condorcet winner exists:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="205" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 204;"><span id="cb16-205"><a href="#cb16-205" aria-hidden="true" tabindex="-1"></a>viewof Bcond <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"B position (Condorcet)"</span> })</span>
 <span id="cb16-206"><a href="#cb16-206" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span><span class="op">,</span> <span class="kw">false</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -754,7 +754,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Every ranked method, even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize. <strong>The center-squeeze remains with ranked ballots under strategy.</strong></p>
+<p>Even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize.</p>
 <p>This is not a novel observation. <span class="citation" data-cites="kloeckner2020"><a href="#ref-kloeckner2020" role="doc-biblioref">[1]</a></span> studies exactly these “bad cycles” in iterative strategies applied to different voting methods and devoted a section to Condorcet-completion (condorcified) methods,</p>
 <blockquote class="blockquote">
 <p>We then gave example of bad cycles for other voting systems, in particular Condorcet systems, showing that these issues are not at all specific to Approval Voting. <span class="citation" data-cites="kloeckner2020"><a href="#ref-kloeckner2020" role="doc-biblioref">[1]</a></span></p>
