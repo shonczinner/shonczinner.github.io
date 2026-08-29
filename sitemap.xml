@@ -2,46 +2,50 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://shonczinner.github.io/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.330Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.648Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/gradient-descent/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.331Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.648Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/gameoflife/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.331Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.648Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/welcome/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.340Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.657Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/sigreg-sketched-isotropic-gaussian-regularization/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.338Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.656Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/onnx-quarto/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.332Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.649Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/ranked/index.html</loc>
+    <lastmod>2026-08-29T23:48:21.650Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/buyrent/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.331Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.648Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/plurality/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.332Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.650Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/embedding-prediction/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.331Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.648Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/small-jepa-language-model/index.html</loc>
-    <lastmod>2026-08-23T15:46:16.340Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.657Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/about.html</loc>
-    <lastmod>2026-08-23T15:46:16.330Z</lastmod>
+    <lastmod>2026-08-29T23:48:21.648Z</lastmod>
   </url>
 </urlset>

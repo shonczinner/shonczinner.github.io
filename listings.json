@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/ranked/index.html",
       "/posts/plurality/index.html",
       "/posts/gradient-descent/index.html",
       "/posts/gameoflife/index.html",
