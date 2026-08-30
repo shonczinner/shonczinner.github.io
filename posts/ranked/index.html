@@ -726,7 +726,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Under strategy, though, the dynamics still can fail to elect A. Black means a genuine condorcet cycle, a tie in the method’s pairwise/beatpath relation, <strong>or strategy non-convergence</strong> where the buried-leader iteration never settles. Schulze and Ranked Pairs are black from genuine cycles and ties. BTR-IRV resolves cycles to a definite winner, so it is black only where it fails to converge.</p>
+<p>Under strategy, though, the dynamics still can fail to elect A. Black here means a tie in the method’s pairwise/beatpath relation, <strong>or strategy non-convergence</strong> where the buried-leader iteration never settles due to a <strong>strategic cycle</strong>. Schulze and Ranked Pairs are black from strategic cycles and ties. BTR-IRV is black only due to strategic cycles.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb19" data-startfrom="235" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 234;"><span id="cb19-235"><a href="#cb19-235" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">false</span><span class="op">,</span> <span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
@@ -754,7 +754,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize.</p>
+<p>So even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize.</p>
 <p>This is not a novel observation. <span class="citation" data-cites="kloeckner2020"><a href="#ref-kloeckner2020" role="doc-biblioref">[1]</a></span> studies exactly these “bad cycles” in iterative strategies applied to different voting methods and devoted a section to Condorcet-completion (condorcified) methods,</p>
 <blockquote class="blockquote">
 <p>We then gave example of bad cycles for other voting systems, in particular Condorcet systems, showing that these issues are not at all specific to Approval Voting. <span class="citation" data-cites="kloeckner2020"><a href="#ref-kloeckner2020" role="doc-biblioref">[1]</a></span></p>
