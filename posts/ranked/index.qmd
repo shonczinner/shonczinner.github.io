@@ -179,7 +179,7 @@ render(winnerHeatmap(
 
 Red/orange regions show which locations Candidate C can choose that make the ideal candidate A lose. Honest and strategic voting results are the same for IRV, but in either case, A can lose. The center-squeeze is not eliminated by IRV.
 
-If you compare the above result to the one in [single-marked ballots](/posts/plurality/), you'll actually see that in this set-up, IRV performs identically to plurality with strategic voting. In that sense, IRV improves plurality only in that it avoids the need for voters to strategize. But ***IRV does not elect the ideal moderate candidate any more often than plurality does***.
+If you compare the above result to the one in [single-marked ballots](/posts/plurality/), you'll actually see that in this set-up, IRV performs identically to plurality with strategic voting. In that sense, IRV improves plurality only in that it avoids the need for voters to strategize. But ***IRV does not elect the ideal moderate candidate any more often than plurality does (assuming all voters are strategic)***.
 
 # Borda
 
