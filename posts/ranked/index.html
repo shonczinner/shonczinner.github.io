@@ -8,7 +8,7 @@
 
 <meta name="author" content="Shon Czinner">
 <meta name="dcterms.date" content="2026-08-28">
-<meta name="description" content="Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still center-squeeze the median candidate under strategic voting">
+<meta name="description" content="Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still squeeze the median candidate under strategic voting">
 
 <title>Are Ranked Ballots Better? – Shon Czinner’s Blog</title>
 <style>
@@ -186,12 +186,12 @@ window.Quarto = {
 
 <link rel="stylesheet" href="../../styles.css">
 <meta property="og:title" content="Are Ranked Ballots Better? – Shon Czinner’s Blog">
-<meta property="og:description" content="Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still center-squeeze the median candidate under strategic voting">
+<meta property="og:description" content="Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still squeeze the median candidate under strategic voting">
 <meta property="og:image" content="https://shonczinner.github.io/posts/ranked/img.PNG">
 <meta property="og:site_name" content="Shon Czinner’s Blog">
 <meta property="og:locale" content="en_CA">
 <meta name="twitter:title" content="Are Ranked Ballots Better? – Shon Czinner’s Blog">
-<meta name="twitter:description" content="Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still center-squeeze the median candidate under strategic voting">
+<meta name="twitter:description" content="Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still squeeze the median candidate under strategic voting">
 <meta name="twitter:image" content="https://shonczinner.github.io/posts/ranked/img.PNG">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -259,7 +259,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still center-squeeze the median candidate under strategic voting
+    Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still squeeze the median candidate under strategic voting
   </div>
 </div>
 
@@ -290,7 +290,7 @@ window.Quarto = {
 
 <p>In my previous post on <a href="../../posts/plurality/">single-marked ballots</a>, I showed that plurality voting squeezes out the candidate in the middle. A common belief is that we can prevent this by giving voters a ranked ballot that lets voters order all the candidates from favorite to least favorite instead of marking just one. Ranking feels like it should help the moderate: if your favorite is eliminated, your vote transfers to your next choice, so the vote for the centrist shouldn’t be wasted.</p>
 <p>This post asks whether ranked ballots actually fix the center-squeeze. The short answer: <strong>no.</strong> In the same one-dimensional spatial model the median candidate A can still be squeezed out, with honest and strategic voting. The following ranked methods are illustrated: instant-runoff (IRV), Borda, Condorcet, and the Condorcet-completion family (BTR-IRV, Schulze, Ranked Pairs).</p>
-<p>We reuse the exact same model, electorate, and code as the single-mark post.</p>
+<p>We reuse the exact same model, electorate, and code as the single-mark ballot post.</p>
 <p>The same electorate from before is plotted below,</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="23" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 22;"><span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>Plotly <span class="op">=</span> <span class="cf">await</span> <span class="pp">require</span>(<span class="st">"https://cdn.plot.ly/plotly-2.35.2.min.js"</span>)</span>
@@ -576,7 +576,7 @@ window.Quarto = {
 </div>
 </div>
 <p>IRV is unlikely to change under this specific form of strategic voting (burying), but in both honest and strategic cases, IRV does not eliminate the center-squeeze. Under honest or strategic voting the ideal moderate candidate can still lose.</p>
-<p>IRV is also susceptible to other forms of strategic voting, like “compromising” (ranking a less-preferred candidate higher to avoid wasting your vote). Even though B or C voter could compromise to make A win, in IRV it appears that candidate A is the weakest candidate as they are eliminated first. It’s unlikely B or C voters would compromise to help A.</p>
+<p>IRV is also susceptible to other forms of strategic voting, like “compromising” (ranking a less-preferred candidate higher to avoid wasting your vote). Even though B or C voters could compromise to make A win, in IRV it appears that candidate A is the weakest candidate as they are eliminated first. It’s unlikely B or C voters would compromise to help A.</p>
 <p>Let us check how often, across every position of C (with B fixed), the strategic (burying) IRV winner is <em>not</em> A:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="158" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 157;"><span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">false</span><span class="op">,</span> <span class="kw">false</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -757,7 +757,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>So even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize.</p>
+<p>So even the Condorcet-completion family leaves A possibly losing in a substantial fraction of positions once voters strategize.</p>
 <p>This is not a novel observation. <span class="citation" data-cites="kloeckner2020"><a href="#ref-kloeckner2020" role="doc-biblioref">[1]</a></span> studies exactly these “bad cycles” in iterative strategies applied to different voting methods and devoted a section to Condorcet-completion (condorcified) methods,</p>
 <blockquote class="blockquote">
 <p>We then gave example of bad cycles for other voting systems, in particular Condorcet systems, showing that these issues are not at all specific to Approval Voting. <span class="citation" data-cites="kloeckner2020"><a href="#ref-kloeckner2020" role="doc-biblioref">[1]</a></span></p>
