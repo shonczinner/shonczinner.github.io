@@ -90,9 +90,22 @@ winnerLegend(false, false)
 render(rankedDensityWeightedData(elec, posBallot,   `Ranked ballot — density-weighted (A=0, B=${Bballot}, C=${Cballot})`))
 ```
 
+# Instant-Runoff Voting (IRV)
+
+IRV is the most common ranked method. Voters submit a ranking and then the candidate with the fewest first-choice votes is eliminated. If your first choice is eliminated, your second choice becomes your new first choice. This process is repeated until someone has a majority. 
+
+Under honest voting, IRV is not immune to squeezing A. Push B and C close to A, and A can still be eliminated in the first round.
+
+```{ojs}
+viewof Bstrat = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position (red)" })
+viewof Cstrat = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position (orange)" })
+
+posStrat = [0, Bstrat, Cstrat]
+```
+
 ```{ojs}
 irvWinnerHonest = {
-  const vs = assess(posBallot, elec);
+  const vs = assess(posStrat, elec);
   const ballots = vs.map(v => METHODS.irv.ballot(v));
   return METHODS.irv.winner(vs, ballots);
 }
@@ -106,25 +119,13 @@ winnerEl = {
   el.style.borderRadius = "6px";
   el.style.background = "#fafafa";
   if (w < 0) el.textContent = "Honest winner: none (tie).";
-  else el.innerHTML = `Honest winner: <strong style="color:${COLORS[w]}">${NAMES[w]}</strong> (at position ${posBallot[w].toFixed(2)}).`;
+  else el.innerHTML = `Honest winner: <strong style="color:${COLORS[w]}">${NAMES[w]}</strong> (at position ${posStrat[w].toFixed(2)}).`;
   return el;
 }
 ```
 
-# Instant-Runoff Voting (IRV)
+On the other hand, we can let voters be strategic: bury the current leader by ranking them last. Iterating that "bury the leader" dynamic:
 
-IRV is the most common ranked method. Voters submit a ranking and then the candidate with the fewest first-choice votes is eliminated. If your first choice is eliminated, your second choice becomes your new first choice. This process is repeated until someone has a majority. 
-
-Under honest voting, IRV is not immune to squeezing A. Push B and C close to A, and A can still be eliminated in the first round.
-
-Now let voters be strategic: bury the current leader by ranking them last. Iterating that "bury the leader" dynamic:
-
-```{ojs}
-viewof Bstrat = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position (red)" })
-viewof Cstrat = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position (orange)" })
-
-posStrat = [0, Bstrat, Cstrat]
-```
 
 ```{ojs}
 strat = strategicWinner(posStrat, "irv")
@@ -143,12 +144,16 @@ stratWinnerEl = {
   el.style.borderRadius = "6px";
   el.style.background = "#fafafa";
   if (w < 0) el.textContent = "Strategic IRV winner: none (tie).";
-  else el.innerHTML = `Strategic IRV winner: <strong style="color:${COLORS[w]}">${NAMES[w]}</strong>`;
+  else el.innerHTML = `Strategic IRV winner: <strong style="color:${COLORS[w]}">${NAMES[w]}</strong> (at position ${posStrat[w].toFixed(2)}).`;
   return el;
 }
 ```
 
-So IRV does not eliminate the center-squeeze. Under honest or strategic voting the ideal moderate candidate can still lose. Let us check how often, across every position of C (with B fixed), the strategic IRV winner is *not* A:
+IRV is unlikely to change under this specific form of strategic voting (burying), but in both honest and strategic cases, IRV does not eliminate the center-squeeze. Under honest or strategic voting the ideal moderate candidate can still lose. 
+
+IRV is also susceptible to other forms of strategic voting, like "compromising" (ranking a less-preferred candidate higher to avoid wasting your vote). Note that in this system, it appears that candidate A is the weakest candidate as they are eliminated first, so compromising is unlikely to help A. It's likely A voters that would compromise to vote for B or C, not B or C voters that would compromise to help A. Compromising would only make A's loss more likely.
+
+Let us check how often, across every position of C (with B fixed), the strategic (burying) IRV winner is *not* A:
 
 ```{ojs}
 winnerLegend(false, false)
