@@ -151,7 +151,7 @@ stratWinnerEl = {
 
 IRV is unlikely to change under this specific form of strategic voting (burying), but in both honest and strategic cases, IRV does not eliminate the center-squeeze. Under honest or strategic voting the ideal moderate candidate can still lose. 
 
-IRV is also susceptible to other forms of strategic voting, like "compromising" (ranking a less-preferred candidate higher to avoid wasting your vote). Even though B or C voter could compromise to make A win, in IRV it appears that candidate A is the weakest candidate as they are eliminated first. It's unlikely B or C voters would compromise to help A. 
+IRV is also susceptible to other forms of strategic voting, like "compromising" (ranking a less-preferred candidate higher to avoid wasting your vote). Even though B or C voters could compromise to make A win, in IRV it appears that candidate A is the weakest candidate as they are eliminated first. It's unlikely B or C voters would compromise to help A. 
 
 Let us check how often, across every position of C (with B fixed), the strategic (burying) IRV winner is *not* A:
 
