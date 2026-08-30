@@ -1,6 +1,6 @@
 ---
 title: "Are Ranked Ballots Better?"
-description: "Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still center-squeeze the median candidate under strategic voting"
+description: "Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion methods) still squeeze the median candidate under strategic voting"
 author: "Shon Czinner"
 date: "2026-08-28"
 categories: [voting, social choice, political science]
@@ -15,7 +15,7 @@ In my previous post on [single-marked ballots](/posts/plurality/), I showed that
 
 This post asks whether ranked ballots actually fix the center-squeeze. The short answer: **no.** In the same one-dimensional spatial model the median candidate A can still be squeezed out, with honest and strategic voting. The following ranked methods are illustrated: instant-runoff (IRV), Borda, Condorcet, and the Condorcet-completion family (BTR-IRV, Schulze, Ranked Pairs).
 
-We reuse the exact same model, electorate, and code as the single-mark post.
+We reuse the exact same model, electorate, and code as the single-mark ballot post.
 
 The same electorate from before is plotted below,
 
@@ -258,7 +258,7 @@ render(winnerHeatmap(
 ))
 ```
 
-So even the Condorcet-completion family, leaves A possibly losing in a substantial fraction of positions once voters strategize. 
+So even the Condorcet-completion family leaves A possibly losing in a substantial fraction of positions once voters strategize. 
 
 This is not a novel observation. @kloeckner2020 studies exactly these "bad cycles" in iterative strategies applied to different voting methods and devoted a section to Condorcet-completion (condorcified) methods,
 
