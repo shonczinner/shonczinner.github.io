@@ -203,7 +203,7 @@ render(winnerHeatmap(
 
 # Condorcet
 
-Condorcet voting was created to elect the median candidate but we'll see that with strategic voting, it still does not. The idea of condorcet methods is that a candidate who beats every other candidate head-to-head should win. In this model **A is always the Condorcet winner**. A sits at the median, so a majority of voters (everyone on A's side plus the nearer flank) prefers A to B, and similarly A beats C. So unsurprisingly with honest voting, the Condorcet map is solidly green:
+Condorcet voting methods elect the candidate who can beat every other opponent in a head-to-head matchup, which heavily aligns with electing the median candidate under specific conditions. But we'll see that with strategic voting, it still may not. In this model **A is always the Condorcet winner**. A sits at the median, so a majority of voters (everyone on A's side plus the nearer flank) prefers A to B, and similarly A beats C. So unsurprisingly with honest voting, the Condorcet map is solidly green:
 
 
 But under strategy, "bury the leader" voting destroys the single-peakedness of the ballots and **Condorcet cycles** appear. A no longer beats everyone head-to-head, and sometimes nobody does. The map goes black where the strategic ballots suggest no Condorcet winner exists:
