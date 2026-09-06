@@ -295,7 +295,7 @@ render(winnerHeatmap(
 ))
 ```
 
-Where the dynamics *do* converge, BTR-Score elects A — Condorcet-consistency does its job on fixed profiles. But convergence is not guarenteed under strategic voting even when a Condorcet winner does exist under honest voting.
+Where the dynamics *do* converge, BTR-Score elects A. But convergence is not guarenteed under strategic voting even when a Condorcet winner does exist under honest voting.
 
 As with the ranked post, it is worth noting that these cycles arise under **synchronous** iterative voting, where all voters revise at once; under **asynchronous** best-response dynamics, where a single voter updates at a time, all these methods have been shown to converge [@koolyk2017]. 
 
