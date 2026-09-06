@@ -144,13 +144,13 @@ honestTotalsEl = {
 
 # The Strategic Dynamics
 
-The strategy dynamics are similar to previous posts: there are multiple iterations where voters act strategically. For each rated method the burying takes its own form:
+The strategy dynamics are similar to previous posts: there are multiple iterations where voters act strategically. The strategies we implement for rated ballots are:
 
 - **Approval**: approve your favourite of the two front-runners (and everyone you rank above them); drop all candidates below that.
 - **Score**: give max score to everyone above the less-preferred front-runner, and 0 to the rest.
-- **STAR**: give your favourite the max score, your second favourite max − 1, and bury your least favourite at 0 — steering which two score-leaders advance to the runoff.
-- **Highest-Median**: same as Score (compress toward the extremes to raise your favourites' medians and collapse the bury target's).
-- **BTR-Score**: bury the less-preferred of the two front-runners — rate it *below* the current last-place candidate — while maxing the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.
+- **STAR**: give your favourite the max score, your second favourite max − 1, and bury your least favourite at 0. 
+- **Highest-Median**: same as Score.
+- **BTR-Score**: bury the less-preferred of the two front-runners by rating it *below* the current last-place candidate while elevating the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.
 
 As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, and black where the iteration never settles (non-convergence/ties).
 
