@@ -1,6 +1,6 @@
 ---
 title: "Are Rated Ballots Better?"
-description: "Approval, Score, STAR, Highest-Median and BTR-Score: rated ballots end the center-squeeze honestly, but strategic manipulation still bites — STAR can be strategized and BTR-Score develops the same bad cycles Kloeckner documented"
+description: "Approval, Score, STAR, Highest-Median and BTR-Score"
 author: "Shon Czinner"
 date: "2026-09-05"
 categories: [voting, social choice, political science]
