@@ -585,10 +585,9 @@ window.Quarto = {
 </section>
 <section id="approval" class="level1">
 <h1>Approval</h1>
-<p>Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. The distance-threshold variant (<code>d = 0.3</code>) is the direct rated cousin of the “vote for everyone near you” instinct. The top-two variant forces exactly two approvals — but it is worth flagging that this is not a very realistic assumption about voters. Real approval ballots don’t impose a quota; voters approve everyone they accept, or everyone they’d be happy to see win. “Approve exactly the two candidates I like best” is a modelling contrivance, and, as the map below shows, the honest variant pays the price for it.</p>
-<p>The strategic approval dynamic (adopt the preferred front-runner, truncate below) converges everywhere, and which candidate it prefers to elect is startlingly different between the two variants:</p>
+<p>Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. For honest voting we have the distance-threshold variant (<code>d = 0.3</code>) where you “vote for everyone near you”. The top-two variant forces exactly two approvals and is worth flagging as not a very realistic assumption about voters.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="182" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 181;"><span id="cb16-182"><a href="#cb16-182" aria-hidden="true" tabindex="-1"></a>viewof BApproval <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Approval: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="181" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 180;"><span id="cb16-181"><a href="#cb16-181" aria-hidden="true" tabindex="-1"></a>viewof BApproval <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Approval: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-14" data-nodetype="declaration">
 
@@ -596,7 +595,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb17" data-startfrom="186" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 185;"><span id="cb17-186"><a href="#cb17-186" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb17" data-startfrom="185" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 184;"><span id="cb17-185"><a href="#cb17-185" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-15" data-nodetype="expression">
 
@@ -604,30 +603,30 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="190" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 189;"><span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Approval top-2 (honest)"</span><span class="op">,</span> <span class="st">"Approval top-2 (strategic)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (honest)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a>  [</span>
-<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
-<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
-<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approval"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
-<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approval"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
-<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BApproval<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BApproval<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="189" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 188;"><span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Approval top-2 (honest)"</span><span class="op">,</span> <span class="st">"Approval top-2 (strategic)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (honest)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a>  [</span>
+<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
+<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
+<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approval"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
+<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approval"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
+<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BApproval<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BApproval<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-16" data-nodetype="expression">
 
 </div>
 </div>
 </div>
-<p>With honest voting, the distance-threshold variant does what the previous post’s ranked methods could not: A wins everywhere. The top-two variant does not. When C sits between B and A, nearly every voter approves C (their nearest or second-nearest), so C coasts to near-universal approval and can out-poll the true median candidate. At B = −0.3 it abandons A in about half the C placements we sweep. That failure belongs to the contrived top-two assumption, not to approval voting itself.</p>
+<p>With honest voting, A wins everywhere. The top-two variant does not. When C sits between B and A, nearly every voter approves C (their nearest or second-nearest), so C coasts to near-universal approval and can out-poll the true median candidate. At B = −0.3 it abandons A in about half the C placements we sweep. That failure belongs to the unrealistic top-two assumption, not to approval voting itself.</p>
 <p>With strategic voting, starting from either top-two or distance threshold, both methods end up electing the ideal candidate.</p>
 </section>
 <section id="score" class="level1">
 <h1>Score</h1>
-<p>Score voting elects the candidate who has the highest sum of scores on all ballots., as if each candidate’s score were the strength of your</p>
+<p>Score voting elects the candidate who has the highest sum of scores on all ballots.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb19" data-startfrom="211" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 210;"><span id="cb19-211"><a href="#cb19-211" aria-hidden="true" tabindex="-1"></a>viewof BScore <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb19" data-startfrom="210" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 209;"><span id="cb19-210"><a href="#cb19-210" aria-hidden="true" tabindex="-1"></a>viewof BScore <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-17" data-nodetype="declaration">
 
@@ -635,7 +634,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb20" data-startfrom="215" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 214;"><span id="cb20-215"><a href="#cb20-215" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb20" data-startfrom="214" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 213;"><span id="cb20-214"><a href="#cb20-214" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-18" data-nodetype="expression">
 
@@ -643,11 +642,11 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb21" data-startfrom="219" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 218;"><span id="cb21-219"><a href="#cb21-219" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb21-220"><a href="#cb21-220" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Score (honest)"</span><span class="op">,</span> <span class="st">"Score (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb21-221"><a href="#cb21-221" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))]<span class="op">,</span></span>
-<span id="cb21-222"><a href="#cb21-222" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BScore<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BScore<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb21-223"><a href="#cb21-223" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb21" data-startfrom="218" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 217;"><span id="cb21-218"><a href="#cb21-218" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb21-219"><a href="#cb21-219" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Score (honest)"</span><span class="op">,</span> <span class="st">"Score (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb21-220"><a href="#cb21-220" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))]<span class="op">,</span></span>
+<span id="cb21-221"><a href="#cb21-221" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BScore<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BScore<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb21-222"><a href="#cb21-222" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-19" data-nodetype="expression">
 
@@ -658,11 +657,11 @@ window.Quarto = {
 </section>
 <section id="star" class="level1">
 <h1>STAR</h1>
-<p>STAR (Score Then Automatic Runoff) first totals the scores, then holds a pairwise runoff between the top-two score-getters, with each ballot contributing its full scores to whoever it grades higher.</p>
-<p>With honest voting, STAR elects A essentially everywhere.</p>
+<p>STAR (Score Then Automatic Runoff) first totals the scores, then holds a runoff between the top-two score-getters with the winner determined based on the pairwise (ranked) comparisons of the two. For example, if a voter scores one candidate 5 and another 3, the voter’s ballot contributes a pairwise preference for the 5 candidate over the 3 candidate. It is a hybrid of score and ranked methods.</p>
+<p>With honest voting, STAR elects A everywhere.</p>
 <p>With strategic voting, the question is whether voters can game which two candidates reach the runoff. The strategy above (max to your favourite, max − 1 to your second, bury your least) is precisely an attempt to control the final two.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb22" data-startfrom="237" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 236;"><span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a>viewof BStar <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"STAR: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb22" data-startfrom="236" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 235;"><span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a>viewof BStar <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"STAR: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-20" data-nodetype="declaration">
 
@@ -670,7 +669,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb23" data-startfrom="241" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 240;"><span id="cb23-241"><a href="#cb23-241" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb23" data-startfrom="240" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 239;"><span id="cb23-240"><a href="#cb23-240" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-21" data-nodetype="expression">
 
@@ -678,11 +677,11 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb24" data-startfrom="245" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 244;"><span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb24-246"><a href="#cb24-246" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"STAR (honest)"</span><span class="op">,</span> <span class="st">"STAR (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb24-247"><a href="#cb24-247" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))]<span class="op">,</span></span>
-<span id="cb24-248"><a href="#cb24-248" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BStar<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BStar<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb24-249"><a href="#cb24-249" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb24" data-startfrom="244" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 243;"><span id="cb24-244"><a href="#cb24-244" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"STAR (honest)"</span><span class="op">,</span> <span class="st">"STAR (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb24-246"><a href="#cb24-246" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))]<span class="op">,</span></span>
+<span id="cb24-247"><a href="#cb24-247" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BStar<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BStar<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb24-248"><a href="#cb24-248" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-22" data-nodetype="expression">
 
@@ -696,7 +695,7 @@ window.Quarto = {
 <p>Highest Median (also known as Majority Judgment) elects the candidate whose <em>median</em> grade is highest.</p>
 <p>Under both honest and strategic voting, we see it elects the ideal candidate all the time (note that .</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb25" data-startfrom="261" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 260;"><span id="cb25-261"><a href="#cb25-261" aria-hidden="true" tabindex="-1"></a>viewof BHMed <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Highest Median: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb25" data-startfrom="260" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 259;"><span id="cb25-260"><a href="#cb25-260" aria-hidden="true" tabindex="-1"></a>viewof BHMed <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Highest Median: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-23" data-nodetype="declaration">
 
@@ -704,7 +703,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb26" data-startfrom="265" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 264;"><span id="cb26-265"><a href="#cb26-265" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb26" data-startfrom="264" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 263;"><span id="cb26-264"><a href="#cb26-264" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-24" data-nodetype="expression">
 
@@ -712,11 +711,11 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb27" data-startfrom="269" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 268;"><span id="cb27-269"><a href="#cb27-269" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb27-270"><a href="#cb27-270" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Highest Median (honest)"</span><span class="op">,</span> <span class="st">"Highest Median (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb27-271"><a href="#cb27-271" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))]<span class="op">,</span></span>
-<span id="cb27-272"><a href="#cb27-272" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BHMed<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BHMed<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb27-273"><a href="#cb27-273" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb27" data-startfrom="268" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 267;"><span id="cb27-268"><a href="#cb27-268" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb27-269"><a href="#cb27-269" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Highest Median (honest)"</span><span class="op">,</span> <span class="st">"Highest Median (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb27-270"><a href="#cb27-270" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))]<span class="op">,</span></span>
+<span id="cb27-271"><a href="#cb27-271" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BHMed<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BHMed<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb27-272"><a href="#cb27-272" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-25" data-nodetype="expression">
 
@@ -726,10 +725,10 @@ window.Quarto = {
 </section>
 <section id="btr-score" class="level1">
 <h1>BTR-Score</h1>
-<p>BTR-Score effectively combines ranked and rated methods: it is a Score method, but tabulated with the bottom-two-runoff mechanics of the ranked family. Each round, the two candidates with the lowest score totals face a pairwise runoff, where each ballot’s higher-graded candidate is treated as preferred; the pairwise loser is eliminated and the process repeats. Because the pairwise comparisons read directly off the ratings, BTR-Score is Condorcet-consistent: when a Condorcet winner exists on the ballots, BTR-Score elects it.</p>
-<p>Honestly, that means A wins everywhere, matching all honest Condorcet methods. The strategic result is the surprise of this post. The ideal candidate does not always survive the bury-below-last strategy:</p>
+<p>Similar to STAR voting, BTR-Score combines ranked and rated methods: it is a Score method, but tabulated with the bottom-two-runoff mechanics of the ranked family. Each round, the two candidates with the lowest score totals face a pairwise runoff, where each ballot’s higher-graded candidate is treated as preferred; the pairwise loser is eliminated and the process repeats. Because the pairwise comparisons read directly off the ratings, BTR-Score is Condorcet-consistent: when a Condorcet winner exists on the ballots, BTR-Score elects it.</p>
+<p>With honest voting, that means A wins everywhere, matching all honest Condorcet methods. The strategic result is the surprise of this post. The ideal candidate does not always survive the bury-below-last strategy:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb28" data-startfrom="283" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 282;"><span id="cb28-283"><a href="#cb28-283" aria-hidden="true" tabindex="-1"></a>viewof BBtr <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"BTR-Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb28" data-startfrom="282" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 281;"><span id="cb28-282"><a href="#cb28-282" aria-hidden="true" tabindex="-1"></a>viewof BBtr <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"BTR-Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-26" data-nodetype="declaration">
 
@@ -737,7 +736,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb29" data-startfrom="287" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 286;"><span id="cb29-287"><a href="#cb29-287" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb29" data-startfrom="286" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 285;"><span id="cb29-286"><a href="#cb29-286" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-27" data-nodetype="expression">
 
@@ -745,11 +744,11 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb30" data-startfrom="291" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 290;"><span id="cb30-291"><a href="#cb30-291" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb30-292"><a href="#cb30-292" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"BTR-Score (honest)"</span><span class="op">,</span> <span class="st">"BTR-Score (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb30-293"><a href="#cb30-293" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))]<span class="op">,</span></span>
-<span id="cb30-294"><a href="#cb30-294" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BBtr<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BBtr<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb30-295"><a href="#cb30-295" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb30" data-startfrom="290" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 289;"><span id="cb30-290"><a href="#cb30-290" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb30-291"><a href="#cb30-291" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"BTR-Score (honest)"</span><span class="op">,</span> <span class="st">"BTR-Score (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb30-292"><a href="#cb30-292" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))]<span class="op">,</span></span>
+<span id="cb30-293"><a href="#cb30-293" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BBtr<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BBtr<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb30-294"><a href="#cb30-294" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-28" data-nodetype="expression">
 
