@@ -1,0 +1,307 @@
+---
+title: "Are Rated Ballots Better?"
+description: "Approval, Score, STAR, Highest-Median and BTR-Score: rated ballots end the center-squeeze honestly, but strategic manipulation still bites — STAR can be strategized and BTR-Score develops the same bad cycles Kloeckner documented"
+author: "Shon Czinner"
+date: "2026-09-05"
+categories: [voting, social choice, political science]
+bibliography: citations.bib
+execute:
+  freeze: true
+  echo: false
+image: img.PNG
+---
+
+In my previous post on [ranked ballots](/posts/ranked/), I showed that ranking all the candidates does not fix the center-squeeze. IRV, Borda, Condorcet, and the Condorcet-completion family all let the ideal moderate candidate A be squeezed out, under honest voting (IRV) or strategic voting (everything else). It is natural to hope that giving voters even more expressive ballots would do better. Rated ballots let the voter grade each candidate independently, for example on a 0–10 scale, instead of forcing them to order candidates they may barely distinguish.
+
+This post asks whether rated ballots actually fix the center-squeeze. The short answer: **mostly.** The methods illustrated are approval voting (top-two and distance-threshold variants), score voting, STAR, Highest-Median (majority judgment), and BTR-Score.
+
+Arrow's Impossibility theorem is not applicable to rated voting rules where voters assign a separate grade to each candidate.
+
+There is still Gibbard's theorem, which states that every non-dictatorial voting system with at least three choices is subject to strategic manipulation. Its assumptions are weaker as it applies to all voting systems, including rated ones, and does not require voters to hold transitive preferences. But its implications are also weaker: it does not imply one of dictatorship or Indepenence of Irrelevant Alternatives (IIA). It only implies that in all voting methods voters may benefit from voting strategically.
+
+We reuse the exact same model, electorate, and code as the ranked and single-mark posts.
+
+The same electorate from before is plotted below,
+
+```{ojs}
+Plotly = await require("https://cdn.plot.ly/plotly-2.35.2.min.js")
+
+import { elecData, approvalBallotData, scoreBallotData, densityWeightedData, winnerHeatmap } from "./src/plots.js"
+import { ELEC } from "./src/electorate.js"
+import { assess, METHODS, NAMES, COLORS } from "./src/methods.js"
+import { strategicWinner } from "./src/strategic.js"
+
+elec = ELEC
+```
+
+```{ojs}
+function render(fig) {
+  const el = document.createElement("div");
+  el.style.border = "1px solid #eee";
+  el.style.borderRadius = "6px";
+  el.style.margin = "0.5rem 0 1.5rem";
+  Plotly.newPlot(el, fig.data, fig.layout, { displayModeBar: false, responsive: true });
+  return el;
+}
+```
+
+```{ojs}
+function winnerLegend(strategy) {
+  const sw = (color, label) =>
+    `<span style="display:inline-flex;align-items:center;margin-right:1.25rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:${color};"></span><span style="font-size:0.9rem;">${label}</span></span>`;
+  let html = sw(COLORS[0], "A") + sw(COLORS[1], "B") + sw(COLORS[2], "C");
+  if (strategy) html += sw("#000000", "Tie/Non-convergence");
+  const p = document.createElement("p");
+  p.style.display = "flex";
+  p.style.flexWrap = "wrap";
+  p.style.margin = "0 0 0.25rem";
+  p.innerHTML = html;
+  return p;
+}
+```
+
+```{ojs}
+render(elecData(elec))
+```
+
+For the full spatial-model setup and its justification, see the [post on single-marked ballots](singlemark.qmd). The one difference here for rated ballots is that under **honest-rating** a voter grades candidate $X$ proportional to $u_v(X)$. The higher their utility, the higher the grade. So an honest rated ballot is just the voter's utility itself, normalized onto the ballot's scale. For score and the score-based methods we use a 0–10 scale with $s_v(X) = \max(0, \lfloor 10(1 - |v - x|/D) \rfloor)$ for a rating radius $D = 2$.
+
+We also demonstrate honest approval ballots with two different assumptions. First, by assuming honest voters approve the voter's top two candidates, and second assuming honest voters approve every candidate within distance $d = 0.3$ (resulting in possibly zero approved candidates).
+
+# Honest rated ballots
+
+With honest voting, approval and rated ballots look like this:
+
+```{ojs}
+viewof Bballot = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position" })
+viewof Cballot = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position" })
+
+posBallot = [0, Bballot, Cballot]
+```
+
+```{ojs}
+winnerLegend(false)
+```
+
+```{ojs}
+render(approvalBallotData(elec, posBallot, "approvalTop2", undefined, `Approval (top two) ballot — A=0, B=${Bballot}, C=${Cballot}`))
+```
+
+```{ojs}
+render(approvalBallotData(elec, posBallot, "approval", 0.3, `Approval (dist ≤ 0.3) ballot — A=0, B=${Bballot}, C=${Cballot}`))
+```
+
+```{ojs}
+render(scoreBallotData(elec, posBallot, { D: 2, levels: 10 }))
+```
+
+Notice the difference from plurality and ranked ballots: a *single* voter can now express support for more than one candidate, and even the same voters who vote B or C on a plurality ballot are free to keep a high opinion of A. The centrist A, sitting at the median, is within reach of every voter. So on honest ballots A collects approval or high scores from both flanks.
+
+We can weight each column by the actual density of voters at each location to get a sense of how many approvals or how much score each candidate collects:
+
+```{ojs}
+winnerLegend(false)
+```
+
+```{ojs}
+render(densityWeightedData(elec, posBallot, "approvalTop2", undefined, `Approval (top 2) — density-weighted (A=0, B=${Bballot}, C=${Cballot})`))
+render(densityWeightedData(elec, posBallot, "approval", { d: 0.3 }, `Approval (dist ≤ 0.3) — density-weighted (A=0, B=${Bballot}, C=${Cballot})`))
+render(densityWeightedData(elec, posBallot, "score", { D: 2, levels: 10 }, `Score (0–10) — density-weighted (A=0, B=${Bballot}, C=${Cballot})`))
+```
+
+The total area of each candidate's region is now their honest vote share, and, unlike plurality, the centrist's region is no longer pinched in the middle: the two balloons push inward on the outer candidates instead. As a first read, honest rated and approval ballots look like they should rescue A.
+
+```{ojs}
+honestTotalsEl = {
+  const vs = assess(posBallot, elec);
+  const el = document.createElement("div");
+  el.style.display = "flex";
+  el.style.gap = "1rem";
+  el.style.flexWrap = "wrap";
+  el.style.margin = "0.5rem 0 1.5rem";
+  const rows = [
+    ["Approval (top two)", METHODS.approvalTop2, {}],
+    ["Approval (d = 0.3)", METHODS.approval, { d: 0.3 }],
+    ["Score (0–10)", METHODS.score, { D: 2, levels: 10 }],
+  ];
+  for (const [label, method, opts] of rows) {
+    const ballots = vs.map(v => method.ballot(v, opts));
+    const tot = [0, 0, 0];
+    vs.forEach((v, k) => ballots[k].forEach((x, c) => tot[c] += x * v.w));
+    const card = document.createElement("div");
+    card.style.flex = "1 1 180px";
+    card.style.border = "1px solid #eee";
+    card.style.borderRadius = "6px";
+    card.style.padding = "0.5rem 0.7rem";
+    card.style.borderTop = "3px solid #69b3a2";
+    card.innerHTML = `<div style="font-weight:600;margin-bottom:0.3rem">${label}</div>` +
+      NAMES.map((nm, c) => `<div style="color:${COLORS[c]}">${nm}: ${tot[c].toLocaleString()}</div>`).join("");
+    el.appendChild(card);
+  }
+  return el;
+}
+```
+
+# The Strategic Dynamics
+
+The strategy dynamics are similar to previous posts: there are multiple iterations where voters act strategically. For each rated method the burying takes its own form:
+
+- **Approval**: approve your favourite of the two front-runners (and everyone you rank above them); drop all candidates below that.
+- **Score**: give max score to everyone above the less-preferred front-runner, and 0 to the rest.
+- **STAR**: give your favourite the max score, your second favourite max − 1, and bury your least favourite at 0 — steering which two score-leaders advance to the runoff.
+- **Highest-Median**: same as Score (compress toward the extremes to raise your favourites' medians and collapse the bury target's).
+- **BTR-Score**: bury the less-preferred of the two front-runners — rate it *below* the current last-place candidate — while maxing the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.
+
+As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, and black where the iteration never settles (non-convergence/ties).
+
+```{ojs}
+cGrid = Array.from({ length: 140 }, (_, i) => -4 + 8 * i / 139)
+
+ratedOpts = ({
+  approvalTop2: {},
+  approval: { d: 0.3 },
+  score: { D: 2, levels: 10 },
+  star: { D: 2, levels: 10 },
+  highestMedian: { D: 2, levels: 10 },
+  btrScore: { D: 2, levels: 10 },
+})
+
+honestRow = (m, Bv) => C => {
+  const vs = assess([0, Bv, C], elec);
+  return METHODS[m].winner(vs, vs.map(v => METHODS[m].ballot(v, ratedOpts[m] ?? {})));
+}
+stratRow = (m, Bv) => C => strategicWinner([0, Bv, C], m).winner
+```
+
+# Approval
+
+Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. The distance-threshold variant (`d = 0.3`) is the direct rated cousin of the "vote for everyone near you" instinct. The top-two variant forces exactly two approvals — but it is worth flagging that this is not a very realistic assumption about voters. Real approval ballots don't impose a quota; voters approve everyone they accept, or everyone they'd be happy to see win. "Approve exactly the two candidates I like best" is a modelling contrivance, and, as the map below shows, the honest variant pays the price for it.
+
+The strategic approval dynamic (adopt the preferred front-runner, truncate below) converges everywhere, and which candidate it prefers to elect is startlingly different between the two variants:
+
+```{ojs}
+viewof BApproval = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Approval: B position" })
+```
+
+```{ojs}
+winnerLegend(true)
+```
+
+```{ojs}
+render(winnerHeatmap(
+  ["Approval top-2 (honest)", "Approval top-2 (strategic)", "Approval d=0.3 (honest)", "Approval d=0.3 (strategic)"],
+  [
+    cGrid.map(honestRow("approvalTop2", BApproval)),
+    cGrid.map(stratRow("approvalTop2", BApproval)),
+    cGrid.map(honestRow("approval", BApproval)),
+    cGrid.map(stratRow("approval", BApproval)),
+  ],
+  cGrid, BApproval, `B = ${BApproval}`
+))
+```
+
+With honest voting, the distance-threshold variant does what the previous post's ranked methods could not: A wins everywhere. The top-two variant does not. When C sits between B and A, nearly every voter approves C (their nearest or second-nearest), so C coasts to near-universal approval and can out-poll the true median candidate. At B = −0.3 it abandons A in about half the C placements we sweep. That failure belongs to the contrived top-two assumption, not to approval voting itself.
+
+With strategic voting, starting from either top-two or distance threshold, both methods end up electing the ideal candidate.
+
+# Score
+
+Score voting elects the candidate who has the highest sum of scores on all ballots., as if each candidate's score were the strength of your
+
+```{ojs}
+viewof BScore = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Score: B position" })
+```
+
+```{ojs}
+winnerLegend(true)
+```
+
+```{ojs}
+render(winnerHeatmap(
+  ["Score (honest)", "Score (strategic)"],
+  [cGrid.map(honestRow("score", BScore)), cGrid.map(stratRow("score", BScore))],
+  cGrid, BScore, `B = ${BScore}`
+))
+```
+
+Score voting, whether voters are honest or strategic, elects the ideal candidate.
+
+# STAR
+
+STAR (Score Then Automatic Runoff) first totals the scores, then holds a pairwise runoff between the top-two score-getters, with each ballot contributing its full scores to whoever it grades higher.
+
+With honest voting, STAR elects A essentially everywhere.
+
+With strategic voting, the question is whether voters can game which two candidates reach the runoff. The strategy above (max to your favourite, max − 1 to your second, bury your least) is precisely an attempt to control the final two.
+
+```{ojs}
+viewof BStar = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "STAR: B position" })
+```
+
+```{ojs}
+winnerLegend(true)
+```
+
+```{ojs}
+render(winnerHeatmap(
+  ["STAR (honest)", "STAR (strategic)"],
+  [cGrid.map(honestRow("star", BStar)), cGrid.map(stratRow("star", BStar))],
+  cGrid, BStar, `B = ${BStar}`
+))
+```
+
+STAR never results in strategic iteration cycles, but the ideal moderate is not always the survivor: under the full spread-strategy, STAR flips away from A in a narrow band of C placements around the center (roughly 8% of positions in the B = −0.3 sweep). Voters who prefer the runner-up to the winner can bury the centrist out of the runoff and lift an outer candidate.
+
+# Highest Median
+
+Highest Median (also known as Majority Judgment) elects the candidate whose *median* grade is highest.
+
+Under both honest and strategic voting, we see it elects the ideal candidate all the time (note that .
+
+```{ojs}
+viewof BHMed = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Highest Median: B position" })
+```
+
+```{ojs}
+winnerLegend(true)
+```
+
+```{ojs}
+render(winnerHeatmap(
+  ["Highest Median (honest)", "Highest Median (strategic)"],
+  [cGrid.map(honestRow("highestMedian", BHMed)), cGrid.map(stratRow("highestMedian", BHMed))],
+  cGrid, BHMed, `B = ${BHMed}`
+))
+```
+
+# BTR-Score
+
+BTR-Score effectively combines ranked and rated methods: it is a Score method, but tabulated with the bottom-two-runoff mechanics of the ranked family. Each round, the two candidates with the lowest score totals face a pairwise runoff, where each ballot's higher-graded candidate is treated as preferred; the pairwise loser is eliminated and the process repeats. Because the pairwise comparisons read directly off the ratings, BTR-Score is Condorcet-consistent: when a Condorcet winner exists on the ballots, BTR-Score elects it.
+
+Honestly, that means A wins everywhere, matching all honest Condorcet methods. The strategic result is the surprise of this post. The ideal candidate does not always survive the bury-below-last strategy:
+
+```{ojs}
+viewof BBtr = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "BTR-Score: B position" })
+```
+
+```{ojs}
+winnerLegend(true)
+```
+
+```{ojs}
+render(winnerHeatmap(
+  ["BTR-Score (honest)", "BTR-Score (strategic)"],
+  [cGrid.map(honestRow("btrScore", BBtr)), cGrid.map(stratRow("btrScore", BBtr))],
+  cGrid, BBtr, `B = ${BBtr}`
+))
+```
+
+Where the dynamics *do* converge, BTR-Score elects A — Condorcet-consistency does its job on fixed profiles. But convergence is not guarenteed under strategic voting even when a Condorcet winner does exist under honest voting.
+
+As with the ranked post, it is worth noting that these cycles arise under **synchronous** iterative voting, where all voters revise at once; under **asynchronous** best-response dynamics, where a single voter updates at a time, all these methods have been shown to converge [@koolyk2017]. 
+
+# Conclusion
+
+ With honest voting, Approval, Score, STAR, Highest Median, and BTR-Score all elect the ideal moderate candidate A across the map. With strategic voting, Approval (distance) and Score and Highest Median still elect the ideal moderate candidate. If the goal is a method that elects the median voter's favourite under both honesty and strategy, several rated methods deliver in this model.
+
+ I plan to summarize this series on voting methods and different ballot types, putting all the results next to each other in the next post.
