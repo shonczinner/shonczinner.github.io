@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Shon Czinner">
+<meta name="dcterms.date" content="2026-09-05">
+<meta name="description" content="Approval, Score, STAR, Highest-Median and BTR-Score: rated ballots end the center-squeeze honestly, but strategic manipulation still bites — STAR can be strategized and BTR-Score develops the same bad cycles Kloeckner documented">
+
+<title>Are Rated Ballots Better? – Shon Czinner’s Blog</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-3e9b1289f5f353c49b617ce48ad2bc38.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-44Q7K7T86R"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-44Q7K7T86R', { 'anonymize_ip': true});
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Shon Czinner's Blog",
+  "url": "https://shonczinner.github.io/"
+}
+</script>
+<!-- includes/google-verification.html -->
+<meta name="google-site-verification" content="H0H7QgJbWdQ29aj8qsciF43dYk9uCuG8DOKVXEn8mwg">
+<script type="module" src="../../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+<meta property="og:title" content="Are Rated Ballots Better? – Shon Czinner’s Blog">
+<meta property="og:description" content="Approval, Score, STAR, Highest-Median and BTR-Score: rated ballots end the center-squeeze honestly, but strategic manipulation still bites — STAR can be strategized and BTR-Score develops the same bad cycles Kloeckner documented">
+<meta property="og:image" content="https://shonczinner.github.io/posts/rated/img.PNG">
+<meta property="og:site_name" content="Shon Czinner’s Blog">
+<meta property="og:locale" content="en_CA">
+<meta name="twitter:title" content="Are Rated Ballots Better? – Shon Czinner’s Blog">
+<meta name="twitter:description" content="Approval, Score, STAR, Highest-Median and BTR-Score: rated ballots end the center-squeeze honestly, but strategic manipulation still bites — STAR can be strategized and BTR-Score develops the same bad cycles Kloeckner documented">
+<meta name="twitter:image" content="https://shonczinner.github.io/posts/rated/img.PNG">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Shon Czinner’s Blog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/shonczinner"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/shon-czinner-14a258140/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Are Rated Ballots Better?</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">voting</div>
+    <div class="quarto-category">social choice</div>
+    <div class="quarto-category">political science</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Approval, Score, STAR, Highest-Median and BTR-Score: rated ballots end the center-squeeze honestly, but strategic manipulation still bites — STAR can be strategized and BTR-Score develops the same bad cycles Kloeckner documented
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Shon Czinner </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 5, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In my previous post on <a href="../../posts/ranked/">ranked ballots</a>, I showed that ranking all the candidates does not fix the center-squeeze. IRV, Borda, Condorcet, and the Condorcet-completion family all let the ideal moderate candidate A be squeezed out, under honest voting (IRV) or strategic voting (everything else). It is natural to hope that giving voters even more expressive ballots would do better. Rated ballots let the voter grade each candidate independently, for example on a 0–10 scale, instead of forcing them to order candidates they may barely distinguish.</p>
+<p>This post asks whether rated ballots actually fix the center-squeeze. The short answer: <strong>mostly.</strong> The methods illustrated are approval voting (top-two and distance-threshold variants), score voting, STAR, Highest-Median (majority judgment), and BTR-Score.</p>
+<p>Arrow’s Impossibility theorem is not applicable to rated voting rules where voters assign a separate grade to each candidate.</p>
+<p>There is still Gibbard’s theorem, which states that every non-dictatorial voting system with at least three choices is subject to strategic manipulation. Its assumptions are weaker as it applies to all voting systems, including rated ones, and does not require voters to hold transitive preferences. But its implications are also weaker: it does not imply one of dictatorship or Indepenence of Irrelevant Alternatives (IIA). It only implies that in all voting methods voters may benefit from voting strategically.</p>
+<p>We reuse the exact same model, electorate, and code as the ranked and single-mark posts.</p>
+<p>The same electorate from before is plotted below,</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="27" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 26;"><span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>Plotly <span class="op">=</span> <span class="cf">await</span> <span class="pp">require</span>(<span class="st">"https://cdn.plot.ly/plotly-2.35.2.min.js"</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { elecData<span class="op">,</span> approvalBallotData<span class="op">,</span> scoreBallotData<span class="op">,</span> densityWeightedData<span class="op">,</span> winnerHeatmap } <span class="im">from</span> <span class="st">"./src/plots.js"</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { ELEC } <span class="im">from</span> <span class="st">"./src/electorate.js"</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { assess<span class="op">,</span> METHODS<span class="op">,</span> NAMES<span class="op">,</span> COLORS } <span class="im">from</span> <span class="st">"./src/methods.js"</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { strategicWinner } <span class="im">from</span> <span class="st">"./src/strategic.js"</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>elec <span class="op">=</span> ELEC</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="37" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 36;"><span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">render</span>(fig) {</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> el <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">border</span> <span class="op">=</span> <span class="st">"1px solid #eee"</span><span class="op">;</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderRadius</span> <span class="op">=</span> <span class="st">"6px"</span><span class="op">;</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">margin</span> <span class="op">=</span> <span class="st">"0.5rem 0 1.5rem"</span><span class="op">;</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  Plotly<span class="op">.</span><span class="fu">newPlot</span>(el<span class="op">,</span> fig<span class="op">.</span><span class="at">data</span><span class="op">,</span> fig<span class="op">.</span><span class="at">layout</span><span class="op">,</span> { <span class="dt">displayModeBar</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">responsive</span><span class="op">:</span> <span class="kw">true</span> })<span class="op">;</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> el<span class="op">;</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="48" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 47;"><span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">winnerLegend</span>(strategy) {</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> sw <span class="op">=</span> (color<span class="op">,</span> label) <span class="kw">=&gt;</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    <span class="vs">`&lt;span style="display:inline-flex;align-items:center;margin-right:1.25rem;"&gt;&lt;span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:</span><span class="sc">${</span>color<span class="sc">}</span><span class="vs">;"&gt;&lt;/span&gt;&lt;span style="font-size:0.9rem;"&gt;</span><span class="sc">${</span>label<span class="sc">}</span><span class="vs">&lt;/span&gt;&lt;/span&gt;`</span><span class="op">;</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> html <span class="op">=</span> <span class="fu">sw</span>(COLORS[<span class="dv">0</span>]<span class="op">,</span> <span class="st">"A"</span>) <span class="op">+</span> <span class="fu">sw</span>(COLORS[<span class="dv">1</span>]<span class="op">,</span> <span class="st">"B"</span>) <span class="op">+</span> <span class="fu">sw</span>(COLORS[<span class="dv">2</span>]<span class="op">,</span> <span class="st">"C"</span>)<span class="op">;</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (strategy) html <span class="op">+=</span> <span class="fu">sw</span>(<span class="st">"#000000"</span><span class="op">,</span> <span class="st">"Tie/Non-convergence"</span>)<span class="op">;</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> p <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"p"</span>)<span class="op">;</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  p<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">display</span> <span class="op">=</span> <span class="st">"flex"</span><span class="op">;</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  p<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">flexWrap</span> <span class="op">=</span> <span class="st">"wrap"</span><span class="op">;</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  p<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">margin</span> <span class="op">=</span> <span class="st">"0 0 0.25rem"</span><span class="op">;</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  p<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> html<span class="op">;</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> p<span class="op">;</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="63" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 62;"><span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">elecData</span>(elec))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-4" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<p>For the full spatial-model setup and its justification, see the <a href="singlemark.qmd">post on single-marked ballots</a>. The one difference here for rated ballots is that under <strong>honest-rating</strong> a voter grades candidate <span class="math inline">\(X\)</span> proportional to <span class="math inline">\(u_v(X)\)</span>. The higher their utility, the higher the grade. So an honest rated ballot is just the voter’s utility itself, normalized onto the ballot’s scale. For score and the score-based methods we use a 0–10 scale with <span class="math inline">\(s_v(X) = \max(0, \lfloor 10(1 - |v - x|/D) \rfloor)\)</span> for a rating radius <span class="math inline">\(D = 2\)</span>.</p>
+<p>We also demonstrate honest approval ballots with two different assumptions. First, by assuming honest voters approve the voter’s top two candidates, and second assuming honest voters approve every candidate within distance <span class="math inline">\(d = 0.3\)</span> (resulting in possibly zero approved candidates).</p>
+<section id="honest-rated-ballots" class="level1">
+<h1>Honest rated ballots</h1>
+<p>With honest voting, approval and rated ballots look like this:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="76" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 75;"><span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>viewof Bballot <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.2</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"B position"</span> })</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>viewof Cballot <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.2</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"C position"</span> })</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>posBallot <span class="op">=</span> [<span class="dv">0</span><span class="op">,</span> Bballot<span class="op">,</span> Cballot]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="82" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 81;"><span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">false</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-6" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="86" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 85;"><span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">approvalBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approvalTop2"</span><span class="op">,</span> <span class="kw">undefined</span><span class="op">,</span> <span class="vs">`Approval (top two) ballot — A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-7" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="90" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 89;"><span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">approvalBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approval"</span><span class="op">,</span> <span class="fl">0.3</span><span class="op">,</span> <span class="vs">`Approval (dist ≤ 0.3) ballot — A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-8" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="94" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 93;"><span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">scoreBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<p>Notice the difference from plurality and ranked ballots: a <em>single</em> voter can now express support for more than one candidate, and even the same voters who vote B or C on a plurality ballot are free to keep a high opinion of A. The centrist A, sitting at the median, is within reach of every voter. So on honest ballots A collects approval or high scores from both flanks.</p>
+<p>We can weight each column by the actual density of voters at each location to get a sense of how many approvals or how much score each candidate collects:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="102" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 101;"><span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">false</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-10" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="107" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 106;"><span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approvalTop2"</span><span class="op">,</span> <span class="kw">undefined</span><span class="op">,</span> <span class="vs">`Approval (top 2) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-11-1" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="108" data-source-offset="-145"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 107;"><span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approval"</span><span class="op">,</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }<span class="op">,</span> <span class="vs">`Approval (dist ≤ 0.3) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-11-2" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb13" data-startfrom="109" data-source-offset="-292"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 108;"><span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"score"</span><span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span> <span class="vs">`Score (0–10) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-11-3" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+<p>The total area of each candidate’s region is now their honest vote share, and, unlike plurality, the centrist’s region is no longer pinched in the middle: the two balloons push inward on the outer candidates instead. As a first read, honest rated and approval ballots look like they should rescue A.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb14" data-startfrom="114" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 113;"><span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>honestTotalsEl <span class="op">=</span> {</span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vs <span class="op">=</span> <span class="fu">assess</span>(posBallot<span class="op">,</span> elec)<span class="op">;</span></span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> el <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">display</span> <span class="op">=</span> <span class="st">"flex"</span><span class="op">;</span></span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">gap</span> <span class="op">=</span> <span class="st">"1rem"</span><span class="op">;</span></span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">flexWrap</span> <span class="op">=</span> <span class="st">"wrap"</span><span class="op">;</span></span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">margin</span> <span class="op">=</span> <span class="st">"0.5rem 0 1.5rem"</span><span class="op">;</span></span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> [</span>
+<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Approval (top two)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">approvalTop2</span><span class="op">,</span> {}]<span class="op">,</span></span>
+<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Approval (d = 0.3)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">approval</span><span class="op">,</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }]<span class="op">,</span></span>
+<span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Score (0–10)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">score</span><span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }]<span class="op">,</span></span>
+<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">;</span></span>
+<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> [label<span class="op">,</span> method<span class="op">,</span> opts] <span class="kw">of</span> rows) {</span>
+<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> ballots <span class="op">=</span> vs<span class="op">.</span><span class="fu">map</span>(v <span class="kw">=&gt;</span> method<span class="op">.</span><span class="fu">ballot</span>(v<span class="op">,</span> opts))<span class="op">;</span></span>
+<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> tot <span class="op">=</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">;</span></span>
+<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a>    vs<span class="op">.</span><span class="fu">forEach</span>((v<span class="op">,</span> k) <span class="kw">=&gt;</span> ballots[k]<span class="op">.</span><span class="fu">forEach</span>((x<span class="op">,</span> c) <span class="kw">=&gt;</span> tot[c] <span class="op">+=</span> x <span class="op">*</span> v<span class="op">.</span><span class="at">w</span>))<span class="op">;</span></span>
+<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> card <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
+<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">flex</span> <span class="op">=</span> <span class="st">"1 1 180px"</span><span class="op">;</span></span>
+<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">border</span> <span class="op">=</span> <span class="st">"1px solid #eee"</span><span class="op">;</span></span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderRadius</span> <span class="op">=</span> <span class="st">"6px"</span><span class="op">;</span></span>
+<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">padding</span> <span class="op">=</span> <span class="st">"0.5rem 0.7rem"</span><span class="op">;</span></span>
+<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderTop</span> <span class="op">=</span> <span class="st">"3px solid #69b3a2"</span><span class="op">;</span></span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> <span class="vs">`&lt;div style="font-weight:600;margin-bottom:0.3rem"&gt;</span><span class="sc">${</span>label<span class="sc">}</span><span class="vs">&lt;/div&gt;`</span> <span class="op">+</span></span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a>      NAMES<span class="op">.</span><span class="fu">map</span>((nm<span class="op">,</span> c) <span class="kw">=&gt;</span> <span class="vs">`&lt;div style="color:</span><span class="sc">${</span>COLORS[c]<span class="sc">}</span><span class="vs">"&gt;</span><span class="sc">${</span>nm<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>tot[c]<span class="op">.</span><span class="fu">toLocaleString</span>()<span class="sc">}</span><span class="vs">&lt;/div&gt;`</span>)<span class="op">.</span><span class="fu">join</span>(<span class="st">""</span>)<span class="op">;</span></span>
+<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a>    el<span class="op">.</span><span class="fu">appendChild</span>(card)<span class="op">;</span></span>
+<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> el<span class="op">;</span></span>
+<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-12" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</section>
+<section id="the-strategic-dynamics" class="level1">
+<h1>The Strategic Dynamics</h1>
+<p>The strategy dynamics are similar to previous posts: there are multiple iterations where voters act strategically. For each rated method the burying takes its own form:</p>
+<ul>
+<li><strong>Approval</strong>: approve your favourite of the two front-runners (and everyone you rank above them); drop all candidates below that.</li>
+<li><strong>Score</strong>: give max score to everyone above the less-preferred front-runner, and 0 to the rest.</li>
+<li><strong>STAR</strong>: give your favourite the max score, your second favourite max − 1, and bury your least favourite at 0 — steering which two score-leaders advance to the runoff.</li>
+<li><strong>Highest-Median</strong>: same as Score (compress toward the extremes to raise your favourites’ medians and collapse the bury target’s).</li>
+<li><strong>BTR-Score</strong>: bury the less-preferred of the two front-runners — rate it <em>below</em> the current last-place candidate — while maxing the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.</li>
+</ul>
+<p>As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, and black where the iteration never settles (non-convergence/ties).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb15" data-startfrom="158" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 157;"><span id="cb15-158"><a href="#cb15-158" aria-hidden="true" tabindex="-1"></a>cGrid <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({ <span class="dt">length</span><span class="op">:</span> <span class="dv">140</span> }<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> <span class="op">-</span><span class="dv">4</span> <span class="op">+</span> <span class="dv">8</span> <span class="op">*</span> i <span class="op">/</span> <span class="dv">139</span>)</span>
+<span id="cb15-159"><a href="#cb15-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-160"><a href="#cb15-160" aria-hidden="true" tabindex="-1"></a>ratedOpts <span class="op">=</span> ({</span>
+<span id="cb15-161"><a href="#cb15-161" aria-hidden="true" tabindex="-1"></a>  <span class="dt">approvalTop2</span><span class="op">:</span> {}<span class="op">,</span></span>
+<span id="cb15-162"><a href="#cb15-162" aria-hidden="true" tabindex="-1"></a>  <span class="dt">approval</span><span class="op">:</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }<span class="op">,</span></span>
+<span id="cb15-163"><a href="#cb15-163" aria-hidden="true" tabindex="-1"></a>  <span class="dt">score</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb15-164"><a href="#cb15-164" aria-hidden="true" tabindex="-1"></a>  <span class="dt">star</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb15-165"><a href="#cb15-165" aria-hidden="true" tabindex="-1"></a>  <span class="dt">highestMedian</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a>  <span class="dt">btrScore</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb15-167"><a href="#cb15-167" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb15-168"><a href="#cb15-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-169"><a href="#cb15-169" aria-hidden="true" tabindex="-1"></a>honestRow <span class="op">=</span> (m<span class="op">,</span> Bv) <span class="kw">=&gt;</span> C <span class="kw">=&gt;</span> {</span>
+<span id="cb15-170"><a href="#cb15-170" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vs <span class="op">=</span> <span class="fu">assess</span>([<span class="dv">0</span><span class="op">,</span> Bv<span class="op">,</span> C]<span class="op">,</span> elec)<span class="op">;</span></span>
+<span id="cb15-171"><a href="#cb15-171" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> METHODS[m]<span class="op">.</span><span class="fu">winner</span>(vs<span class="op">,</span> vs<span class="op">.</span><span class="fu">map</span>(v <span class="kw">=&gt;</span> METHODS[m]<span class="op">.</span><span class="fu">ballot</span>(v<span class="op">,</span> ratedOpts[m] <span class="op">??</span> {})))<span class="op">;</span></span>
+<span id="cb15-172"><a href="#cb15-172" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-173"><a href="#cb15-173" aria-hidden="true" tabindex="-1"></a>stratRow <span class="op">=</span> (m<span class="op">,</span> Bv) <span class="kw">=&gt;</span> C <span class="kw">=&gt;</span> <span class="fu">strategicWinner</span>([<span class="dv">0</span><span class="op">,</span> Bv<span class="op">,</span> C]<span class="op">,</span> m)<span class="op">.</span><span class="at">winner</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-13-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-13-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-13-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-13-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="approval" class="level1">
+<h1>Approval</h1>
+<p>Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. The distance-threshold variant (<code>d = 0.3</code>) is the direct rated cousin of the “vote for everyone near you” instinct. The top-two variant forces exactly two approvals — but it is worth flagging that this is not a very realistic assumption about voters. Real approval ballots don’t impose a quota; voters approve everyone they accept, or everyone they’d be happy to see win. “Approve exactly the two candidates I like best” is a modelling contrivance, and, as the map below shows, the honest variant pays the price for it.</p>
+<p>The strategic approval dynamic (adopt the preferred front-runner, truncate below) converges everywhere, and which candidate it prefers to elect is startlingly different between the two variants:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="182" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 181;"><span id="cb16-182"><a href="#cb16-182" aria-hidden="true" tabindex="-1"></a>viewof BApproval <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Approval: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-14" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb17" data-startfrom="186" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 185;"><span id="cb17-186"><a href="#cb17-186" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-15" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="190" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 189;"><span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Approval top-2 (honest)"</span><span class="op">,</span> <span class="st">"Approval top-2 (strategic)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (honest)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a>  [</span>
+<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
+<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
+<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approval"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
+<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approval"</span><span class="op">,</span> BApproval))<span class="op">,</span></span>
+<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BApproval<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BApproval<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-16" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<p>With honest voting, the distance-threshold variant does what the previous post’s ranked methods could not: A wins everywhere. The top-two variant does not. When C sits between B and A, nearly every voter approves C (their nearest or second-nearest), so C coasts to near-universal approval and can out-poll the true median candidate. At B = −0.3 it abandons A in about half the C placements we sweep. That failure belongs to the contrived top-two assumption, not to approval voting itself.</p>
+<p>With strategic voting, starting from either top-two or distance threshold, both methods end up electing the ideal candidate.</p>
+</section>
+<section id="score" class="level1">
+<h1>Score</h1>
+<p>Score voting elects the candidate who has the highest sum of scores on all ballots., as if each candidate’s score were the strength of your</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb19" data-startfrom="211" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 210;"><span id="cb19-211"><a href="#cb19-211" aria-hidden="true" tabindex="-1"></a>viewof BScore <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-17" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb20" data-startfrom="215" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 214;"><span id="cb20-215"><a href="#cb20-215" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-18" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb21" data-startfrom="219" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 218;"><span id="cb21-219"><a href="#cb21-219" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb21-220"><a href="#cb21-220" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Score (honest)"</span><span class="op">,</span> <span class="st">"Score (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb21-221"><a href="#cb21-221" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))]<span class="op">,</span></span>
+<span id="cb21-222"><a href="#cb21-222" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BScore<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BScore<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb21-223"><a href="#cb21-223" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-19" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<p>Score voting, whether voters are honest or strategic, elects the ideal candidate.</p>
+</section>
+<section id="star" class="level1">
+<h1>STAR</h1>
+<p>STAR (Score Then Automatic Runoff) first totals the scores, then holds a pairwise runoff between the top-two score-getters, with each ballot contributing its full scores to whoever it grades higher.</p>
+<p>With honest voting, STAR elects A essentially everywhere.</p>
+<p>With strategic voting, the question is whether voters can game which two candidates reach the runoff. The strategy above (max to your favourite, max − 1 to your second, bury your least) is precisely an attempt to control the final two.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb22" data-startfrom="237" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 236;"><span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a>viewof BStar <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"STAR: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-20" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb23" data-startfrom="241" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 240;"><span id="cb23-241"><a href="#cb23-241" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-21" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb24" data-startfrom="245" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 244;"><span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb24-246"><a href="#cb24-246" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"STAR (honest)"</span><span class="op">,</span> <span class="st">"STAR (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb24-247"><a href="#cb24-247" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))]<span class="op">,</span></span>
+<span id="cb24-248"><a href="#cb24-248" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BStar<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BStar<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb24-249"><a href="#cb24-249" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-22" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<p>STAR never results in strategic iteration cycles, but the ideal moderate is not always the survivor: under the full spread-strategy, STAR flips away from A in a narrow band of C placements around the center (roughly 8% of positions in the B = −0.3 sweep). Voters who prefer the runner-up to the winner can bury the centrist out of the runoff and lift an outer candidate.</p>
+</section>
+<section id="highest-median" class="level1">
+<h1>Highest Median</h1>
+<p>Highest Median (also known as Majority Judgment) elects the candidate whose <em>median</em> grade is highest.</p>
+<p>Under both honest and strategic voting, we see it elects the ideal candidate all the time (note that .</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb25" data-startfrom="261" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 260;"><span id="cb25-261"><a href="#cb25-261" aria-hidden="true" tabindex="-1"></a>viewof BHMed <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Highest Median: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-23" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb26" data-startfrom="265" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 264;"><span id="cb26-265"><a href="#cb26-265" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-24" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb27" data-startfrom="269" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 268;"><span id="cb27-269"><a href="#cb27-269" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb27-270"><a href="#cb27-270" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Highest Median (honest)"</span><span class="op">,</span> <span class="st">"Highest Median (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb27-271"><a href="#cb27-271" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))]<span class="op">,</span></span>
+<span id="cb27-272"><a href="#cb27-272" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BHMed<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BHMed<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb27-273"><a href="#cb27-273" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-25" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="btr-score" class="level1">
+<h1>BTR-Score</h1>
+<p>BTR-Score effectively combines ranked and rated methods: it is a Score method, but tabulated with the bottom-two-runoff mechanics of the ranked family. Each round, the two candidates with the lowest score totals face a pairwise runoff, where each ballot’s higher-graded candidate is treated as preferred; the pairwise loser is eliminated and the process repeats. Because the pairwise comparisons read directly off the ratings, BTR-Score is Condorcet-consistent: when a Condorcet winner exists on the ballots, BTR-Score elects it.</p>
+<p>Honestly, that means A wins everywhere, matching all honest Condorcet methods. The strategic result is the surprise of this post. The ideal candidate does not always survive the bury-below-last strategy:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb28" data-startfrom="283" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 282;"><span id="cb28-283"><a href="#cb28-283" aria-hidden="true" tabindex="-1"></a>viewof BBtr <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"BTR-Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-26" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb29" data-startfrom="287" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 286;"><span id="cb29-287"><a href="#cb29-287" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>(<span class="kw">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-27" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb30" data-startfrom="291" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 290;"><span id="cb30-291"><a href="#cb30-291" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb30-292"><a href="#cb30-292" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"BTR-Score (honest)"</span><span class="op">,</span> <span class="st">"BTR-Score (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb30-293"><a href="#cb30-293" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))]<span class="op">,</span></span>
+<span id="cb30-294"><a href="#cb30-294" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BBtr<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BBtr<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb30-295"><a href="#cb30-295" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-28" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<p>Where the dynamics <em>do</em> converge, BTR-Score elects A — Condorcet-consistency does its job on fixed profiles. But convergence is not guarenteed under strategic voting even when a Condorcet winner does exist under honest voting.</p>
+<p>As with the ranked post, it is worth noting that these cycles arise under <strong>synchronous</strong> iterative voting, where all voters revise at once; under <strong>asynchronous</strong> best-response dynamics, where a single voter updates at a time, all these methods have been shown to converge <span class="citation" data-cites="koolyk2017"><a href="#ref-koolyk2017" role="doc-biblioref">[1]</a></span>.</p>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>With honest voting, Approval, Score, STAR, Highest Median, and BTR-Score all elect the ideal moderate candidate A across the map. With strategic voting, Approval (distance) and Score and Highest Median still elect the ideal moderate candidate. If the goal is a method that elects the median voter’s favourite under both honesty and strategy, several rated methods deliver in this model.</p>
+<p>I plan to summarize this series on voting methods and different ballot types, putting all the results next to each other in the next post.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
+<div id="ref-koolyk2017" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">A. Koolyk, T. Strangway, O. Lev, and J. S. Rosenschein, <span>“Convergence and quality of iterative voting under non-scoring rules,”</span> in <em>Proceedings of the twenty-sixth international joint conference on artificial intelligence (IJCAI-17)</em>, 2017, pp. 273–279. doi: <a href="https://doi.org/10.24963/ijcai.2017/39">10.24963/ijcai.2017/39</a>.</div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlBsb3RseSA9IGF3YWl0IHJlcXVpcmUoXCJodHRwczovL2Nkbi5wbG90Lmx5L3Bsb3RseS0yLjM1LjIubWluLmpzXCIpXG5cbmltcG9ydCB7IGVsZWNEYXRhLCBhcHByb3ZhbEJhbGxvdERhdGEsIHNjb3JlQmFsbG90RGF0YSwgZGVuc2l0eVdlaWdodGVkRGF0YSwgd2lubmVySGVhdG1hcCB9IGZyb20gXCIuL3NyYy9wbG90cy5qc1wiXG5pbXBvcnQgeyBFTEVDIH0gZnJvbSBcIi4vc3JjL2VsZWN0b3JhdGUuanNcIlxuaW1wb3J0IHsgYXNzZXNzLCBNRVRIT0RTLCBOQU1FUywgQ09MT1JTIH0gZnJvbSBcIi4vc3JjL21ldGhvZHMuanNcIlxuaW1wb3J0IHsgc3RyYXRlZ2ljV2lubmVyIH0gZnJvbSBcIi4vc3JjL3N0cmF0ZWdpYy5qc1wiXG5cbmVsZWMgPSBFTEVDXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJmdW5jdGlvbiByZW5kZXIoZmlnKSB7XG4gIGNvbnN0IGVsID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKTtcbiAgZWwuc3R5bGUuYm9yZGVyID0gXCIxcHggc29saWQgI2VlZVwiO1xuICBlbC5zdHlsZS5ib3JkZXJSYWRpdXMgPSBcIjZweFwiO1xuICBlbC5zdHlsZS5tYXJnaW4gPSBcIjAuNXJlbSAwIDEuNXJlbVwiO1xuICBQbG90bHkubmV3UGxvdChlbCwgZmlnLmRhdGEsIGZpZy5sYXlvdXQsIHsgZGlzcGxheU1vZGVCYXI6IGZhbHNlLCByZXNwb25zaXZlOiB0cnVlIH0pO1xuICByZXR1cm4gZWw7XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJmdW5jdGlvbiB3aW5uZXJMZWdlbmQoc3RyYXRlZ3kpIHtcbiAgY29uc3Qgc3cgPSAoY29sb3IsIGxhYmVsKSA9PlxuICAgIGA8c3BhbiBzdHlsZT1cImRpc3BsYXk6aW5saW5lLWZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO21hcmdpbi1yaWdodDoxLjI1cmVtO1wiPjxzcGFuIHN0eWxlPVwiZGlzcGxheTppbmxpbmUtYmxvY2s7d2lkdGg6MTJweDtoZWlnaHQ6MTJweDtib3JkZXItcmFkaXVzOjJweDttYXJnaW4tcmlnaHQ6NHB4O2JhY2tncm91bmQ6JHtjb2xvcn07XCI+PC9zcGFuPjxzcGFuIHN0eWxlPVwiZm9udC1zaXplOjAuOXJlbTtcIj4ke2xhYmVsfTwvc3Bhbj48L3NwYW4+YDtcbiAgbGV0IGh0bWwgPSBzdyhDT0xPUlNbMF0sIFwiQVwiKSArIHN3KENPTE9SU1sxXSwgXCJCXCIpICsgc3coQ09MT1JTWzJdLCBcIkNcIik7XG4gIGlmIChzdHJhdGVneSkgaHRtbCArPSBzdyhcIiMwMDAwMDBcIiwgXCJUaWUvTm9uLWNvbnZlcmdlbmNlXCIpO1xuICBjb25zdCBwID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcInBcIik7XG4gIHAuc3R5bGUuZGlzcGxheSA9IFwiZmxleFwiO1xuICBwLnN0eWxlLmZsZXhXcmFwID0gXCJ3cmFwXCI7XG4gIHAuc3R5bGUubWFyZ2luID0gXCIwIDAgMC4yNXJlbVwiO1xuICBwLmlubmVySFRNTCA9IGh0bWw7XG4gIHJldHVybiBwO1xufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoicmVuZGVyKGVsZWNEYXRhKGVsZWMpKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC01IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIEJiYWxsb3QgPSBJbnB1dHMucmFuZ2UoWy00LCA0XSwgeyBzdGVwOiAwLjEsIHZhbHVlOiAtMC4yLCBsYWJlbDogXCJCIHBvc2l0aW9uXCIgfSlcbnZpZXdvZiBDYmFsbG90ID0gSW5wdXRzLnJhbmdlKFstNCwgNF0sIHsgc3RlcDogMC4xLCB2YWx1ZTogMC4yLCBsYWJlbDogXCJDIHBvc2l0aW9uXCIgfSlcblxucG9zQmFsbG90ID0gWzAsIEJiYWxsb3QsIENiYWxsb3RdXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTYiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ3aW5uZXJMZWdlbmQoZmFsc2UpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJyZW5kZXIoYXBwcm92YWxCYWxsb3REYXRhKGVsZWMsIHBvc0JhbGxvdCwgXCJhcHByb3ZhbFRvcDJcIiwgdW5kZWZpbmVkLCBgQXBwcm92YWwgKHRvcCB0d28pIGJhbGxvdCDigJQgQT0wLCBCPSR7QmJhbGxvdH0sIEM9JHtDYmFsbG90fWApKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC04IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoicmVuZGVyKGFwcHJvdmFsQmFsbG90RGF0YShlbGVjLCBwb3NCYWxsb3QsIFwiYXBwcm92YWxcIiwgMC4zLCBgQXBwcm92YWwgKGRpc3Qg4omkIDAuMykgYmFsbG90IOKAlCBBPTAsIEI9JHtCYmFsbG90fSwgQz0ke0NiYWxsb3R9YCkpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTkiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJyZW5kZXIoc2NvcmVCYWxsb3REYXRhKGVsZWMsIHBvc0JhbGxvdCwgeyBEOiAyLCBsZXZlbHM6IDEwIH0pKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Indpbm5lckxlZ2VuZChmYWxzZSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTEiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJyZW5kZXIoZGVuc2l0eVdlaWdodGVkRGF0YShlbGVjLCBwb3NCYWxsb3QsIFwiYXBwcm92YWxUb3AyXCIsIHVuZGVmaW5lZCwgYEFwcHJvdmFsICh0b3AgMikg4oCUIGRlbnNpdHktd2VpZ2h0ZWQgKEE9MCwgQj0ke0JiYWxsb3R9LCBDPSR7Q2JhbGxvdH0pYCkpXG5yZW5kZXIoZGVuc2l0eVdlaWdodGVkRGF0YShlbGVjLCBwb3NCYWxsb3QsIFwiYXBwcm92YWxcIiwgeyBkOiAwLjMgfSwgYEFwcHJvdmFsIChkaXN0IOKJpCAwLjMpIOKAlCBkZW5zaXR5LXdlaWdodGVkIChBPTAsIEI9JHtCYmFsbG90fSwgQz0ke0NiYWxsb3R9KWApKVxucmVuZGVyKGRlbnNpdHlXZWlnaHRlZERhdGEoZWxlYywgcG9zQmFsbG90LCBcInNjb3JlXCIsIHsgRDogMiwgbGV2ZWxzOiAxMCB9LCBgU2NvcmUgKDDigJMxMCkg4oCUIGRlbnNpdHktd2VpZ2h0ZWQgKEE9MCwgQj0ke0JiYWxsb3R9LCBDPSR7Q2JhbGxvdH0pYCkpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEyIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiaG9uZXN0VG90YWxzRWwgPSB7XG4gIGNvbnN0IHZzID0gYXNzZXNzKHBvc0JhbGxvdCwgZWxlYyk7XG4gIGNvbnN0IGVsID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKTtcbiAgZWwuc3R5bGUuZGlzcGxheSA9IFwiZmxleFwiO1xuICBlbC5zdHlsZS5nYXAgPSBcIjFyZW1cIjtcbiAgZWwuc3R5bGUuZmxleFdyYXAgPSBcIndyYXBcIjtcbiAgZWwuc3R5bGUubWFyZ2luID0gXCIwLjVyZW0gMCAxLjVyZW1cIjtcbiAgY29uc3Qgcm93cyA9IFtcbiAgICBbXCJBcHByb3ZhbCAodG9wIHR3bylcIiwgTUVUSE9EUy5hcHByb3ZhbFRvcDIsIHt9XSxcbiAgICBbXCJBcHByb3ZhbCAoZCA9IDAuMylcIiwgTUVUSE9EUy5hcHByb3ZhbCwgeyBkOiAwLjMgfV0sXG4gICAgW1wiU2NvcmUgKDDigJMxMClcIiwgTUVUSE9EUy5zY29yZSwgeyBEOiAyLCBsZXZlbHM6IDEwIH1dLFxuICBdO1xuICBmb3IgKGNvbnN0IFtsYWJlbCwgbWV0aG9kLCBvcHRzXSBvZiByb3dzKSB7XG4gICAgY29uc3QgYmFsbG90cyA9IHZzLm1hcCh2ID0+IG1ldGhvZC5iYWxsb3Qodiwgb3B0cykpO1xuICAgIGNvbnN0IHRvdCA9IFswLCAwLCAwXTtcbiAgICB2cy5mb3JFYWNoKCh2LCBrKSA9PiBiYWxsb3RzW2tdLmZvckVhY2goKHgsIGMpID0+IHRvdFtjXSArPSB4ICogdi53KSk7XG4gICAgY29uc3QgY2FyZCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoXCJkaXZcIik7XG4gICAgY2FyZC5zdHlsZS5mbGV4ID0gXCIxIDEgMTgwcHhcIjtcbiAgICBjYXJkLnN0eWxlLmJvcmRlciA9IFwiMXB4IHNvbGlkICNlZWVcIjtcbiAgICBjYXJkLnN0eWxlLmJvcmRlclJhZGl1cyA9IFwiNnB4XCI7XG4gICAgY2FyZC5zdHlsZS5wYWRkaW5nID0gXCIwLjVyZW0gMC43cmVtXCI7XG4gICAgY2FyZC5zdHlsZS5ib3JkZXJUb3AgPSBcIjNweCBzb2xpZCAjNjliM2EyXCI7XG4gICAgY2FyZC5pbm5lckhUTUwgPSBgPGRpdiBzdHlsZT1cImZvbnQtd2VpZ2h0OjYwMDttYXJnaW4tYm90dG9tOjAuM3JlbVwiPiR7bGFiZWx9PC9kaXY+YCArXG4gICAgICBOQU1FUy5tYXAoKG5tLCBjKSA9PiBgPGRpdiBzdHlsZT1cImNvbG9yOiR7Q09MT1JTW2NdfVwiPiR7bm19OiAke3RvdFtjXS50b0xvY2FsZVN0cmluZygpfTwvZGl2PmApLmpvaW4oXCJcIik7XG4gICAgZWwuYXBwZW5kQ2hpbGQoY2FyZCk7XG4gIH1cbiAgcmV0dXJuIGVsO1xufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6ImNHcmlkID0gQXJyYXkuZnJvbSh7IGxlbmd0aDogMTQwIH0sIChfLCBpKSA9PiAtNCArIDggKiBpIC8gMTM5KVxuXG5yYXRlZE9wdHMgPSAoe1xuICBhcHByb3ZhbFRvcDI6IHt9LFxuICBhcHByb3ZhbDogeyBkOiAwLjMgfSxcbiAgc2NvcmU6IHsgRDogMiwgbGV2ZWxzOiAxMCB9LFxuICBzdGFyOiB7IEQ6IDIsIGxldmVsczogMTAgfSxcbiAgaGlnaGVzdE1lZGlhbjogeyBEOiAyLCBsZXZlbHM6IDEwIH0sXG4gIGJ0clNjb3JlOiB7IEQ6IDIsIGxldmVsczogMTAgfSxcbn0pXG5cbmhvbmVzdFJvdyA9IChtLCBCdikgPT4gQyA9PiB7XG4gIGNvbnN0IHZzID0gYXNzZXNzKFswLCBCdiwgQ10sIGVsZWMpO1xuICByZXR1cm4gTUVUSE9EU1ttXS53aW5uZXIodnMsIHZzLm1hcCh2ID0+IE1FVEhPRFNbbV0uYmFsbG90KHYsIHJhdGVkT3B0c1ttXSA/PyB7fSkpKTtcbn1cbnN0cmF0Um93ID0gKG0sIEJ2KSA9PiBDID0+IHN0cmF0ZWdpY1dpbm5lcihbMCwgQnYsIENdLCBtKS53aW5uZXJcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMTQiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgQkFwcHJvdmFsID0gSW5wdXRzLnJhbmdlKFstNCwgNF0sIHsgc3RlcDogMC4xLCB2YWx1ZTogLTAuMywgbGFiZWw6IFwiQXBwcm92YWw6IEIgcG9zaXRpb25cIiB9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Indpbm5lckxlZ2VuZCh0cnVlKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InJlbmRlcih3aW5uZXJIZWF0bWFwKFxuICBbXCJBcHByb3ZhbCB0b3AtMiAoaG9uZXN0KVwiLCBcIkFwcHJvdmFsIHRvcC0yIChzdHJhdGVnaWMpXCIsIFwiQXBwcm92YWwgZD0wLjMgKGhvbmVzdClcIiwgXCJBcHByb3ZhbCBkPTAuMyAoc3RyYXRlZ2ljKVwiXSxcbiAgW1xuICAgIGNHcmlkLm1hcChob25lc3RSb3coXCJhcHByb3ZhbFRvcDJcIiwgQkFwcHJvdmFsKSksXG4gICAgY0dyaWQubWFwKHN0cmF0Um93KFwiYXBwcm92YWxUb3AyXCIsIEJBcHByb3ZhbCkpLFxuICAgIGNHcmlkLm1hcChob25lc3RSb3coXCJhcHByb3ZhbFwiLCBCQXBwcm92YWwpKSxcbiAgICBjR3JpZC5tYXAoc3RyYXRSb3coXCJhcHByb3ZhbFwiLCBCQXBwcm92YWwpKSxcbiAgXSxcbiAgY0dyaWQsIEJBcHByb3ZhbCwgYEIgPSAke0JBcHByb3ZhbH1gXG4pKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xNyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBCU2NvcmUgPSBJbnB1dHMucmFuZ2UoWy00LCA0XSwgeyBzdGVwOiAwLjEsIHZhbHVlOiAtMC4zLCBsYWJlbDogXCJTY29yZTogQiBwb3NpdGlvblwiIH0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTE4IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoid2lubmVyTGVnZW5kKHRydWUpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTE5IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoicmVuZGVyKHdpbm5lckhlYXRtYXAoXG4gIFtcIlNjb3JlIChob25lc3QpXCIsIFwiU2NvcmUgKHN0cmF0ZWdpYylcIl0sXG4gIFtjR3JpZC5tYXAoaG9uZXN0Um93KFwic2NvcmVcIiwgQlNjb3JlKSksIGNHcmlkLm1hcChzdHJhdFJvdyhcInNjb3JlXCIsIEJTY29yZSkpXSxcbiAgY0dyaWQsIEJTY29yZSwgYEIgPSAke0JTY29yZX1gXG4pKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yMCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBCU3RhciA9IElucHV0cy5yYW5nZShbLTQsIDRdLCB7IHN0ZXA6IDAuMSwgdmFsdWU6IC0wLjMsIGxhYmVsOiBcIlNUQVI6IEIgcG9zaXRpb25cIiB9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Indpbm5lckxlZ2VuZCh0cnVlKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yMiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InJlbmRlcih3aW5uZXJIZWF0bWFwKFxuICBbXCJTVEFSIChob25lc3QpXCIsIFwiU1RBUiAoc3RyYXRlZ2ljKVwiXSxcbiAgW2NHcmlkLm1hcChob25lc3RSb3coXCJzdGFyXCIsIEJTdGFyKSksIGNHcmlkLm1hcChzdHJhdFJvdyhcInN0YXJcIiwgQlN0YXIpKV0sXG4gIGNHcmlkLCBCU3RhciwgYEIgPSAke0JTdGFyfWBcbikpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIzIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIEJITWVkID0gSW5wdXRzLnJhbmdlKFstNCwgNF0sIHsgc3RlcDogMC4xLCB2YWx1ZTogLTAuMywgbGFiZWw6IFwiSGlnaGVzdCBNZWRpYW46IEIgcG9zaXRpb25cIiB9KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yNCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6Indpbm5lckxlZ2VuZCh0cnVlKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0yNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InJlbmRlcih3aW5uZXJIZWF0bWFwKFxuICBbXCJIaWdoZXN0IE1lZGlhbiAoaG9uZXN0KVwiLCBcIkhpZ2hlc3QgTWVkaWFuIChzdHJhdGVnaWMpXCJdLFxuICBbY0dyaWQubWFwKGhvbmVzdFJvdyhcImhpZ2hlc3RNZWRpYW5cIiwgQkhNZWQpKSwgY0dyaWQubWFwKHN0cmF0Um93KFwiaGlnaGVzdE1lZGlhblwiLCBCSE1lZCkpXSxcbiAgY0dyaWQsIEJITWVkLCBgQiA9ICR7QkhNZWR9YFxuKSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMjYiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgQkJ0ciA9IElucHV0cy5yYW5nZShbLTQsIDRdLCB7IHN0ZXA6IDAuMSwgdmFsdWU6IC0wLjMsIGxhYmVsOiBcIkJUUi1TY29yZTogQiBwb3NpdGlvblwiIH0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTI3IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoid2lubmVyTGVnZW5kKHRydWUpXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTI4IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoicmVuZGVyKHdpbm5lckhlYXRtYXAoXG4gIFtcIkJUUi1TY29yZSAoaG9uZXN0KVwiLCBcIkJUUi1TY29yZSAoc3RyYXRlZ2ljKVwiXSxcbiAgW2NHcmlkLm1hcChob25lc3RSb3coXCJidHJTY29yZVwiLCBCQnRyKSksIGNHcmlkLm1hcChzdHJhdFJvdyhcImJ0clNjb3JlXCIsIEJCdHIpKV0sXG4gIGNHcmlkLCBCQnRyLCBgQiA9ICR7QkJ0cn1gXG4pKVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdCYmFsbG90JykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ0NiYWxsb3QnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnQkFwcHJvdmFsJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ0JTY29yZScpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdCU3RhcicpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdCSE1lZCcpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdCQnRyJykifV19
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../posts/rated";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "../..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/shonczinner\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
