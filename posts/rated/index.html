@@ -527,13 +527,13 @@ window.Quarto = {
 </section>
 <section id="the-strategic-dynamics" class="level1">
 <h1>The Strategic Dynamics</h1>
-<p>The strategy dynamics are similar to previous posts: there are multiple iterations where voters act strategically. For each rated method the burying takes its own form:</p>
+<p>The strategy dynamics are similar to previous posts: there are multiple iterations where voters act strategically. The strategies we implement for rated ballots are:</p>
 <ul>
 <li><strong>Approval</strong>: approve your favourite of the two front-runners (and everyone you rank above them); drop all candidates below that.</li>
 <li><strong>Score</strong>: give max score to everyone above the less-preferred front-runner, and 0 to the rest.</li>
-<li><strong>STAR</strong>: give your favourite the max score, your second favourite max − 1, and bury your least favourite at 0 — steering which two score-leaders advance to the runoff.</li>
-<li><strong>Highest-Median</strong>: same as Score (compress toward the extremes to raise your favourites’ medians and collapse the bury target’s).</li>
-<li><strong>BTR-Score</strong>: bury the less-preferred of the two front-runners — rate it <em>below</em> the current last-place candidate — while maxing the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.</li>
+<li><strong>STAR</strong>: give your favourite the max score, your second favourite max − 1, and bury your least favourite at 0.</li>
+<li><strong>Highest-Median</strong>: same as Score.</li>
+<li><strong>BTR-Score</strong>: bury the less-preferred of the two front-runners by rating it <em>below</em> the current last-place candidate while elevating the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.</li>
 </ul>
 <p>As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, and black where the iteration never settles (non-convergence/ties).</p>
 <div class="cell">
