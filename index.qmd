@@ -3,6 +3,7 @@ listing:
   contents: posts
   sort: "date desc"
   type: default
+  feed: true
   fields: [title, date, description]
   categories: true
 page-layout: full
