@@ -8,7 +8,7 @@
 
 <meta name="author" content="Shon Czinner">
 <meta name="dcterms.date" content="2026-09-05">
-<meta name="description" content="Approval, Score, STAR, Highest-Median and BTR-Score">
+<meta name="description" content="Approval, Score, STAR, Highest Median and BTR-Score">
 
 <title>Are Rated Ballots Better? – Shon Czinner’s Blog</title>
 <style>
@@ -186,12 +186,12 @@ window.Quarto = {
 
 <link rel="stylesheet" href="../../styles.css">
 <meta property="og:title" content="Are Rated Ballots Better? – Shon Czinner’s Blog">
-<meta property="og:description" content="Approval, Score, STAR, Highest-Median and BTR-Score">
+<meta property="og:description" content="Approval, Score, STAR, Highest Median and BTR-Score">
 <meta property="og:image" content="https://shonczinner.github.io/posts/rated/img.PNG">
 <meta property="og:site_name" content="Shon Czinner’s Blog">
 <meta property="og:locale" content="en_CA">
 <meta name="twitter:title" content="Are Rated Ballots Better? – Shon Czinner’s Blog">
-<meta name="twitter:description" content="Approval, Score, STAR, Highest-Median and BTR-Score">
+<meta name="twitter:description" content="Approval, Score, STAR, Highest Median and BTR-Score">
 <meta name="twitter:image" content="https://shonczinner.github.io/posts/rated/img.PNG">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -259,7 +259,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    Approval, Score, STAR, Highest-Median and BTR-Score
+    Approval, Score, STAR, Highest Median and BTR-Score
   </div>
 </div>
 
@@ -288,10 +288,10 @@ window.Quarto = {
 </header>
 
 
-<p>In my previous post on <a href="../../posts/ranked/">ranked ballots</a>, I showed that ranking all the candidates does not fix the center-squeeze. IRV, Borda, Condorcet, and the Condorcet-completion family all let the ideal moderate candidate A be squeezed out, under honest voting (IRV) or strategic voting (everything else). It is natural to hope that giving voters even more expressive ballots would do better. Rated ballots let the voter grade each candidate independently, for example on a 0–10 scale, instead of forcing them to order candidates they may barely distinguish.</p>
-<p>This post asks whether rated ballots actually fix the center-squeeze. The short answer: <strong>mostly.</strong> The methods illustrated are approval voting (top-two and distance-threshold variants), score voting, STAR, Highest-Median (majority judgment), and BTR-Score.</p>
+<p>In my previous post on <a href="../../posts/ranked/">ranked ballots</a>, I showed that ranking all the candidates does not fix the centre squeeze. IRV, Borda, Condorcet, and the Condorcet-completion family all let the ideal moderate candidate A be squeezed out, under honest voting (IRV) or strategic voting (everything else). It is natural to hope that giving voters even more expressive ballots would do better. Rated ballots let the voter grade each candidate independently, for example on a 0–10 scale, instead of forcing them to order candidates they may barely distinguish.</p>
+<p>This post asks whether rated ballots actually fix the centre squeeze. The short answer: <strong>mostly.</strong> The methods illustrated are approval voting (top-two and distance-threshold variants), score voting, STAR, Highest Median (majority judgment), and BTR-Score.</p>
 <p>Arrow’s Impossibility theorem is not applicable to rated voting rules where voters assign a separate grade to each candidate.</p>
-<p>There is still Gibbard’s theorem, which states that every non-dictatorial voting system with at least three choices is subject to strategic manipulation. Its assumptions are weaker as it applies to all voting systems, including rated ones, and does not require voters to hold transitive preferences. But its implications are also weaker: it does not imply one of dictatorship or Indepenence of Irrelevant Alternatives (IIA). It only implies that in all voting methods voters may benefit from voting strategically.</p>
+<p>There is still Gibbard’s theorem, which states that every non-dictatorial voting system with at least three choices is subject to strategic manipulation. Its assumptions are weaker since it applies to all voting systems, including rated ones, and does not require voters to hold transitive preferences. But its implications are also weaker: it does not imply either dictatorship or Independence of Irrelevant Alternatives (IIA). It only implies that in all voting methods voters may benefit from voting strategically.</p>
 <p>We reuse the exact same model, electorate, and code as the ranked and single-mark posts.</p>
 <p>The same electorate from before is plotted below,</p>
 <div class="cell">
@@ -388,7 +388,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>For the full spatial-model setup and its justification, see the <a href="singlemark.qmd">post on single-marked ballots</a>. The one difference here for rated ballots is that under <strong>honest-rating</strong> a voter grades candidate <span class="math inline">\(X\)</span> proportional to <span class="math inline">\(u_v(X)\)</span>. The higher their utility, the higher the grade. So an honest rated ballot is just the voter’s utility itself, normalized onto the ballot’s scale. For score and the score-based methods we use a 0–10 scale with <span class="math inline">\(s_v(X) = \max(0, \lfloor 10(1 - |v - x|/D) \rfloor)\)</span> for a rating radius <span class="math inline">\(D = 2\)</span>.</p>
+<p>For the full spatial-model setup and its justification, see the <a href="../../posts/plurality/">post on single-mark ballots</a>. The one difference here for rated ballots is that under <strong>honest-rating</strong> a voter grades candidate <span class="math inline">\(X\)</span> proportional to <span class="math inline">\(u_v(X)\)</span>. The higher their utility, the higher the grade. So an honest rated ballot is just the voter’s utility itself, normalised onto the ballot’s scale. For score and the score-based methods we use a 0–10 scale with <span class="math inline">\(s_v(X) = \max(0, \lfloor 10(1 - |v - x|/D) \rfloor)\)</span> for a rating radius <span class="math inline">\(D = 2\)</span>.</p>
 <p>We also demonstrate honest approval ballots with two different assumptions. First, by assuming honest voters approve the voter’s top two candidates, and second assuming honest voters approve every candidate within distance <span class="math inline">\(d = 0.3\)</span> (resulting in possibly zero approved candidates).</p>
 <section id="honest-rated-ballots" class="level1">
 <h1>Honest rated ballots</h1>
@@ -532,7 +532,7 @@ window.Quarto = {
 <li><strong>Approval</strong>: approve your favourite of the two front-runners (and everyone you rank above them); drop all candidates below that.</li>
 <li><strong>Score</strong>: give max score to everyone above the less-preferred front-runner, and 0 to the rest.</li>
 <li><strong>STAR</strong>: give your favourite the max score, your second favourite max − 1, and bury your least favourite at 0.</li>
-<li><strong>Highest-Median</strong>: same as Score.</li>
+<li><strong>Highest Median</strong>: same as Score.</li>
 <li><strong>BTR-Score</strong>: bury the less-preferred of the two front-runners by rating it <em>below</em> the current last-place candidate while elevating the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.</li>
 </ul>
 <p>As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, and black where the iteration never settles (non-convergence/ties).</p>
@@ -585,7 +585,7 @@ window.Quarto = {
 </section>
 <section id="approval" class="level1">
 <h1>Approval</h1>
-<p>Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. For honest voting we have the distance-threshold variant (<code>d = 0.3</code>) where you “vote for everyone near you”. The top-two variant forces exactly two approvals and is worth flagging as not a very realistic assumption about voters.</p>
+<p>Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. For honest voting, we have two variants: one with a distance-threshold (<code>d = 0.3</code>) where you “vote for everyone near you” and the other with exactly two approvals.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="181" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 180;"><span id="cb16-181"><a href="#cb16-181" aria-hidden="true" tabindex="-1"></a>viewof BApproval <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Approval: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
@@ -619,7 +619,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>With honest voting, A wins everywhere. The top-two variant does not. When C sits between B and A, nearly every voter approves C (their nearest or second-nearest), so C coasts to near-universal approval and can out-poll the true median candidate. At B = −0.3 it abandons A in about half the C placements we sweep. That failure belongs to the unrealistic top-two assumption, not to approval voting itself.</p>
+<p>With honest voting and the distance-threshold variant, A wins everywhere. A does not always win in the top-two variant. When C sits between B and A, nearly every voter approves C (their nearest or second-nearest), so C coasts to near-universal approval and can out-poll the true median candidate. At B = −0.3 it abandons A in about half the C placements we sweep. That failure belongs to the unrealistic top-two assumption, not to approval voting itself.</p>
 <p>With strategic voting, starting from either top-two or distance threshold, both methods end up electing the ideal candidate.</p>
 </section>
 <section id="score" class="level1">
@@ -657,7 +657,7 @@ window.Quarto = {
 </section>
 <section id="star" class="level1">
 <h1>STAR</h1>
-<p>STAR (Score Then Automatic Runoff) first totals the scores, then holds a runoff between the top-two score-getters with the winner determined based on the pairwise (ranked) comparisons of the two. For example, if a voter scores one candidate 5 and another 3, the voter’s ballot contributes a pairwise preference for the 5 candidate over the 3 candidate. It is a hybrid of score and ranked methods.</p>
+<p>STAR (Score Then Automatic Runoff) first totals the scores, then holds a runoff between the top-two score-getters with the winner determined based on the pairwise (ranked) comparisons. For example, if a voter scores one candidate 5 and another 3, the voter’s ballot contributes a pairwise preference for the 5 candidate over the 3 candidate. It is a hybrid of score and ranked methods.</p>
 <p>With honest voting, STAR elects A everywhere.</p>
 <p>With strategic voting, the question is whether voters can game which two candidates reach the runoff. The strategy above (max to your favourite, max − 1 to your second, bury your least) is precisely an attempt to control the final two.</p>
 <div class="cell">
@@ -688,12 +688,12 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>STAR never results in strategic iteration cycles, but the ideal moderate is not always the survivor: under the full spread-strategy, STAR flips away from A in a narrow band of C placements around the center (roughly 8% of positions in the B = −0.3 sweep). Voters who prefer the runner-up to the winner can bury the centrist out of the runoff and lift an outer candidate.</p>
+<p>STAR never results in strategic iteration cycles, but the ideal moderate is not always the survivor: under the full spread-strategy, STAR flips away from A in a narrow band of C placements around the centre (roughly 8% of positions in the B = −0.3 sweep). Voters who prefer the runner-up to the winner can bury the centrist out of the runoff and lift an outer candidate.</p>
 </section>
 <section id="highest-median" class="level1">
 <h1>Highest Median</h1>
 <p>Highest Median (also known as Majority Judgment) elects the candidate whose <em>median</em> grade is highest.</p>
-<p>Under both honest and strategic voting, we see it elects the ideal candidate all the time (note that .</p>
+<p>Under both honest and strategic voting, we see it elects the ideal candidate all the time.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb25" data-startfrom="260" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 259;"><span id="cb25-260"><a href="#cb25-260" aria-hidden="true" tabindex="-1"></a>viewof BHMed <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Highest Median: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
@@ -755,13 +755,13 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Where the dynamics <em>do</em> converge, BTR-Score elects A. But convergence is not guarenteed under strategic voting even when a Condorcet winner does exist under honest voting.</p>
+<p>Where the dynamics <em>do</em> converge, BTR-Score elects A. But convergence is not guaranteed under strategic voting even when a Condorcet winner does exist under honest voting.</p>
 <p>As with the ranked post, it is worth noting that these cycles arise under <strong>synchronous</strong> iterative voting, where all voters revise at once; under <strong>asynchronous</strong> best-response dynamics, where a single voter updates at a time, all these methods have been shown to converge <span class="citation" data-cites="koolyk2017"><a href="#ref-koolyk2017" role="doc-biblioref">[1]</a></span>.</p>
 </section>
 <section id="conclusion" class="level1">
 <h1>Conclusion</h1>
-<p>With honest voting, Approval, Score, STAR, Highest Median, and BTR-Score all elect the ideal moderate candidate A across the map. With strategic voting, Approval (distance) and Score and Highest Median still elect the ideal moderate candidate. If the goal is a method that elects the median voter’s favourite under both honesty and strategy, several rated methods deliver in this model.</p>
-<p>I plan to summarize this series on voting methods and different ballot types, putting all the results next to each other in the next post.</p>
+<p>With honest voting, Approval, Score, STAR, Highest Median, and BTR-Score all elect the ideal moderate candidate A across the map. With strategic voting, Approval (distance), Score, and Highest Median still elect the ideal moderate candidate. If the goal is a method that elects the median voter’s favourite under both honesty and strategy, several rated methods deliver in this model.</p>
+<p>I plan to summarise this series on voting methods and different ballot types, putting all the results next to each other in the next post.</p>
 
 
 
