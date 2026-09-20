@@ -1,6 +1,6 @@
 ---
 title: "Are Rated Ballots Better?"
-description: "Approval, Score, STAR, Highest-Median and BTR-Score"
+description: "Approval, Score, STAR, Highest Median and BTR-Score"
 author: "Shon Czinner"
 date: "2026-09-05"
 categories: [voting, social choice, political science]
@@ -11,13 +11,13 @@ execute:
 image: img.PNG
 ---
 
-In my previous post on [ranked ballots](/posts/ranked/), I showed that ranking all the candidates does not fix the center-squeeze. IRV, Borda, Condorcet, and the Condorcet-completion family all let the ideal moderate candidate A be squeezed out, under honest voting (IRV) or strategic voting (everything else). It is natural to hope that giving voters even more expressive ballots would do better. Rated ballots let the voter grade each candidate independently, for example on a 0–10 scale, instead of forcing them to order candidates they may barely distinguish.
+In my previous post on [ranked ballots](/posts/ranked/), I showed that ranking all the candidates does not fix the centre squeeze. IRV, Borda, Condorcet, and the Condorcet-completion family all let the ideal moderate candidate A be squeezed out, under honest voting (IRV) or strategic voting (everything else). It is natural to hope that giving voters even more expressive ballots would do better. Rated ballots let the voter grade each candidate independently, for example on a 0–10 scale, instead of forcing them to order candidates they may barely distinguish.
 
-This post asks whether rated ballots actually fix the center-squeeze. The short answer: **mostly.** The methods illustrated are approval voting (top-two and distance-threshold variants), score voting, STAR, Highest-Median (majority judgment), and BTR-Score.
+This post asks whether rated ballots actually fix the centre squeeze. The short answer: **mostly.** The methods illustrated are approval voting (top-two and distance-threshold variants), score voting, STAR, Highest Median (majority judgment), and BTR-Score.
 
 Arrow's Impossibility theorem is not applicable to rated voting rules where voters assign a separate grade to each candidate.
 
-There is still Gibbard's theorem, which states that every non-dictatorial voting system with at least three choices is subject to strategic manipulation. Its assumptions are weaker as it applies to all voting systems, including rated ones, and does not require voters to hold transitive preferences. But its implications are also weaker: it does not imply one of dictatorship or Indepenence of Irrelevant Alternatives (IIA). It only implies that in all voting methods voters may benefit from voting strategically.
+There is still Gibbard's theorem, which states that every non-dictatorial voting system with at least three choices is subject to strategic manipulation. Its assumptions are weaker since it applies to all voting systems, including rated ones, and does not require voters to hold transitive preferences. But its implications are also weaker: it does not imply either dictatorship or Independence of Irrelevant Alternatives (IIA). It only implies that in all voting methods voters may benefit from voting strategically.
 
 We reuse the exact same model, electorate, and code as the ranked and single-mark posts.
 
@@ -64,7 +64,7 @@ function winnerLegend(strategy) {
 render(elecData(elec))
 ```
 
-For the full spatial-model setup and its justification, see the [post on single-marked ballots](singlemark.qmd). The one difference here for rated ballots is that under **honest-rating** a voter grades candidate $X$ proportional to $u_v(X)$. The higher their utility, the higher the grade. So an honest rated ballot is just the voter's utility itself, normalized onto the ballot's scale. For score and the score-based methods we use a 0–10 scale with $s_v(X) = \max(0, \lfloor 10(1 - |v - x|/D) \rfloor)$ for a rating radius $D = 2$.
+For the full spatial-model setup and its justification, see the [post on single-mark ballots](/posts/plurality/). The one difference here for rated ballots is that under **honest-rating** a voter grades candidate $X$ proportional to $u_v(X)$. The higher their utility, the higher the grade. So an honest rated ballot is just the voter's utility itself, normalised onto the ballot's scale. For score and the score-based methods we use a 0–10 scale with $s_v(X) = \max(0, \lfloor 10(1 - |v - x|/D) \rfloor)$ for a rating radius $D = 2$.
 
 We also demonstrate honest approval ballots with two different assumptions. First, by assuming honest voters approve the voter's top two candidates, and second assuming honest voters approve every candidate within distance $d = 0.3$ (resulting in possibly zero approved candidates).
 
@@ -149,7 +149,7 @@ The strategy dynamics are similar to previous posts: there are multiple iteratio
 - **Approval**: approve your favourite of the two front-runners (and everyone you rank above them); drop all candidates below that.
 - **Score**: give max score to everyone above the less-preferred front-runner, and 0 to the rest.
 - **STAR**: give your favourite the max score, your second favourite max − 1, and bury your least favourite at 0. 
-- **Highest-Median**: same as Score.
+- **Highest Median**: same as Score.
 - **BTR-Score**: bury the less-preferred of the two front-runners by rating it *below* the current last-place candidate while elevating the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.
 
 As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, and black where the iteration never settles (non-convergence/ties).
@@ -175,7 +175,7 @@ stratRow = (m, Bv) => C => strategicWinner([0, Bv, C], m).winner
 
 # Approval
 
-Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. For honest voting we have the distance-threshold variant (`d = 0.3`)  where  you "vote for everyone near you". The top-two variant forces exactly two approvals and is worth flagging as not a very realistic assumption about voters. 
+Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. For honest voting, we have two variants: one with a distance-threshold (`d = 0.3`) where you "vote for everyone near you" and the other with exactly two approvals. 
 
 
 ```{ojs}
@@ -199,7 +199,7 @@ render(winnerHeatmap(
 ))
 ```
 
-With honest voting, A wins everywhere. The top-two variant does not. When C sits between B and A, nearly every voter approves C (their nearest or second-nearest), so C coasts to near-universal approval and can out-poll the true median candidate. At B = −0.3 it abandons A in about half the C placements we sweep. That failure belongs to the unrealistic top-two assumption, not to approval voting itself.
+With honest voting and the distance-threshold variant, A wins everywhere. A does not always win in the top-two variant. When C sits between B and A, nearly every voter approves C (their nearest or second-nearest), so C coasts to near-universal approval and can out-poll the true median candidate. At B = −0.3 it abandons A in about half the C placements we sweep. That failure belongs to the unrealistic top-two assumption, not to approval voting itself.
 
 With strategic voting, starting from either top-two or distance threshold, both methods end up electing the ideal candidate.
 
@@ -227,7 +227,7 @@ Score voting, whether voters are honest or strategic, elects the ideal candidate
 
 # STAR
 
-STAR (Score Then Automatic Runoff) first totals the scores, then holds a runoff between the top-two score-getters with the winner determined based on the pairwise (ranked) comparisons of the two. For example, if a voter scores one candidate 5 and another 3, the voter's ballot contributes a pairwise preference for the 5 candidate over the 3 candidate. It is a hybrid of score and ranked methods.
+STAR (Score Then Automatic Runoff) first totals the scores, then holds a runoff between the top-two score-getters with the winner determined based on the pairwise (ranked) comparisons. For example, if a voter scores one candidate 5 and another 3, the voter's ballot contributes a pairwise preference for the 5 candidate over the 3 candidate. It is a hybrid of score and ranked methods.
 
 With honest voting, STAR elects A everywhere.
 
@@ -249,13 +249,13 @@ render(winnerHeatmap(
 ))
 ```
 
-STAR never results in strategic iteration cycles, but the ideal moderate is not always the survivor: under the full spread-strategy, STAR flips away from A in a narrow band of C placements around the center (roughly 8% of positions in the B = −0.3 sweep). Voters who prefer the runner-up to the winner can bury the centrist out of the runoff and lift an outer candidate.
+STAR never results in strategic iteration cycles, but the ideal moderate is not always the survivor: under the full spread-strategy, STAR flips away from A in a narrow band of C placements around the centre (roughly 8% of positions in the B = −0.3 sweep). Voters who prefer the runner-up to the winner can bury the centrist out of the runoff and lift an outer candidate.
 
 # Highest Median
 
 Highest Median (also known as Majority Judgment) elects the candidate whose *median* grade is highest.
 
-Under both honest and strategic voting, we see it elects the ideal candidate all the time (note that .
+Under both honest and strategic voting, we see it elects the ideal candidate all the time.
 
 ```{ojs}
 viewof BHMed = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Highest Median: B position" })
@@ -295,12 +295,12 @@ render(winnerHeatmap(
 ))
 ```
 
-Where the dynamics *do* converge, BTR-Score elects A. But convergence is not guarenteed under strategic voting even when a Condorcet winner does exist under honest voting.
+Where the dynamics *do* converge, BTR-Score elects A. But convergence is not guaranteed under strategic voting even when a Condorcet winner does exist under honest voting.
 
 As with the ranked post, it is worth noting that these cycles arise under **synchronous** iterative voting, where all voters revise at once; under **asynchronous** best-response dynamics, where a single voter updates at a time, all these methods have been shown to converge [@koolyk2017]. 
 
 # Conclusion
 
- With honest voting, Approval, Score, STAR, Highest Median, and BTR-Score all elect the ideal moderate candidate A across the map. With strategic voting, Approval (distance) and Score and Highest Median still elect the ideal moderate candidate. If the goal is a method that elects the median voter's favourite under both honesty and strategy, several rated methods deliver in this model.
+With honest voting, Approval, Score, STAR, Highest Median, and BTR-Score all elect the ideal moderate candidate A across the map. With strategic voting, Approval (distance), Score, and Highest Median still elect the ideal moderate candidate. If the goal is a method that elects the median voter's favourite under both honesty and strategy, several rated methods deliver in this model.
 
- I plan to summarize this series on voting methods and different ballot types, putting all the results next to each other in the next post.
+I plan to summarise this series on voting methods and different ballot types, putting all the results next to each other in the next post.
