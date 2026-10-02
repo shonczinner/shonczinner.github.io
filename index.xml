@@ -15,7 +15,1581 @@
 <link>https://shonczinner.github.io/</link>
 </image>
 <generator>quarto-1.10.18</generator>
-<lastBuildDate>Sat, 05 Sep 2026 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 01 Oct 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>A Summary On Single Winner Voting Rules</title>
+  <dc:creator>Shon Czinner</dc:creator>
+  <link>https://shonczinner.github.io/posts/voting-summary/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>This is my summary of a series on voting rules and ballot types in a one-dimensional spatial model. Previously, we looked at</p>
+<ul>
+<li><a href="../../posts/plurality/">single-marked ballots</a>,</li>
+<li><a href="../../posts/ranked/">ranked ballots</a>,</li>
+<li>and <a href="../../posts/rated/">rated ballots</a>.</li>
+</ul>
+<p>Now we’ll compare them all in one place.</p>
+<p>We reuse the exact same model, electorate, and code as those posts. Unlike them, which show three to five rules at a time, this one puts all fifteen next to each other and makes them live: A is perfectly aligned with the median, mean, and mode of the voter distribution (position 0, green), B sits on the left (red), and C varies (orange).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="25" data-source-offset="-0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 24;"><span id="cb1-25">Plotly <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">await</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">require</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://cdn.plot.ly/plotly-2.35.2.min.js"</span>)</span>
+<span id="cb1-26"></span>
+<span id="cb1-27"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> {</span>
+<span id="cb1-28">  elecData<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-29">  pluralityBallotData<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-30">  rankedBallotData<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-31">  approvalBallotData<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-32">  scoreBallotData<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-33">  densityWeightedData<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-34">  rankedDensityWeightedData<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-35">  winnerHeatmap<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-36">  snapData<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-37">  strategicLogHtml<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-38">  NO_WINNER_COLOR<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-39">} <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"./src/plots.js"</span></span>
+<span id="cb1-40"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> { ELEC } <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"./src/electorate.js"</span></span>
+<span id="cb1-41"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// CYCLE/TIE/NONCONVERGENT live in methods.js — plots.js imports them but does not re-export.</span></span>
+<span id="cb1-42"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> { HONEST_METHODS<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> NAMES<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> CYCLE<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> TIE<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> NONCONVERGENT } <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"./src/methods.js"</span></span>
+<span id="cb1-43"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> { strategicWinner } <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"./src/strategic.js"</span></span>
+<span id="cb1-44"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> { strategicYeeGrid } <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"./src/analysis.js"</span></span>
+<span id="cb1-45"></span>
+<span id="cb1-46">elec <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ELEC</span>
+<span id="cb1-47"></span>
+<span id="cb1-48"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// Static setup. All of it is plain data.</span></span>
+<span id="cb1-49">posBallot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.6</span>]</span>
+<span id="cb1-50">posStr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`A=0, B=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posBallot[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, C=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posBallot[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span></span>
+<span id="cb1-51">cGrid <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Array</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">from</span>({ <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">length</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span> }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> (_<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> i) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">199</span>)</span>
+<span id="cb1-52">honestNames <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Object</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">keys</span>(HONEST_METHODS)</span>
+<span id="cb1-53">stratConfigs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb1-54">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Plurality"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"plurality"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-55">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"IRV"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"irv"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-56">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Condorcet"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"condorcet"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-57">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BTRIRV"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"btrirv"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-58">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RCIPE"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rcipe"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-59">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Schulze"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"schulze"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-60">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RankedPairs"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rankedPairs"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-61">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Borda"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"borda"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-62">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ApprovalTop2"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"approvalTop2"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-63">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ApprovalDist0.3"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"approval"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-64">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ApprovalDist1.0"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"approval"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-65">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Score"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"score"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-66">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"STAR"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"star"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-67">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HighestMedian"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"highestMedian"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-68">  [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BTRScore"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"btrScore"</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-69">]</span>
+<span id="cb1-70">snapCases <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb1-71">  { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">B</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">C</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span> }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-72">  { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">B</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">C</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span> }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-73">  { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">B</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">C</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.0</span> }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb1-74">]</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-8" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-9" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-10" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-11" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-12" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-13" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="78" data-source-offset="-0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 77;"><span id="cb2-78"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">render</span>(fig) {</span>
+<span id="cb2-79">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> el <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">document</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">createElement</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"div"</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-80">  el<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">border</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1px solid #eee"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-81">  el<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">borderRadius</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"6px"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-82">  el<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0.5rem 0 1.5rem"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-83">  Plotly<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">newPlot</span>(el<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> fig<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> fig<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">layout</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">displayModeBar</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">false</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">responsive</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">true</span> })<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-84">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> el<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-85">}</span>
+<span id="cb2-86"></span>
+<span id="cb2-87"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// A cell whose last expression is an array of nodes gets rendered as Observable's inspector</span></span>
+<span id="cb2-88"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">// ("Array(3) [HTMLDivElement...]") rather than mounted, so collect figures into one container.</span></span>
+<span id="cb2-89"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">renderAll</span>(figs) {</span>
+<span id="cb2-90">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> wrap <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">document</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">createElement</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"div"</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-91">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> fig <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">of</span> figs) wrap<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">appendChild</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">render</span>(fig))<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-92">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> wrap<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-93">}</span>
+<span id="cb2-94"></span>
+<span id="cb2-95"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">winnerLegend</span>() {</span>
+<span id="cb2-96">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> sw <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> label) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span></span>
+<span id="cb2-97">    <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`&lt;span style="display:inline-flex;align-items:center;margin-right:1.25rem;"&gt;&lt;span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>color<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">;"&gt;&lt;/span&gt;&lt;span style="font-size:0.9rem;"&gt;</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>label<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">&lt;/span&gt;&lt;/span&gt;`</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-98">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> html <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span></span>
+<span id="cb2-99">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sw</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#2ca02c"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A wins"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-100">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sw</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#d62728"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B wins"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-101">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sw</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ff7f0e"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C wins"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-102">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sw</span>(NO_WINNER_COLOR[CYCLE]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Majority cycle (no unique winner)"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-103">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sw</span>(NO_WINNER_COLOR[TIE]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tie (candidates level at the top)"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-104">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sw</span>(NO_WINNER_COLOR[NONCONVERGENT]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Strategy never settled"</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-105">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">document</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">createElement</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p"</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-106">  p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">display</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"flex"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-107">  p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">flexWrap</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"wrap"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-108">  p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">margin</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0 0 0.25rem"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-109">  p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">innerHTML</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> html<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-110">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb2-111">}</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="114" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 113;"><span id="cb3-114"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">winnerLegend</span>()</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-3" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<section id="electorate" class="level1">
+<h1>Electorate</h1>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="120" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 119;"><span id="cb4-120"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">render</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">elecData</span>(elec))</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-4" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="ballot-maps-honest-example-a0-b-0.7-c0.6" class="level1">
+<h1>Ballot maps (honest, example A=0, B=-0.7, C=0.6)</h1>
+<p>Each voter’s ballot varies with their location (x-axis = Voter Opinion).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="128" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 127;"><span id="cb5-128"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">renderAll</span>([</span>
+<span id="cb5-129">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pluralityBallotData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-130">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rankedBallotData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-131">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">approvalBallotData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"approvalTop2"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">undefined</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Approval (top 2) ballot — </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posStr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-132">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">approvalBallotData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"approval"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Approval (dist ≤ 0.3) ballot — </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posStr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-133">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scoreBallotData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb5-134">])</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-5" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="ballot-maps-density-weighted" class="level1">
+<h1>Ballot maps — density-weighted</h1>
+<p>We can visualize the same ballots, but now weight each location by the voter count (PDF) at that location, so the silhouette is the electorate distribution and it is partitioned by each candidate’s share of the ballot. Total height at any x equals the voter count there. The Ranked panel stacks the three rank tiers (1st/2nd/3rd), each tier a full bell curve segmented by which candidate holds that rank.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="145" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 144;"><span id="cb6-145"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">renderAll</span>([</span>
+<span id="cb6-146">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">densityWeightedData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"plurality"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">undefined</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Plurality — density-weighted (</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posStr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)`</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-147">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rankedDensityWeightedData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Ranked (all ranks) — density-weighted (</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posStr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)`</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-148">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">densityWeightedData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"approvalTop2"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">undefined</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Approval (top 2) — density-weighted (</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posStr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)`</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-149">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">densityWeightedData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"approval"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Approval (dist ≤ 0.3) — density-weighted (</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posStr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)`</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-150">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">densityWeightedData</span>(elec<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> posBallot<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"score"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">D</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">levels</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span> }<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Score (0–10) — density-weighted (</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>posStr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)`</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb6-151">])</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-6" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="honest-voting-yee-type-maps" class="level1">
+<h1>Honest voting — Yee-type maps</h1>
+<p>We visualized who wins under the spatial model with A=0, a given position of candidate B, by colouring a graph for every position of C. Green = A, red = B, orange = C, black = a majority cycle (no unique winner), brown = a tie (two or more candidates level at the top), grey = strategy non-convergence (only in the strategic maps below). Dotted lines mark A (0) and B. Ideally everything is green meaning no matter where C locates, A wins. The maps are interactive: drag B to see how the honest winner changes.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="162" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 161;"><span id="cb7-162">viewof Bhonest <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Honest voting: B position"</span> })</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="166" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 165;"><span id="cb8-166"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">winnerLegend</span>()</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-8" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="170" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 169;"><span id="cb9-170"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">render</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">winnerHeatmap</span>(</span>
+<span id="cb9-171">  honestNames<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb9-172">  honestNames<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(n <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> cGrid<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(C <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> HONEST_METHODS[n]([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> Bhonest<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> C]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> elec)))<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb9-173">  cGrid<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> Bhonest<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Honest voting — B = </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>Bhonest<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span></span>
+<span id="cb9-174">))</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-9" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="strategic-voting" class="level1">
+<h1>Strategic voting</h1>
+<p>For each method, we can also incorporate strategic voting.</p>
+<p>Each method’s strategy takes its own form: In Plurality, voters decide between the preferred candidate out of the top two in the previous round. Approval approves your favourite of the two front-runners (and everyone above them); Score and Highest Median maxes everyone above the less-preferred front-runner and zeroes the rest; STAR gives your favourite max, your second max−1 and buries your least favourite of the previous top 3; All the ranked methods buries the less-preferred front-runner below the current last-place candidate. Iteration logs are at the bottom.</p>
+<p>Drag to move B. This grid re-runs multiple iterations per position of C, so it takes a few seconds to redraw.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="187" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 186;"><span id="cb10-187">viewof Bstrategic <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Strategic voting: B position"</span> })</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-10" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="191" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 190;"><span id="cb11-191"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">winnerLegend</span>()</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-11" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="195" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 194;"><span id="cb12-195"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">render</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">winnerHeatmap</span>(</span>
+<span id="cb12-196">  stratConfigs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(c <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> c[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-197">  stratConfigs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(c <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> cGrid<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(C <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">strategicWinner</span>([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> Bstrategic<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> C]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> c[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">winner</span>))<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb12-198">  cGrid<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> Bstrategic<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`Strategic voting — B = </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">${</span>Bstrategic<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span></span>
+<span id="cb12-199">))</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-12" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</section>
+<section id="strategic-iteration-logs" class="level1">
+<h1>Strategic iteration logs</h1>
+<p>Per-method convergence summary and iteration trace. The summary line is over the whole map at the selected B - “winner-changed” is the fraction of positions of C where the strategic outcome differs from the honest one - while the trace inside each block is the run at the selected position of C. Iterations are shown in chronological order. Iteration stops at the first repeated profile - that is a cycle, and the method is reported as having no winner - or after 100 iterations.</p>
+<p>This requires a bit of computation. Expect a few seconds.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb13" data-startfrom="210" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 209;"><span id="cb13-210">viewof Blog <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Iteration logs: B position"</span> })</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-13" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb14" data-startfrom="214" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 213;"><span id="cb14-214">viewof Clog <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Inputs<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">range</span>([<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> { <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">step</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">value</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">label</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Iteration logs: C position"</span> })</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-14" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb15" data-startfrom="218" data-source-offset="0" style="background: #f1f3f5;"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 217;"><span id="cb15-218">{</span>
+<span id="cb15-219">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">const</span> wrap <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">document</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">createElement</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"div"</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb15-220">  wrap<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">innerHTML</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> stratConfigs</span>
+<span id="cb15-221">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(([honestName<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> stratMethod]) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">=&gt;</span></span>
+<span id="cb15-222">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">strategicLogHtml</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">strategicYeeGrid</span>(Blog<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> honestName<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> stratMethod<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> Clog)))</span>
+<span id="cb15-223">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">join</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb15-224">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> wrap<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span></span>
+<span id="cb15-225">}</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-15" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+<style>
+details { margin: 0 0 0.75rem; font-size: 13px; }
+summary { cursor: pointer; }
+pre.log {
+  background: #f7f7f7;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 0.4rem 0;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+</style>
+
+
+</section>
+
+ ]]></description>
+  <category>voting</category>
+  <category>social choice</category>
+  <category>political science</category>
+  <guid>https://shonczinner.github.io/posts/voting-summary/</guid>
+  <pubDate>Thu, 01 Oct 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://shonczinner.github.io/posts/voting-summary/img.PNG" medium="image"/>
+</item>
 <item>
   <title>Are Rated Ballots Better?</title>
   <dc:creator>Shon Czinner</dc:creator>

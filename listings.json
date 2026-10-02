@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/voting-summary/index.html",
       "/posts/rated/index.html",
       "/posts/ranked/index.html",
       "/posts/plurality/index.html",
