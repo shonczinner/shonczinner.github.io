@@ -1,0 +1,241 @@
+---
+title: "A Summary On Single Winner Voting Rules"
+description: "The final part of this series on voting rules."
+author: "Shon Czinner"
+date: "2026-10-01"
+categories: [voting, social choice, political science]
+execute:
+  # The site-wide _quarto.yml sets freeze: true; this post's sliders have to stay live.
+  freeze: false
+  echo: false
+image: img.PNG
+---
+
+This is my summary of a series on voting rules and ballot types in a one-dimensional spatial model. Previously, we looked at
+
+- [single-marked ballots](/posts/plurality/),
+- [ranked ballots](/posts/ranked/),
+- and [rated ballots](/posts/rated/).
+
+Now we'll compare them all in one place.
+
+We reuse the exact same model, electorate, and code as those posts. Unlike them, which show three to five rules at a time, this one puts all fifteen next to each other and makes them live: A is perfectly aligned with the median, mean, and mode of the voter distribution (position 0, green), B sits on the left (red), and C varies (orange). 
+
+```{ojs}
+Plotly = await require("https://cdn.plot.ly/plotly-2.35.2.min.js")
+
+import {
+  elecData,
+  pluralityBallotData,
+  rankedBallotData,
+  approvalBallotData,
+  scoreBallotData,
+  densityWeightedData,
+  rankedDensityWeightedData,
+  winnerHeatmap,
+  snapData,
+  strategicLogHtml,
+  NO_WINNER_COLOR,
+} from "./src/plots.js"
+import { ELEC } from "./src/electorate.js"
+// CYCLE/TIE/NONCONVERGENT live in methods.js — plots.js imports them but does not re-export.
+import { HONEST_METHODS, NAMES, CYCLE, TIE, NONCONVERGENT } from "./src/methods.js"
+import { strategicWinner } from "./src/strategic.js"
+import { strategicYeeGrid } from "./src/analysis.js"
+
+elec = ELEC
+
+// Static setup. All of it is plain data.
+posBallot = [0, -0.7, 0.6]
+posStr = `A=0, B=${posBallot[1]}, C=${posBallot[2]}`
+cGrid = Array.from({ length: 200 }, (_, i) => -4 + 8 * i / 199)
+honestNames = Object.keys(HONEST_METHODS)
+stratConfigs = [
+  ["Plurality", "plurality"],
+  ["IRV", "irv"],
+  ["Condorcet", "condorcet"],
+  ["BTRIRV", "btrirv"],
+  ["RCIPE", "rcipe"],
+  ["Schulze", "schulze"],
+  ["RankedPairs", "rankedPairs"],
+  ["Borda", "borda"],
+  ["ApprovalTop2", "approvalTop2"],
+  ["ApprovalDist0.3", "approval"],
+  ["ApprovalDist1.0", "approval"],
+  ["Score", "score"],
+  ["STAR", "star"],
+  ["HighestMedian", "highestMedian"],
+  ["BTRScore", "btrScore"],
+]
+snapCases = [
+  { B: -1.5, C: 1.5 },
+  { B: -0.8, C: 0.8 },
+  { B: -0.3, C: 2.0 },
+]
+```
+
+```{ojs}
+function render(fig) {
+  const el = document.createElement("div");
+  el.style.border = "1px solid #eee";
+  el.style.borderRadius = "6px";
+  el.style.margin = "0.5rem 0 1.5rem";
+  Plotly.newPlot(el, fig.data, fig.layout, { displayModeBar: false, responsive: true });
+  return el;
+}
+
+// A cell whose last expression is an array of nodes gets rendered as Observable's inspector
+// ("Array(3) [HTMLDivElement...]") rather than mounted, so collect figures into one container.
+function renderAll(figs) {
+  const wrap = document.createElement("div");
+  for (const fig of figs) wrap.appendChild(render(fig));
+  return wrap;
+}
+
+function winnerLegend() {
+  const sw = (color, label) =>
+    `<span style="display:inline-flex;align-items:center;margin-right:1.25rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:${color};"></span><span style="font-size:0.9rem;">${label}</span></span>`;
+  const html =
+    sw("#2ca02c", "A wins") +
+    sw("#d62728", "B wins") +
+    sw("#ff7f0e", "C wins") +
+    sw(NO_WINNER_COLOR[CYCLE], "Majority cycle (no unique winner)") +
+    sw(NO_WINNER_COLOR[TIE], "Tie (candidates level at the top)") +
+    sw(NO_WINNER_COLOR[NONCONVERGENT], "Strategy never settled");
+  const p = document.createElement("p");
+  p.style.display = "flex";
+  p.style.flexWrap = "wrap";
+  p.style.margin = "0 0 0.25rem";
+  p.innerHTML = html;
+  return p;
+}
+```
+
+```{ojs}
+winnerLegend()
+```
+
+# Electorate
+
+```{ojs}
+render(elecData(elec))
+```
+
+# Ballot maps (honest, example A=0, B=-0.7, C=0.6)
+
+Each voter's ballot varies with their location (x-axis = Voter Opinion). 
+
+```{ojs}
+renderAll([
+  pluralityBallotData(elec, posBallot),
+  rankedBallotData(elec, posBallot),
+  approvalBallotData(elec, posBallot, "approvalTop2", undefined, `Approval (top 2) ballot — ${posStr}`),
+  approvalBallotData(elec, posBallot, "approval", 0.3, `Approval (dist ≤ 0.3) ballot — ${posStr}`),
+  scoreBallotData(elec, posBallot),
+])
+```
+
+# Ballot maps — density-weighted
+
+We can visualize the same ballots, but now weight each location by the voter count (PDF) at that location, so the
+silhouette is the electorate distribution and it is partitioned by each candidate's share of the
+ballot. Total height at any x equals the voter count there. The Ranked panel stacks the three rank
+tiers (1st/2nd/3rd), each tier a full bell curve segmented by which candidate holds that rank.
+
+```{ojs}
+renderAll([
+  densityWeightedData(elec, posBallot, "plurality", undefined, `Plurality — density-weighted (${posStr})`),
+  rankedDensityWeightedData(elec, posBallot, `Ranked (all ranks) — density-weighted (${posStr})`),
+  densityWeightedData(elec, posBallot, "approvalTop2", undefined, `Approval (top 2) — density-weighted (${posStr})`),
+  densityWeightedData(elec, posBallot, "approval", 0.3, `Approval (dist ≤ 0.3) — density-weighted (${posStr})`),
+  densityWeightedData(elec, posBallot, "score", { D: 2, levels: 10 }, `Score (0–10) — density-weighted (${posStr})`),
+])
+```
+
+# Honest voting — Yee-type maps
+
+We visualized who wins under the spatial model with A=0, a given position of candidate B, by colouring a graph for every position of C. Green = A, red = B, orange = C, black = a majority cycle
+(no unique winner), brown = a tie (two or more candidates level at the top), grey = strategy
+non-convergence (only in the strategic maps below). Dotted lines mark A (0) and B. Ideally everything
+is green meaning no matter where C locates, A wins. The maps are interactive: drag B to see how the honest winner changes.
+
+```{ojs}
+viewof Bhonest = Inputs.range([-4, 4], { step: 0.1, value: -0.8, label: "Honest voting: B position" })
+```
+
+```{ojs}
+winnerLegend()
+```
+
+```{ojs}
+render(winnerHeatmap(
+  honestNames,
+  honestNames.map(n => cGrid.map(C => HONEST_METHODS[n]([0, Bhonest, C], elec))),
+  cGrid, Bhonest, `Honest voting — B = ${Bhonest}`
+))
+```
+
+# Strategic voting
+
+For each method, we can also incorporate strategic voting. 
+
+Each method's strategy takes its own form: In Plurality, voters decide between the preferred candidate out of the top two in the previous round. Approval approves your favourite of the two front-runners (and everyone above them); Score and Highest Median maxes everyone above the less-preferred front-runner and zeroes the rest; STAR gives your favourite max, your second max−1 and buries your least favourite of the previous top 3; All the ranked methods buries the less-preferred front-runner below the current last-place candidate. Iteration logs are at the bottom.
+
+Drag to move B. This grid re-runs multiple iterations per position of C, so it takes a few
+seconds to redraw.
+
+```{ojs}
+viewof Bstrategic = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Strategic voting: B position" })
+```
+
+```{ojs}
+winnerLegend()
+```
+
+```{ojs}
+render(winnerHeatmap(
+  stratConfigs.map(c => c[0]),
+  stratConfigs.map(c => cGrid.map(C => strategicWinner([0, Bstrategic, C], c[1]).winner)),
+  cGrid, Bstrategic, `Strategic voting — B = ${Bstrategic}`
+))
+```
+
+
+# Strategic iteration logs
+
+Per-method convergence summary and iteration trace. The summary line is over the whole map at the selected B - "winner-changed" is the fraction of positions of C where the strategic outcome differs from the honest one - while the trace inside each block is the run at the selected position of C. Iterations are shown in chronological order. Iteration stops at the first repeated profile - that is a cycle, and the method is reported as having no winner - or after 100 iterations.
+
+This requires a bit of computation. Expect a few seconds.
+
+```{ojs}
+viewof Blog = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Iteration logs: B position" })
+```
+
+```{ojs}
+viewof Clog = Inputs.range([-4, 4], { step: 0.1, value: 1, label: "Iteration logs: C position" })
+```
+
+```{ojs}
+{
+  const wrap = document.createElement("div");
+  wrap.innerHTML = stratConfigs
+    .map(([honestName, stratMethod]) =>
+      strategicLogHtml(strategicYeeGrid(Blog, -4, 4, 200, honestName, stratMethod, Clog)))
+    .join("\n");
+  return wrap;
+}
+```
+
+<style>
+details { margin: 0 0 0.75rem; font-size: 13px; }
+summary { cursor: pointer; }
+pre.log {
+  background: #f7f7f7;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 0.4rem 0;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+</style>
