@@ -26,10 +26,10 @@ The same electorate from before is plotted below,
 ```{ojs}
 Plotly = await require("https://cdn.plot.ly/plotly-2.35.2.min.js")
 
-import { elecData, approvalBallotData, scoreBallotData, densityWeightedData, winnerHeatmap } from "./src/plots.js"
-import { ELEC } from "./src/electorate.js"
-import { assess, METHODS, NAMES, COLORS } from "./src/methods.js"
-import { strategicWinner } from "./src/strategic.js"
+import { elecData, approvalBallotData, scoreBallotData, densityWeightedData, winnerHeatmap, winnerLegend } from "../../src/voting/plots.js"
+import { ELEC } from "../../src/voting/electorate.js"
+import { assess, METHODS, NAMES, COLORS } from "../../src/voting/methods.js"
+import { strategicWinner } from "../../src/voting/strategic.js"
 
 elec = ELEC
 ```
@@ -42,21 +42,6 @@ function render(fig) {
   el.style.margin = "0.5rem 0 1.5rem";
   Plotly.newPlot(el, fig.data, fig.layout, { displayModeBar: false, responsive: true });
   return el;
-}
-```
-
-```{ojs}
-function winnerLegend(strategy) {
-  const sw = (color, label) =>
-    `<span style="display:inline-flex;align-items:center;margin-right:1.25rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:${color};"></span><span style="font-size:0.9rem;">${label}</span></span>`;
-  let html = sw(COLORS[0], "A") + sw(COLORS[1], "B") + sw(COLORS[2], "C");
-  if (strategy) html += sw("#000000", "Tie/Non-convergence");
-  const p = document.createElement("p");
-  p.style.display = "flex";
-  p.style.flexWrap = "wrap";
-  p.style.margin = "0 0 0.25rem";
-  p.innerHTML = html;
-  return p;
 }
 ```
 
@@ -80,7 +65,7 @@ posBallot = [0, Bballot, Cballot]
 ```
 
 ```{ojs}
-winnerLegend(false)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -100,7 +85,7 @@ Notice the difference from plurality and ranked ballots: a *single* voter can no
 We can weight each column by the actual density of voters at each location to get a sense of how many approvals or how much score each candidate collects:
 
 ```{ojs}
-winnerLegend(false)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -152,7 +137,7 @@ The strategy dynamics are similar to previous posts: there are multiple iteratio
 - **Highest Median**: same as Score.
 - **BTR-Score**: bury the less-preferred of the two front-runners by rating it *below* the current last-place candidate while elevating the preferred one, so the bury target loses any bottom-two pairwise and its score total drops.
 
-As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, and black where the iteration never settles (non-convergence/ties).
+As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, brown where two candidates are level at the top (a tie), and grey where the iteration never settles (non-convergence).
 
 ```{ojs}
 cGrid = Array.from({ length: 140 }, (_, i) => -4 + 8 * i / 139)
@@ -183,7 +168,7 @@ viewof BApproval = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Appro
 ```
 
 ```{ojs}
-winnerLegend(true)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -212,7 +197,7 @@ viewof BScore = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Score: B
 ```
 
 ```{ojs}
-winnerLegend(true)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -238,7 +223,7 @@ viewof BStar = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "STAR: B p
 ```
 
 ```{ojs}
-winnerLegend(true)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -262,7 +247,7 @@ viewof BHMed = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Highest M
 ```
 
 ```{ojs}
-winnerLegend(true)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -284,7 +269,7 @@ viewof BBtr = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "BTR-Score:
 ```
 
 ```{ojs}
-winnerLegend(true)
+winnerLegend()
 ```
 
 ```{ojs}

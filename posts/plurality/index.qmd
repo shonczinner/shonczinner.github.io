@@ -27,8 +27,8 @@ The linear form $u_v(x) = 1 - |d|$ is just one simple example; a quadratic or an
 ```{ojs}
 Plotly = await require("https://cdn.plot.ly/plotly-2.35.2.min.js")
 
-import { elecData } from "./src/plots.js"
-import { ELEC } from "./src/electorate.js"
+import { elecData } from "../../src/voting/plots.js"
+import { ELEC } from "../../src/voting/electorate.js"
 
 elec = ELEC
 ```
@@ -73,9 +73,9 @@ added by incorporating it in the voter's utility function, but that analysis is 
 We can visualize who votes for different candidates in this model under **honest single-marked ballots** and get our first hint of the issue. The following figure shows a simple electorate with three candidates. We can see that the candidate in the middle (A) gets squeezed out by the two candidates on its left and right (B and C). This is a simple example of how single-marked ballots and plurality voting can be biased against moderates.
 
 ```{ojs}
-import { pluralityBallotData, densityWeightedData, winnerHeatmap, candShapesAt } from "./src/plots.js"
-import { assess, METHODS, NAMES, COLORS } from "./src/methods.js"
-import { strategicWinner } from "./src/strategic.js"
+import { pluralityBallotData, densityWeightedData, winnerHeatmap, winnerLegend } from "../../src/voting/plots.js"
+import { assess, METHODS, NAMES, COLORS } from "../../src/voting/methods.js"
+import { strategicWinner } from "../../src/voting/strategic.js"
 
 viewof Bballot = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position"})
 viewof Cballot = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position" })
@@ -249,13 +249,11 @@ But how common is this? Is it just the examples I presented above where candidat
 
 In typical Yee diagrams, all candidate positions are assumed fixed, the electorate center position is varied, and position is coloured according to the winning candidate. The logic is that when the electorate is centered near a candidate, that candidate should win. Yee diagrams reveal whether that is actually the case.
 
-In our case, we will fix candidate B at a certain position and vary candidate C's position. The diagram is colored according to the winning candidate depending on where candidate C chooses its position. In our case the electorate is always centered around A, and so the ideal scenario is it is always candidate A that wins and the plot should be entirely green. But as we will see, that is not the case.
+In our case, we will fix candidate B at a certain position and vary candidate C's position. The diagram is colored according to the winning candidate depending on where candidate C chooses its position. In our case the electorate is always centered around A, and so the ideal scenario is it is always candidate A that wins and the plot should be entirely green. But as we will see, that is not the case. Green = A, red = B, orange = C, black = a majority cycle (no unique winner), brown = a tie (two or more candidates level at the top), and grey = strategy non-convergence.
 
-<p style="display:flex; gap:1.25rem; flex-wrap:wrap; margin:0 0 0.25rem;">
-  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#2ca02c; margin-right:4px;"></span>A wins</span>
-  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#d62728; margin-right:4px;"></span>B wins</span>
-  <span style="display:inline-flex; align-items:center;"><span style="display:inline-block; width:12px; height:12px; border-radius:2px; background:#ff7f0e; margin-right:4px;"></span>C wins</span>
-</p>
+```{ojs}
+winnerLegend()
+```
 
 ```{ojs}
 viewof B = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position" })

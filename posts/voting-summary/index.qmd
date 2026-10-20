@@ -35,13 +35,12 @@ import {
   winnerHeatmap,
   snapData,
   strategicLogHtml,
-  NO_WINNER_COLOR,
-} from "./src/plots.js"
-import { ELEC } from "./src/electorate.js"
-// CYCLE/TIE/NONCONVERGENT live in methods.js — plots.js imports them but does not re-export.
-import { HONEST_METHODS, NAMES, CYCLE, TIE, NONCONVERGENT } from "./src/methods.js"
-import { strategicWinner } from "./src/strategic.js"
-import { strategicYeeGrid } from "./src/analysis.js"
+  winnerLegend,
+} from "../../src/voting/plots.js"
+import { ELEC } from "../../src/voting/electorate.js"
+import { HONEST_METHODS, NAMES } from "../../src/voting/methods.js"
+import { strategicWinner } from "../../src/voting/strategic.js"
+import { strategicYeeGrid } from "../../src/voting/analysis.js"
 
 elec = ELEC
 
@@ -90,24 +89,6 @@ function renderAll(figs) {
   const wrap = document.createElement("div");
   for (const fig of figs) wrap.appendChild(render(fig));
   return wrap;
-}
-
-function winnerLegend() {
-  const sw = (color, label) =>
-    `<span style="display:inline-flex;align-items:center;margin-right:1.25rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:${color};"></span><span style="font-size:0.9rem;">${label}</span></span>`;
-  const html =
-    sw("#2ca02c", "A wins") +
-    sw("#d62728", "B wins") +
-    sw("#ff7f0e", "C wins") +
-    sw(NO_WINNER_COLOR[CYCLE], "Majority cycle (no unique winner)") +
-    sw(NO_WINNER_COLOR[TIE], "Tie (candidates level at the top)") +
-    sw(NO_WINNER_COLOR[NONCONVERGENT], "Strategy never settled");
-  const p = document.createElement("p");
-  p.style.display = "flex";
-  p.style.flexWrap = "wrap";
-  p.style.margin = "0 0 0.25rem";
-  p.innerHTML = html;
-  return p;
 }
 ```
 

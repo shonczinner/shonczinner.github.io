@@ -22,8 +22,8 @@ The same electorate from before is plotted below,
 ```{ojs}
 Plotly = await require("https://cdn.plot.ly/plotly-2.35.2.min.js")
 
-import { elecData } from "./src/plots.js"
-import { ELEC } from "./src/electorate.js"
+import { elecData, winnerLegend } from "../../src/voting/plots.js"
+import { ELEC } from "../../src/voting/electorate.js"
 
 elec = ELEC
 
@@ -34,20 +34,6 @@ function render(fig) {
   el.style.margin = "0.5rem 0 1.5rem";
   Plotly.newPlot(el, fig.data, fig.layout, { displayModeBar: false, responsive: true });
   return el;
-}
-
-function winnerLegend(condorcet,strategy) {
-  const sw = (color, label) =>
-    `<span style="display:inline-flex;align-items:center;margin-right:1.25rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:${color};"></span><span style="font-size:0.9rem;">${label}</span></span>`;
-  let html = sw(COLORS[0], "A") + sw(COLORS[1], "B") + sw(COLORS[2], "C");
-  if (condorcet) html += sw("#000000", "Condorcet Cycle");
-  if (strategy) html += sw("#000000", "Tie/Non-convergence");
-  const p = document.createElement("p");
-  p.style.display = "flex";
-  p.style.flexWrap = "wrap";
-  p.style.margin = "0 0 0.25rem";
-  p.innerHTML = html;
-  return p;
 }
 ```
 
@@ -62,9 +48,9 @@ For the full spatial-model setup and its justification, see the [single-mark pos
 With honest voting, ranked ballots look like this: every voter's ballot is just their distance ordering — the candidate a voter likes best is ranked first, the next best second, and the least-preferred last.
 
 ```{ojs}
-import { rankedBallotData, rankedDensityWeightedData, winnerHeatmap } from "./src/plots.js"
-import { assess, METHODS, NAMES, COLORS } from "./src/methods.js"
-import { strategicWinner } from "./src/strategic.js"
+import { rankedBallotData, rankedDensityWeightedData, winnerHeatmap } from "../../src/voting/plots.js"
+import { assess, METHODS, NAMES, COLORS } from "../../src/voting/methods.js"
+import { strategicWinner } from "../../src/voting/strategic.js"
 
 viewof Bballot = Inputs.range([-4, 4], { step: 0.1, value: -0.2, label: "B position"})
 viewof Cballot = Inputs.range([-4, 4], { step: 0.1, value: 0.2, label: "C position" })
@@ -73,7 +59,7 @@ posBallot = [0, Bballot, Cballot]
 ```
 
 ```{ojs}
-winnerLegend(false, false)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -83,7 +69,7 @@ render(rankedBallotData(elec, posBallot))
 We can weight each column by the number of voters at each location to get a sense of how many voters rank each candidate 1st, 2nd, and 3rd:
 
 ```{ojs}
-winnerLegend(false, false)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -156,7 +142,7 @@ IRV is also susceptible to other forms of strategic voting, like "compromising" 
 Let us check how often, across every position of C (with B fixed), the strategic (burying) IRV winner is *not* A:
 
 ```{ojs}
-winnerLegend(false, false)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -190,7 +176,7 @@ But Borda is extremely susceptible to strategic voting. Under the "bury the lead
 
 ```{ojs}
 viewof Bborda = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position (Borda)" })
-winnerLegend(false, true)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -210,7 +196,7 @@ But under strategy, "bury the leader" voting destroys the single-peakedness of t
 
 ```{ojs}
 viewof Bcond = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position (Condorcet)" })
-winnerLegend(true, false)
+winnerLegend()
 ```
 
 ```{ojs}
@@ -237,10 +223,10 @@ Unsurprisingly with honest voting, all three elect A everywhere (they all reduce
 viewof Bcomp = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "B position (completion)" })
 ```
 
-Under strategy, though, the dynamics still can fail to elect A. Black here means a tie in the method's pairwise/beatpath relation, **or strategy non-convergence** where the buried-leader iteration never settles due to a **strategic cycle**. Schulze and Ranked Pairs are black from strategic cycles and ties. BTR-IRV is black only due to strategic cycles.
+Under strategy, though, the dynamics still can fail to elect A. Brown here means a tie in the method's pairwise/beatpath relation, and grey means **strategy non-convergence**, where the buried-leader iteration never settles due to a **strategic cycle**. Black marks a genuine majority cycle (no Condorcet winner). Schulze and Ranked Pairs show black where the majority relation cycles and brown where they tie at the top. BTR-IRV never leaves a genuine cycle unresolved, so it is never black, but it can be grey when the iteration fails to converge.
 
 ```{ojs}
-winnerLegend(false, true)
+winnerLegend()
 ```
 
 ```{ojs}

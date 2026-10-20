@@ -1,5 +1,7 @@
 project:
   type: website
+  resources:
+    - src/voting
 
 execute:
   freeze: true
