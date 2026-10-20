@@ -1,6 +1,7 @@
 /.quarto/
 /_site/
 /.venv/
+/.vscode/
 **/*.quarto_ipynb
 */*/.jupyter_cache/
 _freeze/*
