@@ -230,18 +230,37 @@ winnerLegend()
 ```
 
 ```{ojs}
-render(winnerHeatmap(
-  ["BTR-IRV (honest)", "Schulze (honest)", "Ranked Pairs (honest)", "BTR-IRV (strategic)", "Schulze (strategic)", "Ranked Pairs (strategic)"],
-  [
-    cGrid.map(honestRow("btrirv", Bcomp)),
-    cGrid.map(honestRow("schulze", Bcomp)),
-    cGrid.map(honestRow("rankedPairs", Bcomp)),
-    cGrid.map(stratRow("btrirv", Bcomp)),
-    cGrid.map(stratRow("schulze", Bcomp)),
-    cGrid.map(stratRow("rankedPairs", Bcomp)),
-  ],
-  cGrid, Bcomp, `B = ${Bcomp}`
-))
+//| output: false
+mutable completionYeeRun = null
+```
+
+```{ojs}
+viewof runCompletionYee = Inputs.button("Run completion maps", {
+  reduce: () => { mutable completionYeeRun = { B: Bcomp }; }
+})
+```
+
+```{ojs}
+{
+  if (!completionYeeRun) {
+    const p = document.createElement("p");
+    p.textContent = "Set B, then press Run completion maps.";
+    return p;
+  }
+  const Bv = completionYeeRun.B;
+  return render(winnerHeatmap(
+    ["BTR-IRV (honest)", "Schulze (honest)", "Ranked Pairs (honest)", "BTR-IRV (strategic)", "Schulze (strategic)", "Ranked Pairs (strategic)"],
+    [
+      cGrid.map(honestRow("btrirv", Bv)),
+      cGrid.map(honestRow("schulze", Bv)),
+      cGrid.map(honestRow("rankedPairs", Bv)),
+      cGrid.map(stratRow("btrirv", Bv)),
+      cGrid.map(stratRow("schulze", Bv)),
+      cGrid.map(stratRow("rankedPairs", Bv)),
+    ],
+    cGrid, Bv, `B = ${Bv}`
+  ));
+}
 ```
 
 So even the Condorcet-completion family leaves A possibly losing in a substantial fraction of positions once voters strategize. 

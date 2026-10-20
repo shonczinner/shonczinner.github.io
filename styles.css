@@ -1,1 +1,13 @@
 /* css styles */
+
+div.cell-output-display .btn.btn-quarto {
+  --bs-btn-color: #212529;
+  --bs-btn-bg: #f8f9fa;
+  --bs-btn-border-color: #ced4da;
+  --bs-btn-hover-color: #212529;
+  --bs-btn-hover-bg: #e9ecef;
+  --bs-btn-hover-border-color: #adb5bd;
+  --bs-btn-active-color: #212529;
+  --bs-btn-active-bg: #dee2e6;
+  --bs-btn-active-border-color: #adb5bd;
+}

@@ -162,11 +162,21 @@ For each method, we can also incorporate strategic voting.
 
 Each method's strategy takes its own form: In Plurality, voters decide between the preferred candidate out of the top two in the previous round. Approval approves your favourite of the two front-runners (and everyone above them); Score and Highest Median maxes everyone above the less-preferred front-runner and zeroes the rest; STAR gives your favourite max, your second max−1 and buries your least favourite of the previous top 3; All the ranked methods buries the less-preferred front-runner below the current last-place candidate. Iteration logs are at the bottom.
 
-Drag to move B. This grid re-runs multiple iterations per position of C, so it takes a few
-seconds to redraw.
+Set B, then press Run strategic simulation. This grid re-runs multiple iterations per position of C, so it may take a few seconds.
 
 ```{ojs}
 viewof Bstrategic = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Strategic voting: B position" })
+```
+
+```{ojs}
+//| output: false
+mutable stratRun = null
+```
+
+```{ojs}
+viewof runStrat = Inputs.button("Run strategic simulation", {
+  reduce: () => { mutable stratRun = { B: Bstrategic }; }
+})
 ```
 
 ```{ojs}
@@ -174,11 +184,19 @@ winnerLegend()
 ```
 
 ```{ojs}
-render(winnerHeatmap(
-  stratConfigs.map(c => c[0]),
-  stratConfigs.map(c => cGrid.map(C => strategicWinner([0, Bstrategic, C], c[1]).winner)),
-  cGrid, Bstrategic, `Strategic voting — B = ${Bstrategic}`
-))
+{
+  if (!stratRun) {
+    const p = document.createElement("p");
+    p.textContent = "Set B, then press Run strategic simulation.";
+    return p;
+  }
+  const Bv = stratRun.B;
+  return render(winnerHeatmap(
+    stratConfigs.map(c => c[0]),
+    stratConfigs.map(c => cGrid.map(C => strategicWinner([0, Bv, C], c[1]).winner)),
+    cGrid, Bv, `Strategic voting — B = ${Bv}`
+  ));
+}
 ```
 
 
@@ -186,7 +204,7 @@ render(winnerHeatmap(
 
 Per-method convergence summary and iteration trace. The summary line is over the whole map at the selected B - "winner-changed" is the fraction of positions of C where the strategic outcome differs from the honest one - while the trace inside each block is the run at the selected position of C. Iterations are shown in chronological order. Iteration stops at the first repeated profile - that is a cycle, and the method is reported as having no winner - or after 100 iterations.
 
-This requires a bit of computation. Expect a few seconds.
+Set B and C, then press Run iteration logs. This requires a bit of computation, so expect a few seconds.
 
 ```{ojs}
 viewof Blog = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Iteration logs: B position" })
@@ -197,11 +215,27 @@ viewof Clog = Inputs.range([-4, 4], { step: 0.1, value: 1, label: "Iteration log
 ```
 
 ```{ojs}
+//| output: false
+mutable logsRun = null
+```
+
+```{ojs}
+viewof runLogs = Inputs.button("Run iteration logs", {
+  reduce: () => { mutable logsRun = { B: Blog, C: Clog }; }
+})
+```
+
+```{ojs}
 {
+  if (!logsRun) {
+    const p = document.createElement("p");
+    p.textContent = "Set B and C, then press Run iteration logs.";
+    return p;
+  }
   const wrap = document.createElement("div");
   wrap.innerHTML = stratConfigs
     .map(([honestName, stratMethod]) =>
-      strategicLogHtml(strategicYeeGrid(Blog, -4, 4, 200, honestName, stratMethod, Clog)))
+      strategicLogHtml(strategicYeeGrid(logsRun.B, -4, 4, 200, honestName, stratMethod, logsRun.C)))
     .join("\n");
   return wrap;
 }
