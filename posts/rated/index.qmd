@@ -155,7 +155,7 @@ honestRow = (m, Bv) => C => {
   const vs = assess([0, Bv, C], elec);
   return METHODS[m].winner(vs, vs.map(v => METHODS[m].ballot(v, ratedOpts[m] ?? {})));
 }
-stratRow = (m, Bv) => C => strategicWinner([0, Bv, C], m).winner
+stratRow = (m, Bv) => C => strategicWinner([0, Bv, C], m, 100, ratedOpts[m] ?? {}).winner
 ```
 
 # Approval
@@ -257,9 +257,7 @@ STAR never results in strategic iteration cycles, but the ideal moderate is not 
 
 # Highest Median
 
-Highest Median (also known as Majority Judgment) elects the candidate whose *median* grade is highest.
-
-Under both honest and strategic voting, we see it elects the ideal candidate all the time.
+Highest Median (also known as Majority Judgment) elects the candidate whose *median* grade is highest. With rounded 0–10 grades, A and C can share the highest median grade in a narrow band around the centre. Under honest voting those cells are left as ties (brown) rather than being resolved by a tie-break. In the default B = −0.3 map, A wins everywhere outside the band, and strategic voting breaks the tie to elect A inside it as well.
 
 ```{ojs}
 viewof BHMed = Inputs.range([-4, 4], { step: 0.1, value: -0.3, label: "Highest Median: B position" })
@@ -305,6 +303,6 @@ As with the ranked post, it is worth noting that these cycles arise under **sync
 
 # Conclusion
 
-With honest voting, Approval, Score, STAR, Highest Median, and BTR-Score all elect the ideal moderate candidate A across the map. With strategic voting, Approval (distance), Score, and Highest Median still elect the ideal moderate candidate. If the goal is a method that elects the median voter's favourite under both honesty and strategy, several rated methods deliver in this model.
+With honest voting, Approval, Score, STAR, and BTR-Score elect the ideal moderate candidate A across the map. Highest Median does too, except for a narrow central band where A and C tie on the median grade. With strategic voting, Approval (distance), Score, and Highest Median elect A across the map. If the goal is a method that elects the median voter's favourite under both honesty and strategy, several rated methods deliver in this model.
 
 I plan to summarise this series on voting methods and different ballot types, putting all the results next to each other in the next post.

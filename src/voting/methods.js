@@ -328,9 +328,11 @@ function starTrace(vs, ballots) {
   };
 }
 
-// Weighted median grade (g), plus the graduated majority judgment tie-break value: the median
-// found by linearly interpolating the grade CDF at the 50% point, i.e. g pulled down towards
-// g - 1 by the share of weight still below half at that grade. Null if the candidate has no weight.
+// Weighted median grade (g), plus the graduated majority judgment final score: the point where
+// the CDF of "share of voters grading below each score" crosses 50%. Since F(g) is the weight
+// strictly below g and F(g + 1) adds the weight at g, the crossing lies between g and g + 1.
+// The final score is retained for reference; the winner rule below deliberately leaves median
+// ties unresolved. Null if the candidate has no weight.
 function medianGrades(vs, ballots, c) {
   const grades = new Map();
   let totalW = 0;
@@ -345,32 +347,35 @@ function medianGrades(vs, ballots, c) {
   const half = totalW / 2;
   let below = 0;
   for (const [g, w] of sorted) {
-    if (below + w >= half) return { median: g, interp: g - 1 + (half - below) / w };
+    if (below + w >= half) return { median: g, interp: g + (half - below) / w };
     below += w;
   }
   return null;
 }
 
-// Highest Median (graduated majority judgment): elect the candidate with the highest weighted
-// median grade. Leaders tied on the median are separated by the graduated tie-break — the
-// interpolated median — which favours the candidate with more weight above its median and less
-// below it, and so never breaks a tie the way a total-score comparison does. Remaining ties are
-// identical grade distributions and fall back to total score, then to the earliest candidate.
-function highestMedianWinner(vs, ballots) {
-  const med = [null, null, null];
-  for (let c = 0; c < 3; c++) med[c] = medianGrades(vs, ballots, c);
-  const tot = scoreTotals(vs, ballots);
-  let best = -1;
+// Candidates sharing the highest weighted median grade.
+function highestMedianLeaders(vs, ballots) {
+  let topMedian = -Infinity;
+  const leaders = [];
   for (let c = 0; c < 3; c++) {
-    if (med[c] === null) continue;
-    if (best === -1
-      || med[c].median > med[best].median
-      || (med[c].median === med[best].median
-        && (med[c].interp > med[best].interp
-          || (med[c].interp === med[best].interp
-            && (tot[c] > tot[best] || (tot[c] === tot[best] && c < best)))))) best = c;
+    const med = medianGrades(vs, ballots, c);
+    if (med === null) continue;
+    if (med.median > topMedian) {
+      topMedian = med.median;
+      leaders.length = 0;
+      leaders.push(c);
+    } else if (med.median === topMedian) {
+      leaders.push(c);
+    }
   }
-  return best;
+  return leaders;
+}
+
+// Highest Median: elect the unique candidate with the highest weighted median grade. If two or
+// more candidates share that median, return TIE instead of applying GMJ's CDF tie-break.
+function highestMedianWinner(vs, ballots) {
+  const leaders = highestMedianLeaders(vs, ballots);
+  return leaders.length === 1 ? leaders[0] : TIE;
 }
 
 // BTR-Score: bottom-two by total score; of those two eliminate the pairwise loser
@@ -522,7 +527,9 @@ function elevateApproval(b, v, w, r, opts) {
 
 function elevateScore(b, v, w, r, opts) {
   if (w < 0) return { ballot: b, changed: false };
-  const cutoff = prefers(r, v, w) ? r : w;
+  const fronts = [w, ...(Array.isArray(r) ? r : [r])].filter(c => c >= 0);
+  let cutoff = fronts[0];
+  for (let i = 1; i < fronts.length; i++) if (prefers(fronts[i], v, cutoff)) cutoff = fronts[i];
   const levels = opts?.levels ?? 10;
   const nb = [0, 0, 0];
   for (let i = 0; i < 3; i++) if (prefers(i, v, cutoff) || i === cutoff) nb[i] = levels;
@@ -663,6 +670,7 @@ export const METHODS = {
   highestMedian: {
     ballot: (v, opts) => METHODS.score.ballot(v, opts),
     winner: (vs, ballots) => highestMedianWinner(vs, ballots),
+    leaders: (vs, ballots) => highestMedianLeaders(vs, ballots),
     elevate: elevateScore,
     runnerUp: (vs, ballots, opts, winner) => scoreRunnerUp(vs, ballots, winner),
     key: scoreKey,
@@ -695,10 +703,10 @@ const HONEST = {
   ApprovalTop2: { method: METHODS.approvalTop2 },
   "ApprovalDist0.3": { method: METHODS.approval, opts: { d: 0.3 } },
   "ApprovalDist1.0": { method: METHODS.approval, opts: { d: 1.0 } },
-  Score: { method: METHODS.score, opts: { D: 2, levels: 10, round: false } },
-  STAR: { method: METHODS.star, opts: { D: 2, levels: 10, round: false } },
-  HighestMedian: { method: METHODS.highestMedian, opts: { D: 2, levels: 10, round: false } },
-  BTRScore: { method: METHODS.btrScore, opts: { D: 2, levels: 10, round: false } },
+  Score: { method: METHODS.score, opts: { D: 2, levels: 10 } },
+  STAR: { method: METHODS.star, opts: { D: 2, levels: 10 } },
+  HighestMedian: { method: METHODS.highestMedian, opts: { D: 2, levels: 10 } },
+  BTRScore: { method: METHODS.btrScore, opts: { D: 2, levels: 10 } },
 };
 
 export function winnersFromVs(vs) {
@@ -712,7 +720,9 @@ export function winnersFromVs(vs) {
 }
 
 export const HONEST_METHODS = {};
+export const HONEST_OPTS = {};
 for (const [name, { method, opts }] of Object.entries(HONEST)) {
+  HONEST_OPTS[name] = opts ?? {};
   HONEST_METHODS[name] = (positions, elec = ELEC) => {
     const vs = assess(positions, elec);
     const ballots = vs.map(v => method.ballot(v, opts));

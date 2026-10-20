@@ -1,4 +1,4 @@
-import { assess, winnersFromVs, HONEST_METHODS } from "./methods.js";
+import { assess, winnersFromVs, HONEST_METHODS, HONEST_OPTS } from "./methods.js";
 import { strategicWinner } from "./strategic.js";
 
 export function yeeGrid(B, cMin, cMax, steps, methods = HONEST_METHODS) {
@@ -54,7 +54,7 @@ export function strategicYeeGrid(B, cMin, cMax, steps, honestName, stratMethod, 
   for (const c of cs) {
     const positions = [0, B, c];
     honest.push(HONEST_METHODS[honestName](positions));
-    const s = strategicWinner(positions, stratMethod);
+    const s = strategicWinner(positions, stratMethod, 100, HONEST_OPTS[honestName] ?? {});
     strategic.push(s.winner);
     changedMass.push(s.changedMass);
     iterations.push(s.iterations);
@@ -65,7 +65,7 @@ export function strategicYeeGrid(B, cMin, cMax, steps, honestName, stratMethod, 
   }
   if (typeof sampleC === "number") {
     const positions = [0, B, sampleC];
-    sample = sampleAt(positions, strategicWinner(positions, stratMethod));
+    sample = sampleAt(positions, strategicWinner(positions, stratMethod, 100, HONEST_OPTS[honestName] ?? {}));
   }
   return { B, honestName, stratMethod, cMin, cMax, steps, cs, honest, strategic, changedMass, iterations, converged, sample };
 }

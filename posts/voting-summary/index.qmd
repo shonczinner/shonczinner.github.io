@@ -38,7 +38,7 @@ import {
   winnerLegend,
 } from "../../src/voting/plots.js"
 import { ELEC } from "../../src/voting/electorate.js"
-import { HONEST_METHODS, NAMES } from "../../src/voting/methods.js"
+import { HONEST_METHODS, HONEST_OPTS, NAMES } from "../../src/voting/methods.js"
 import { strategicWinner } from "../../src/voting/strategic.js"
 import { strategicYeeGrid } from "../../src/voting/analysis.js"
 
@@ -138,7 +138,7 @@ renderAll([
 We visualized who wins under the spatial model with A=0, a given position of candidate B, by colouring a graph for every position of C. Green = A, red = B, orange = C, black = a majority cycle
 (no unique winner), brown = a tie (two or more candidates level at the top), grey = strategy
 non-convergence (only in the strategic maps below). Dotted lines mark A (0) and B. Ideally everything
-is green meaning no matter where C locates, A wins. The maps are interactive: drag B to see how the honest winner changes.
+is green meaning no matter where C locates, A wins. Highest Median is the main source of brown cells under honest voting: with rounded 0–10 grades, A and C can share the highest median grade in a narrow central band. We leave those cases as ties rather than applying a tie-break. Under strategic voting, voters coordinate between the tied candidates, so that band turns green. The maps are interactive: drag B to see how the honest winner changes.
 
 ```{ojs}
 viewof Bhonest = Inputs.range([-4, 4], { step: 0.1, value: -0.8, label: "Honest voting: B position" })
@@ -193,7 +193,7 @@ winnerLegend()
   const Bv = stratRun.B;
   return render(winnerHeatmap(
     stratConfigs.map(c => c[0]),
-    stratConfigs.map(c => cGrid.map(C => strategicWinner([0, Bv, C], c[1]).winner)),
+    stratConfigs.map(c => cGrid.map(C => strategicWinner([0, Bv, C], c[1], 100, HONEST_OPTS[c[0]] ?? {}).winner)),
     cGrid, Bv, `Strategic voting — B = ${Bv}`
   ));
 }
