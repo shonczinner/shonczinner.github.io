@@ -1,5 +1,5 @@
 import { ELEC } from "./electorate.js";
-import { assess, METHODS, NAMES, NONCONVERGENT } from "./methods.js";
+import { assess, METHODS, NAMES, TIE, NONCONVERGENT } from "./methods.js";
 
 const DEFAULT_OPTS = { approval: { d: 0.3 }, score: { D: 2, levels: 10 }, star: { D: 2, levels: 10 }, highestMedian: { D: 2, levels: 10 }, btrScore: { D: 2, levels: 10 } };
 
@@ -84,10 +84,19 @@ export function strategicWinner(positions, methodName = "plurality", maxIter = 1
   for (let iter = 0; iter < maxIter; iter++) {
     const winner = method.winner(vs, ballots, opts);
     const runnerUp = method.runnerUp ? method.runnerUp(vs, ballots, opts, winner) : -1;
+    let strategyWinner = winner;
+    let strategyRunnerUp = runnerUp;
+    if (winner === TIE && method.leaders) {
+      const leaders = method.leaders(vs, ballots, opts);
+      if (leaders.length > 1) {
+        strategyWinner = leaders[0];
+        strategyRunnerUp = leaders.slice(1);
+      }
+    }
     let changedPositions = 0;
     let iterMass = 0;
     const next = ballots.map((b, k) => {
-      const res = method.elevate(b, vs[k], winner, runnerUp, opts);
+      const res = method.elevate(b, vs[k], strategyWinner, strategyRunnerUp, opts);
       if (res.changed) { changedPositions++; iterMass += vs[k].w; }
       return res.ballot;
     });

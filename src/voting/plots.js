@@ -1,12 +1,49 @@
-import { COLORS, NAMES, METHODS, assess } from "./methods.js";
+import { COLORS, NAMES, METHODS, CYCLE, TIE, NONCONVERGENT, assess } from "./methods.js";
 import { ELEC } from "./electorate.js";
 
-export const CODE_OF = w => (w < 0 ? 3 : w);
+// Winner results map onto heatmap colour codes: 0/1/2 = A/B/C, then the three non-winner
+// results in the order they are described in the legend (cycle, tie, non-convergence).
+export const CODE_OF = w => (w < 0 ? 2 - w : w);
+export const NO_WINNER_COLOR = {
+  [CYCLE]: "#000000",
+  [TIE]: "#8c564b",
+  [NONCONVERGENT]: "#9e9e9e",
+};
+export const NO_WINNER_LABEL = {
+  [CYCLE]: "none (majority cycle — no unique winner)",
+  [TIE]: "none (tie — candidates level at the top)",
+  [NONCONVERGENT]: "none (strategy did not settle)",
+};
+const NO_WINNER_LEGEND_LABEL = {
+  [CYCLE]: "Majority cycle (no unique winner)",
+  [TIE]: "Tie (candidates level at the top)",
+  [NONCONVERGENT]: "Strategy never settled",
+};
+
+export function winnerLegend() {
+  const sw = (color, label) =>
+    `<span style="display:inline-flex;align-items:center;margin-right:1.25rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;background:${color};"></span><span style="font-size:0.9rem;">${label}</span></span>`;
+  const html =
+    sw(COLORS[0], "A wins") +
+    sw(COLORS[1], "B wins") +
+    sw(COLORS[2], "C wins") +
+    sw(NO_WINNER_COLOR[CYCLE], NO_WINNER_LEGEND_LABEL[CYCLE]) +
+    sw(NO_WINNER_COLOR[TIE], NO_WINNER_LEGEND_LABEL[TIE]) +
+    sw(NO_WINNER_COLOR[NONCONVERGENT], NO_WINNER_LEGEND_LABEL[NONCONVERGENT]);
+  const p = document.createElement("p");
+  p.style.display = "flex";
+  p.style.flexWrap = "wrap";
+  p.style.margin = "0 0 0.25rem";
+  p.innerHTML = html;
+  return p;
+}
 export const COLORSCALE = [
-  [0.0, COLORS[0]], [0.249, COLORS[0]],
-  [0.25, COLORS[1]], [0.499, COLORS[1]],
-  [0.5, COLORS[2]], [0.749, COLORS[2]],
-  [0.75, "#000000"], [1.0, "#000000"],
+  [0.0, COLORS[0]], [0.199, COLORS[0]],
+  [0.2, COLORS[1]], [0.399, COLORS[1]],
+  [0.4, COLORS[2]], [0.599, COLORS[2]],
+  [0.6, NO_WINNER_COLOR[CYCLE]], [0.799, NO_WINNER_COLOR[CYCLE]],
+  [0.8, NO_WINNER_COLOR[TIE]], [0.999, NO_WINNER_COLOR[TIE]],
+  [1.0, NO_WINNER_COLOR[NONCONVERGENT]],
 ];
 
 function heatData(names, codeRows, cs) {
@@ -16,7 +53,7 @@ function heatData(names, codeRows, cs) {
     y: names,
     z: codeRows,
     zmin: 0,
-    zmax: 3,
+    zmax: 5,
     colorscale: COLORSCALE,
     showscale: false,
     xgap: 0,
@@ -82,7 +119,7 @@ const APPROVAL_SCALE = [
   [0.75, COLORS[2]], [1.0, COLORS[2]],
 ];
 
-function stripFigureData(elec, positions, zRows, yLabels, scale, title, height) {
+function stripFigureData(elec, positions, zRows, yLabels, scale, title, height, zmax = 3) {
   const x = elec.xs;
   const { shapes, annotations } = candShapesAt(positions, yLabels.length - 0.5, -0.5);
   const data = [{
@@ -91,7 +128,7 @@ function stripFigureData(elec, positions, zRows, yLabels, scale, title, height) 
     y: yLabels,
     z: zRows,
     zmin: 0,
-    zmax: 3,
+    zmax,
     colorscale: scale,
     showscale: false,
     xgap: 0,
@@ -119,14 +156,14 @@ function emit(divId, fig) {
 export function pluralityBallotData(elec, positions, opts = {}) {
   const title = opts.title ?? `Plurality ballot — A=0, B=${positions[1]}, C=${positions[2]}`;
   const codes = opts.ballots ? opts.ballots.map(b => b.indexOf(1)) : assess(positions, elec).map(v => v.order[0]);
-  return stripFigureData(elec, positions, [codes.map(CODE_OF)], ["top"], COLORSCALE, title, 120);
+  return stripFigureData(elec, positions, [codes.map(CODE_OF)], ["top"], COLORSCALE, title, 120, 5);
 }
 
 export function rankedBallotData(elec, positions) {
   const vs = assess(positions, elec);
   const rows = [vs.map(v => v.order[2]), vs.map(v => v.order[1]), vs.map(v => v.order[0])];
   const title = `Ranked ballot — A=0, B=${positions[1]}, C=${positions[2]}`;
-  return stripFigureData(elec, positions, rows.map(r => r.map(CODE_OF)), ["3rd", "2nd", "1st"], COLORSCALE, title, 180);
+  return stripFigureData(elec, positions, rows.map(r => r.map(CODE_OF)), ["3rd", "2nd", "1st"], COLORSCALE, title, 180, 5);
 }
 
 export function approvalBallotData(elec, positions, methodName, d, title) {
@@ -248,7 +285,7 @@ export function winnerHeatmap(names, rows, cs, B, title) {
   return { data: heatData(namesR, codeRows, cs), layout: heatLayout(title, cs, B, namesR) };
 }
 
-function snapFigure(divId, snap, elec) {
+export function snapData(elec, snap) {
   const pos = snap.positions;
   const bar = {
     type: "bar",
@@ -280,7 +317,12 @@ function snapFigure(divId, snap, elec) {
     plot_bgcolor: "#fff",
     showlegend: false,
   };
-  return `Plotly.newPlot(${JSON.stringify(divId)}, ${JSON.stringify([bar, dots])}, ${JSON.stringify(layout)}, {displayModeBar:false, responsive:true});`;
+  return { data: [bar, dots], layout };
+}
+
+function snapFigure(divId, snap, elec) {
+  const fig = snapData(elec, snap);
+  return `Plotly.newPlot(${JSON.stringify(divId)}, ${JSON.stringify(fig.data)}, ${JSON.stringify(fig.layout)}, {displayModeBar:false, responsive:true});`;
 }
 
 export function elecData(elec) {
@@ -302,6 +344,136 @@ export function elecData(elec) {
     plot_bgcolor: "#fff",
   };
   return { data: [bar], layout };
+}
+
+// ---- Human-readable iteration log helpers ----
+function strategyText(e, methodName) {
+  if (!e) return "";
+  if (e.changedPositions === 0) return "No voters changed (equilibrium reached).";
+  const w = NAMES[e.winner];
+  const r = e.runnerUp >= 0 ? NAMES[e.runnerUp] : "?";
+  const pct = (e.changedMass * 100).toFixed(1);
+  const n = `${e.changedPositions}/${e.nPositions} positions (${pct}% mass) changed`;
+  if (methodName === "plurality") {
+    return `Plurality top-two strategy: voters pick their favourite of the previous top-two {${w}, ${r}}. Voters who prefer ${r} over ${w} abandon ${w} (bury ${w}). — ${n}.`;
+  }
+  if (methodName === "approval" || methodName === "approvalTop2" || methodName === "score" || methodName === "highestMedian") {
+    return `Score/approval strategy: voters who prefer ${r} over ${w} bury ${w} — give max score/approval to all candidates they rank ≥ ${r} and 0 to ${w}; voters who prefer ${w} keep ${w} at max. — ${n}.`;
+  }
+  if (methodName === "star") {
+    return `STAR strategy: voters who prefer ${r} over ${w} give their favourite max score, their second favourite max−1, and bury their least favourite, steering the top-two runoff toward their pick. — ${n}.`;
+  }
+  if (methodName === "btrScore") {
+    return `BTR-Score strategy: voters who prefer ${r} over ${w} bury the less-preferred frontrunner ${w} (rate it below the current last-place candidate) while maxing ${r}, so ${w} drops in score and loses bottom-two pairwises. — ${n}.`;
+  }
+  // ranked family
+  return `Ranked bury-the-leader: voters who prefer ${r} over ${w} move ${r} to 1st and bury ${w} to last (ballot ${r} > third > ${w}). — ${n}.`;
+}
+function formatBallots(dist, totals, methodName) {
+  if (!dist) return "";
+  const sorted = Object.entries(dist).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+  const MAX_PATTERNS = 10;
+  const shown = sorted.slice(0, MAX_PATTERNS);
+  let entries = shown.map(([k, v]) => `${k}=${v.toFixed(0)}`).join("  ");
+  if (sorted.length > MAX_PATTERNS) {
+    const rest = sorted.slice(MAX_PATTERNS).reduce((a, [, v]) => a + v, 0);
+    entries += `  … +${sorted.length - MAX_PATTERNS} more patterns (${rest.toFixed(0)} votes)`;
+  }
+  const totStr = totals ? `Totals → ${NAMES.map((nm, i) => `${nm}=${totals[i].toFixed(0)}`).join("  ")}` : "";
+  if (!entries) return totStr;
+  if (methodName === "plurality") return entries; // entries already totals
+  const totLabel = (methodName === "irv" || methodName === "condorcet" || methodName === "btrirv" || methodName === "rcipe" || methodName === "schulze" || methodName === "rankedPairs" || methodName === "borda") ? "  (first-choice totals)" : "";
+  return totStr ? `${entries}\n${totStr}${totLabel}` : entries;
+}
+// What the trace line is actually showing differs by method: BTR-IRV eliminates the bottom-two
+// loser by pairwise margin, RCIPE eliminates the Condorcet loser, IRV eliminates the last-placed
+// candidate until somebody has a majority, and STAR runs off the top two.
+const PROCESS_LABEL = {
+  btrirv: "BTR runoff",
+  rcipe: "RCIPE elimination",
+  irv: "IRV transfer",
+  star: "top-two runoff",
+};
+
+function formatTrace(trace, methodName) {
+  if (!trace || !trace.rounds) return null;
+  // STAR compares grades, so its totals are scores; everything else tallies first choices.
+  const totalsLabel = methodName === "star" ? "score" : "1st";
+  const pairLabel = methodName === "star" ? "top-two runoff" : "bottom-two";
+  const lines = trace.rounds.map(rd => {
+    const t = rd.totals ? rd.totals.map((v, c) => `${NAMES[c]}=${v.toFixed(0)}`).join(", ") : "";
+    if (methodName === "irv") {
+      const lead = `${NAMES[rd.leader]} ${(rd.totals[rd.leader] / rd.counting * 100).toFixed(1)}% of ${rd.counting.toFixed(0)} still counting`;
+      return `[${rd.remaining.map(c => NAMES[c]).join("")}] 1st{${t}} | ${lead} — ${rd.majority ? "majority" : `no majority → elim ${NAMES[rd.elim]}`}`;
+    }
+    if (rd.reason) {
+      const reasonTag = rd.reason === "condorcet-loser" ? "Condorcet-loser" : "fewest-top-choice";
+      return `[${rd.remaining.map(c => NAMES[c]).join("")}] 1st{${t}} | elim ${NAMES[rd.loser]} (${reasonTag})`;
+    }
+    return `[${rd.remaining.map(c => NAMES[c]).join("")}] ${totalsLabel}{${t}} | ${pairLabel} ${NAMES[rd.low]} vs ${NAMES[rd.high]} (${NAMES[rd.low]}>${NAMES[rd.high]}=${rd.marginLowHigh.toFixed(0)}, ${NAMES[rd.high]}>${NAMES[rd.low]}=${rd.marginHighLow.toFixed(0)}) → elim ${NAMES[rd.elim]}`;
+  });
+  lines.push(`=> WINNER ${trace.winner < 0 ? NO_WINNER_LABEL[trace.winner] : NAMES[trace.winner]}`);
+  return lines.join("\n");
+}
+
+// One <details> block summarising a strategic grid (winner-changed %, convergence, iteration
+// counts) with a representative iteration trace inside. Shared by the static report and final.qmd.
+export function strategicLogHtml(sg) {
+  const n = sg.honest.length;
+  const diff = sg.honest.reduce((a, h, i) => a + (h !== sg.strategic[i] ? 1 : 0), 0);
+  const nConv = sg.converged.filter(Boolean).length;
+  const avgIter = (sg.iterations.reduce((a, b) => a + b, 0) / n).toFixed(1);
+  const maxIter = Math.max(...sg.iterations);
+  const label = sg.honestName;
+  const summary = `winner-changed ${(diff / n * 100).toFixed(1)}%, converged ${(nConv / n * 100).toFixed(0)}%, iters avg ${avgIter}/max ${maxIter}`;
+  const posStr = sg.sample && sg.sample.positions ? `A=0, B=${sg.sample.positions[1]}, C=${sg.sample.positions[2]}` : `B=${sg.B}, C=${sg.sample ? sg.sample.C : "?"}`;
+  let logTxt = "";
+  if (sg.sample && sg.sample.steps && sg.sample.winnersPerStep) {
+    const steps = sg.sample.steps;
+    const winners = sg.sample.winnersPerStep;
+    const traces = sg.sample.tracesPerStep;
+    const dists = sg.sample.ballotDistsPerStep;
+    const totals = sg.sample.totalsPerStep;
+    const logs = sg.sample.log;
+    const methodName = sg.stratMethod;
+    const blocks = [];
+    // For very long non-converged traces, show head + tail with ellipsis to keep log readable.
+    const MAX_SHOW = 12;
+    const showIndices = steps.length <= MAX_SHOW
+      ? [...Array(steps.length).keys()]
+      : [...Array(8).keys(), -1, ...Array.from({ length: 4 }, (_, k) => steps.length - 4 + k)];
+    for (const i of showIndices) {
+      if (i === -1) { blocks.push(`… [${steps.length - 12} intermediate iterations omitted] …`); continue; }
+      const header = `Iteration ${i} (${i === 0 ? "Honest" : "strategic"}):`;
+      let stratLine = "";
+      if (i > 0) {
+        const e = logs[i - 1];
+        // When tail is truncated, logs index still corresponds, but if we jumped over, warn
+        if (e) stratLine = `Strategy: ${strategyText(e, methodName)}`;
+      }
+      const ballotsStr = formatBallots(dists[i], totals[i], methodName);
+      const traceStr = formatTrace(traces[i], methodName);
+      const winner = winners[i];
+      const winnerStr = `WINNER: ${winner < 0 ? NO_WINNER_LABEL[winner] : NAMES[winner]}${winner >= 0 ? ` (${NAMES[winner]} at ${sg.sample.positions[winner].toFixed(2)})` : ""}`;
+      let block = `${header}`;
+      if (stratLine) block += `\n${stratLine}`;
+      block += `\nBallots:\n${ballotsStr}`;
+      if (traceStr) block += `\nProcess (${PROCESS_LABEL[methodName] ?? "elimination"}):\n${traceStr}`;
+      block += `\n${winnerStr}`;
+      blocks.push(block);
+    }
+    if (!sg.sample.converged) {
+      const why = sg.sample.cycled
+        ? `cycle detected — the profile repeated a state it had already been in, with period ${sg.sample.cycleLength}, so the iteration was stopped as soon as the repeat was seen (${sg.sample.iterations} iterations run)`
+        : `hit the iteration limit without settling (${sg.sample.iterations} iterations)`;
+      blocks.push(`\n[Non-convergence: ${why} — reported as no winner (grey).]`);
+    }
+    logTxt = blocks.join("\n\n");
+  } else if (sg.sample && sg.sample.log) {
+    // fallback to old style
+    logTxt = sg.sample.log.map(e => `iter ${e.iter}: ${NAMES[e.winner]} → ${NAMES[e.winnerAfter]}  (${e.changedPositions}/${e.nPositions} positions changed, ${(e.changedMass * 100).toFixed(1)}% mass)`).join("\n");
+  }
+  return `<details><summary>${label} (B=${sg.B}): ${summary} — sample ${posStr}</summary>\n<pre class="log">${logTxt}</pre></details>`;
 }
 
 export function buildReport(report) {
@@ -336,120 +508,18 @@ export function buildReport(report) {
   const sections = [];
   sections.push(`<section><h2>Electorate</h2><div id="elec" class="chart"></div></section>`);
   if (be) {
-    sections.push(`<section><h2>Ballot maps (honest, example A=0, B=${be[1]}, C=${be[2]})</h2><p>How each voter's ballot varies with their location (x-axis = Voter Opinion). Plurality/ranked/approval are Voronoi-style strips; grey in approval means that candidate is not approved by voters at that location.</p>${ballotIds.map(id => `<div id="${id}" class="chart"></div>`).join("\n")}</section>`);
+    sections.push(`<section><h2>Ballot maps (honest, example A=0, B=${be[1]}, C=${be[2]})</h2><p>How each voter's ballot varies with their location (x-axis = Voter Opinion). Plurality/ranked/approval are Voronoi-style strips; in the approval panels the blank pale band means that candidate is not approved by voters at that location (that shade is unrelated to the non-winner colours used in the winner maps below).</p>${ballotIds.map(id => `<div id="${id}" class="chart"></div>`).join("\n")}</section>`);
     sections.push(`<section><h2>Ballot maps — density-weighted</h2><p>Same ballots, but each column's height is weighted by the voter count (PDF) at that location, so the silhouette is the electorate distribution and it is partitioned by each candidate's share of the ballot. Total height at any x equals the voter count there. The Ranked panel stacks the three rank tiers (1st/2nd/3rd), each tier a full bell curve segmented by which candidate holds that rank.</p>${dwIds.map(id => `<div id="${id}" class="chart"></div>`).join("\n")}</section>`);
   }
-  sections.push(`<section><h2>Honest voting — Yee-type maps</h2><p>Each row: for every position of C, who wins. Green = A, red = B, orange = C, black = no Condorcet winner / tie / strategy non-convergence. Dotted lines mark A (0) and B. Ideally everything is green.</p>
+  sections.push(`<section><h2>Honest voting — Yee-type maps</h2><p>Each row: for every position of C, who wins. Green = A, red = B, orange = C, black = a majority cycle (no unique winner), brown = a tie (two or more candidates level at the top), grey = strategy non-convergence (only in the strategic maps below). Dotted lines mark A (0) and B. Ideally everything is green.</p>
 <p><b>Center squeeze.</b> In plurality (and, to a lesser extent, IRV) the centrist A is not safe. Because A sits at the median, a candidate placed to its right - here C (orange) - can peel off the right flank while B (red) holds the left, splitting the vote that would otherwise go to A and letting C win: A gets squeezed out. Push C further right and the right tail abandons it, so the left/center bloc instead delivers the win to B (red). IRV is less prone (it eliminates the deepest outlier first), but the same orange/red intrusion into the center is visible, especially when B is near A. By contrast <b>Approval (top-2) shows center expansion</b>: a candidate sitting between the other two is included in many voters' top-2 sets and can win despite being "squeezed" in a plurality sense - see how B (red) and occasionally C take the center in the top-2 maps.</p>
 ${report.yee.map(e => `<div id="yee-${e.B}" class="chart"></div>`).join("\n")}</section>`);
-  sections.push(`<section><h2>Strategic voting</h2><p>For each method, the winner after strategic voting as C moves (green = A, red = B, orange = C, black = no Condorcet winner / tie / strategy non-convergence). Dotted lines mark A (0) and B. Iteration logs are collected at the bottom of the report.</p>
-<p><b>Condorcet methods can fail under strategy.</b> The honest maps for Condorcet, BTR-IRV, Schulze and Ranked Pairs are all solidly green (in this 1-D model A is always the Condorcet winner), but the strategic Condorcet, Schulze and Ranked Pairs rows show black regions - no unique winner. Black means either a genuine majority cycle (no Condorcet winner), a tie in the method's pairwise/beatpath relation, or strategy non-convergence (the buried-leader iteration fails to settle and the final profile has no unique winner). <b>BTR-IRV differs in kind</b>: it always resolves a genuine cycle to a definite winner, so it is black only where the strategic iteration fails to converge (not from cycles); where it does converge it still elects the "wrong" candidate exactly where the Condorcet cycles appear (it is not Condorcet-consistent). Notably, strategic <b>Approval, Score, STAR and Highest-Median do not suffer this</b>: their equilibria settle on the (honest) Condorcet winner A across essentially the whole map. BTR-Score is Condorcet-consistent on any fixed ballot profile, but its proper bury strategy (rate the less-preferred of the current top two below the current last-place candidate) opens bands where the best-response iteration never settles — the profile flips between an A-winner and a C-winner, shown as black (strategy non-convergence, not a cycle in the method itself).</p>
+  sections.push(`<section><h2>Strategic voting</h2><p>For each method, the winner after strategic voting as C moves (green = A, red = B, orange = C, black = a majority cycle, brown = a tie, grey = the strategy iteration never settled and is reported as no winner). Dotted lines mark A (0) and B. Iteration logs are collected at the bottom of the report.</p>
+<p><b>Condorcet methods can fail under strategy.</b> The honest maps for Condorcet, BTR-IRV, Schulze and Ranked Pairs are all solidly green (in this 1-D model A is always the Condorcet winner), but the strategic Condorcet, Schulze and Ranked Pairs rows show black regions - no unique winner. Black is used only for a genuine majority cycle (no Condorcet winner); brown marks a tie in the method's own ordering, and grey marks strategy non-convergence (the buried-leader iteration never settles). <b>BTR-IRV differs in kind</b>: it always resolves a genuine cycle to a definite winner, so it is never black; where its strategic iteration fails to converge it goes grey; where it does converge it still elects the "wrong" candidate exactly where the Condorcet cycles appear (it is not Condorcet-consistent). Notably, strategic <b>Approval, Score, STAR and Highest-Median do not suffer this</b>: their equilibria settle on the (honest) Condorcet winner A across essentially the whole map. BTR-Score is Condorcet-consistent on any fixed ballot profile, but its proper bury strategy (rate the less-preferred of the current top two below the current last-place candidate) opens bands where the best-response iteration never settles — the profile flips between an A-winner and a C-winner, shown as grey (strategy non-convergence, not a cycle in the method itself).</p>
 ${[...stratByB.entries()].map(([B, sgs]) => `<div id="strat-B${B}" class="chart"></div>`).join("\n")}</section>`);
 
-  // ---- Human-readable iteration log helpers ----
-  function strategyText(e, methodName) {
-    if (!e) return "";
-    if (e.changedPositions === 0) return "No voters changed (equilibrium reached).";
-    const w = NAMES[e.winner];
-    const r = e.runnerUp >= 0 ? NAMES[e.runnerUp] : "?";
-    const pct = (e.changedMass * 100).toFixed(1);
-    const n = `${e.changedPositions}/${e.nPositions} positions (${pct}% mass) changed`;
-    if (methodName === "plurality") {
-      return `Plurality top-two strategy: voters pick their favourite of the previous top-two {${w}, ${r}}. Voters who prefer ${r} over ${w} abandon ${w} (bury ${w}). — ${n}.`;
-    }
-    if (methodName === "approval" || methodName === "approvalTop2" || methodName === "score" || methodName === "highestMedian") {
-      return `Score/approval strategy: voters who prefer ${r} over ${w} bury ${w} — give max score/approval to all candidates they rank ≥ ${r} and 0 to ${w}; voters who prefer ${w} keep ${w} at max. — ${n}.`;
-    }
-    if (methodName === "star") {
-      return `STAR strategy: voters who prefer ${r} over ${w} give their favourite max score, their second favourite max−1, and bury their least favourite, steering the top-two runoff toward their pick. — ${n}.`;
-    }
-    if (methodName === "btrScore") {
-      return `BTR-Score strategy: voters who prefer ${r} over ${w} bury the less-preferred frontrunner ${w} (rate it below the current last-place candidate) while maxing ${r}, so ${w} drops in score and loses bottom-two pairwises. — ${n}.`;
-    }
-    // ranked family
-    return `Ranked bury-the-leader: voters who prefer ${r} over ${w} move ${r} to 1st and bury ${w} to last (ballot ${r} > third > ${w}). — ${n}.`;
-  }
-  function formatBallots(dist, totals, methodName) {
-    if (!dist) return "";
-    const sorted = Object.entries(dist).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
-    const MAX_PATTERNS = 10;
-    const shown = sorted.slice(0, MAX_PATTERNS);
-    let entries = shown.map(([k, v]) => `${k}=${v.toFixed(0)}`).join("  ");
-    if (sorted.length > MAX_PATTERNS) {
-      const rest = sorted.slice(MAX_PATTERNS).reduce((a, [, v]) => a + v, 0);
-      entries += `  … +${sorted.length - MAX_PATTERNS} more patterns (${rest.toFixed(0)} votes)`;
-    }
-    const totStr = totals ? `Totals → ${NAMES.map((nm, i) => `${nm}=${totals[i].toFixed(0)}`).join("  ")}` : "";
-    if (!entries) return totStr;
-    if (methodName === "plurality") return entries; // entries already totals
-    const totLabel = (methodName === "irv" || methodName === "condorcet" || methodName === "btrirv" || methodName === "schulze" || methodName === "rankedPairs" || methodName === "borda") ? "  (first-choice totals)" : "";
-    return totStr ? `${entries}\n${totStr}${totLabel}` : entries;
-  }
-  function formatTrace(trace) {
-    if (!trace || !trace.rounds) return null;
-    const lines = trace.rounds.map(rd => {
-      const t = rd.totals.map((v, c) => `${NAMES[c]}=${v.toFixed(0)}`).join(", ");
-      return `[${rd.remaining.map(c => NAMES[c]).join("")}] 1st{${t}} | bottom-two ${NAMES[rd.low]} vs ${NAMES[rd.high]} (${NAMES[rd.low]}>${NAMES[rd.high]}=${rd.marginLowHigh.toFixed(0)}, ${NAMES[rd.high]}>${NAMES[rd.low]}=${rd.marginHighLow.toFixed(0)}) → elim ${NAMES[rd.elim]}`;
-    });
-    lines.push(`=> WINNER ${NAMES[trace.winner]}`);
-    return lines.join("\n");
-  }
-
-  const logBlocks = report.strat.map(sg => {
-    const n = sg.honest.length;
-    const diff = sg.honest.reduce((a, h, i) => a + (h !== sg.strategic[i] ? 1 : 0), 0);
-    const nConv = sg.converged.filter(Boolean).length;
-    const avgIter = (sg.iterations.reduce((a, b) => a + b, 0) / n).toFixed(1);
-    const maxIter = Math.max(...sg.iterations);
-    const label = sg.honestName;
-    const summary = `winner-changed ${(diff / n * 100).toFixed(1)}%, converged ${(nConv / n * 100).toFixed(0)}%, iters avg ${avgIter}/max ${maxIter}`;
-    const posStr = sg.sample && sg.sample.positions ? `A=0, B=${sg.sample.positions[1]}, C=${sg.sample.positions[2]}` : `B=${sg.B}, C=${sg.sample ? sg.sample.C : "?"}`;
-    let logTxt = "";
-    if (sg.sample && sg.sample.steps && sg.sample.winnersPerStep) {
-      const steps = sg.sample.steps;
-      const winners = sg.sample.winnersPerStep;
-      const traces = sg.sample.tracesPerStep;
-      const dists = sg.sample.ballotDistsPerStep;
-      const totals = sg.sample.totalsPerStep;
-      const logs = sg.sample.log;
-      const methodName = sg.stratMethod;
-      const blocks = [];
-      // For very long non-converged traces, show head + tail with ellipsis to keep log readable.
-      const MAX_SHOW = 12;
-      const showIndices = steps.length <= MAX_SHOW
-        ? [...Array(steps.length).keys()]
-        : [...Array(8).keys(), -1, ...Array.from({ length: 4 }, (_, k) => steps.length - 4 + k)];
-      for (const i of showIndices) {
-        if (i === -1) { blocks.push(`… [${steps.length - 12} intermediate iterations omitted — cycle continues] …`); continue; }
-        const header = `Iteration ${i} (${i === 0 ? "Honest" : "strategic"}):`;
-        let stratLine = "";
-        if (i > 0) {
-          const e = logs[i - 1];
-          // When tail is truncated, logs index still corresponds, but if we jumped over, warn
-          if (e) stratLine = `Strategy: ${strategyText(e, methodName)}`;
-        }
-        const ballotsStr = formatBallots(dists[i], totals[i], methodName);
-        const traceStr = formatTrace(traces[i]);
-        const winner = winners[i];
-        const winnerStr = `WINNER: ${winner < 0 ? "none (tie / cycle / non-convergence)" : NAMES[winner]}${winner >= 0 ? ` (${NAMES[winner]} at ${sg.sample.positions[winner].toFixed(2)})` : ""}`;
-        let block = `${header}`;
-        if (stratLine) block += `\n${stratLine}`;
-        block += `\nBallots:\n${ballotsStr}`;
-        if (traceStr) block += `\nProcess (BTR runoff):\n${traceStr}`;
-        block += `\n${winnerStr}`;
-        blocks.push(block);
-      }
-      if (!sg.sample.converged) {
-        blocks.push(`\n[Non-convergence: winner cycles without settling in ${sg.sample.iterations} iterations — reported as no winner (black).]`);
-      }
-      logTxt = blocks.join("\n\n");
-    } else if (sg.sample && sg.sample.log) {
-      // fallback to old style
-      logTxt = sg.sample.log.map(e => `iter ${e.iter}: ${NAMES[e.winner]} → ${NAMES[e.winnerAfter]}  (${e.changedPositions}/${e.nPositions} positions changed, ${(e.changedMass * 100).toFixed(1)}% mass)`).join("\n");
-    }
-    return `<details><summary>${label} (B=${sg.B}): ${summary} — sample ${posStr}</summary>\n<pre class="log">${logTxt}</pre></details>`;
-  }).join("\n");
-  sections.push(`<section><h2>Strategic iteration logs</h2><p>Per-method sample iteration trace (a representative non-converged case, else the max-iteration case) and convergence summary. Iterations are shown in chronological order.</p>${logBlocks}</section>`);
+  const logBlocks = report.strat.map(strategicLogHtml).join("\n");
+  sections.push(`<section><h2>Strategic iteration logs</h2><p>Per-method sample iteration trace (a representative non-converged case, else the max-iteration case) and convergence summary. Iterations are shown in chronological order. Iteration stops at the first repeated profile — that is a cycle, and the method is reported as having no winner — or after 100 iterations.</p>${logBlocks}</section>`);
 
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -472,7 +542,9 @@ ${[...stratByB.entries()].map(([B, sgs]) => `<div id="strat-B${B}" class="chart"
   <span><span class="sw" style="background:${COLORS[0]}"></span>A wins</span>
   <span><span class="sw" style="background:${COLORS[1]}"></span>B wins</span>
   <span><span class="sw" style="background:${COLORS[2]}"></span>C wins</span>
-  <span><span class="sw" style="background:#000"></span>Condorcet Cycle / Tie / Strategy Cycle</span>
+  <span><span class="sw" style="background:${NO_WINNER_COLOR[CYCLE]}"></span>Majority cycle (no unique winner)</span>
+  <span><span class="sw" style="background:${NO_WINNER_COLOR[TIE]}"></span>Tie (candidates level at the top)</span>
+  <span><span class="sw" style="background:${NO_WINNER_COLOR[NONCONVERGENT]}"></span>Strategy never settled</span>
 </p>
 ${sections.join("\n")}
 <script>

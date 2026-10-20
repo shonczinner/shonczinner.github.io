@@ -3,6 +3,12 @@ import { ELEC } from "./electorate.js";
 export const COLORS = ["#2ca02c", "#d62728", "#ff7f0e"];
 export const NAMES = ["A", "B", "C"];
 
+// Non-winner results, so the report can tell the three failure modes apart. A candidate index is
+// 0..2; these are strictly negative. Anything below zero means "no winner" to callers.
+export const CYCLE = -1; // no unique winner because the majority relation cycles
+export const TIE = -2; // two or more candidates level at the top of the rule's own ordering
+export const NONCONVERGENT = -3; // strategic iteration never settled (strategic layer only)
+
 function argmax(arr) {
   let best = 0, bv = -Infinity;
   for (let i = 0; i < arr.length; i++) if (arr[i] > bv) { bv = arr[i]; best = i; }
@@ -33,8 +39,12 @@ function tally(vs, ratings) {
   return argmax(tot);
 }
 
-function irvWinner(vs, ranks) {
+// IRV: eliminate the last-placed candidate until somebody holds a majority of the votes still
+// counting, transferring as preferences allow. counting is the weight still in play, i.e. the
+// totals of the surviving candidates only.
+function irvTrace(vs, ranks) {
   let rem = new Set([0, 1, 2]);
+  const rounds = [];
   while (rem.size > 1) {
     const tot = [0, 0, 0];
     vs.forEach((v, k) => {
@@ -43,12 +53,20 @@ function irvWinner(vs, ranks) {
     const sum = tot.reduce((a, b) => a + b, 0);
     let leader = -1, max = -Infinity;
     for (const c of rem) if (tot[c] > max) { max = tot[c]; leader = c; }
-    if (max > sum / 2) return leader;
+    const majority = max > sum / 2;
+    const round = { remaining: [...rem], totals: tot.slice(), counting: sum, leader, majority };
+    rounds.push(round);
+    if (majority) return { winner: leader, rounds };
     let elim = -1, min = Infinity;
     for (const c of rem) if (tot[c] < min) { min = tot[c]; elim = c; }
+    round.elim = elim;
     rem.delete(elim);
   }
-  return [...rem][0];
+  return { winner: [...rem][0], rounds };
+}
+
+function irvWinner(vs, ranks) {
+  return irvTrace(vs, ranks).winner;
 }
 
 function condorcetWinner(vs, ranks) {
@@ -71,7 +89,7 @@ function condorcetWinner(vs, ranks) {
     }
     if (wins) return i;
   }
-  return -1;
+  return CYCLE;
 }
 
 function pairwiseMargins(vs, ranks) {
@@ -86,6 +104,84 @@ function pairwiseMargins(vs, ranks) {
       }
   });
   return margin;
+}
+
+function rcipeTrace(vs, ranks) {
+  const n = 3;
+  let rem = new Set([0, 1, 2]);
+  const rounds = [];
+  while (rem.size > 1) {
+    const margin = pairwiseMargins(vs, ranks);
+    // Step 1: find Condorcet loser among remaining
+    let loser = -1;
+    for (const x of rem) {
+      let losesToAll = true;
+      for (const y of rem) {
+        if (x === y) continue;
+        if (margin[x][y] >= margin[y][x]) { losesToAll = false; break; }
+      }
+      if (losesToAll) { loser = x; break; }
+    }
+    if (loser >= 0) {
+      rounds.push({ remaining: [...rem], totals: [0, 0, 0], loser, reason: "condorcet-loser" });
+      rem.delete(loser);
+      continue;
+    }
+    // Step 2: no Condorcet loser — count top choices among remaining
+    const tot = [0, 0, 0];
+    vs.forEach((v, k) => {
+      for (const c of ranks[k]) { if (rem.has(c)) { tot[c] += v.w; break; } }
+    });
+    let min = Infinity;
+    for (const c of rem) if (tot[c] < min) min = tot[c];
+    const tied = [...rem].filter(c => tot[c] === min);
+    // Step 3: tie-break
+    if (tied.length === 1) {
+      loser = tied[0];
+    } else {
+      // largest pairwise opposition among tied, then smallest pairwise support
+      const opposition = {};
+      for (const x of tied) {
+        opposition[x] = 0;
+        vs.forEach((v, k) => {
+          const r = ranks[k];
+          for (const y of tied) {
+            if (x === y) continue;
+            if (r.indexOf(y) < r.indexOf(x)) opposition[x] += v.w;
+          }
+        });
+      }
+      let maxOpp = -Infinity;
+      for (const x of tied) if (opposition[x] > maxOpp) maxOpp = opposition[x];
+      let tied2 = tied.filter(x => opposition[x] === maxOpp);
+      if (tied2.length === 1) {
+        loser = tied2[0];
+      } else {
+        const support = {};
+        for (const x of tied2) {
+          support[x] = 0;
+          vs.forEach((v, k) => {
+            const r = ranks[k];
+            for (const y of tied2) {
+              if (x === y) continue;
+              if (r.indexOf(y) < r.indexOf(x)) support[x] += v.w;
+            }
+          });
+        }
+        let minSup = Infinity;
+        for (const x of tied2) if (support[x] < minSup) minSup = support[x];
+        let tied3 = tied2.filter(x => support[x] === minSup);
+        loser = tied3[0]; // external tie-break (alphabetical by index)
+      }
+    }
+    rounds.push({ remaining: [...rem], totals: tot.slice(), loser, reason: "fewest-top-choice" });
+    rem.delete(loser);
+  }
+  return { winner: [...rem][0], rounds };
+}
+
+function rcipeWinner(vs, ranks) {
+  return rcipeTrace(vs, ranks).winner;
 }
 
 function btrIrvTrace(vs, ranks) {
@@ -135,7 +231,9 @@ function schulzeWinner(vs, ranks) {
     }
     if (ok) winners.push(i);
   }
-  return winners.length === 1 ? winners[0] : -1;
+  // No single maximal/source candidate: either the majority relation cycles outright (nobody
+  // left un-beaten / with zero indegree) or two candidates end up level at the top.
+  return winners.length === 1 ? winners[0] : (winners.length === 0 ? CYCLE : TIE);
 }
 
 function rankedPairsWinner(vs, ranks) {
@@ -161,11 +259,13 @@ function rankedPairsWinner(vs, ranks) {
   for (let i = 0; i < n; i++) for (const j of g[i]) incoming[j]++;
   const winners = [];
   for (let i = 0; i < n; i++) if (incoming[i] === 0) winners.push(i);
-  return winners.length === 1 ? winners[0] : -1;
+  // No single maximal/source candidate: either the majority relation cycles outright (nobody
+  // left un-beaten / with zero indegree) or two candidates end up level at the top.
+  return winners.length === 1 ? winners[0] : (winners.length === 0 ? CYCLE : TIE);
 }
 
 function pairwiseRunnerUp(vs, ranks, winner) {
-  if (winner === -1) return -1;
+  if (winner < 0) return -1;
   const margin = pairwiseMargins(vs, ranks);
   let best = -1, bestWins = -1;
   for (let i = 0; i < 3; i++) {
@@ -185,7 +285,7 @@ function scoreTotals(vs, ballots) {
 }
 
 function scoreRunnerUp(vs, ballots, winner) {
-  if (winner === -1) return -1;
+  if (winner < 0) return -1;
   const tot = scoreTotals(vs, ballots);
   let best = -1, bestV = -Infinity;
   for (let i = 0; i < 3; i++) {
@@ -196,7 +296,7 @@ function scoreRunnerUp(vs, ballots, winner) {
 }
 
 // STAR: top-two by total score advance to a pairwise runoff on the ballots.
-function starWinner(vs, ballots) {
+function starRunoff(vs, ballots) {
   const tot = scoreTotals(vs, ballots);
   const order = [0, 1, 2].sort((a, b) => tot[b] - tot[a]);
   const f1 = order[0], f2 = order[1];
@@ -206,40 +306,76 @@ function starWinner(vs, ballots) {
     if (s1 > s2) v1 += vs[k].w;
     else if (s2 > s1) v2 += vs[k].w;
   }
-  if (v1 > v2) return f1;
-  if (v2 > v1) return f2;
-  return tot[f1] > tot[f2] ? f1 : (tot[f2] > tot[f1] ? f2 : -1);
+  const winner = v1 > v2 ? f1 : (v2 > v1 ? f2 : (tot[f1] > tot[f2] ? f1 : (tot[f2] > tot[f1] ? f2 : TIE)));
+  return { tot, f1, f2, v1, v2, winner };
 }
 
-// Highest Median (Majority Judgment): highest weighted median wins; ties among the
-// leaders are broken by total score (then by earliest candidate, A by index).
+function starWinner(vs, ballots) {
+  return starRunoff(vs, ballots).winner;
+}
+
+// The same runoff as a trace round, so the log can show which two advanced on total score and by
+// what head-to-head margin the runoff went. Grade comparisons, so pairwiseMargins() does not apply.
+function starTrace(vs, ballots) {
+  const { tot, f1, f2, v1, v2, winner } = starRunoff(vs, ballots);
+  return {
+    winner,
+    rounds: [{
+      remaining: [f1, f2], totals: tot.slice(),
+      low: f2, high: f1, marginLowHigh: v2, marginHighLow: v1,
+      elim: winner === f2 ? f1 : f2,
+    }],
+  };
+}
+
+// Weighted median grade (g), plus the graduated majority judgment final score: the point where
+// the CDF of "share of voters grading below each score" crosses 50%. Since F(g) is the weight
+// strictly below g and F(g + 1) adds the weight at g, the crossing lies between g and g + 1.
+// The final score is retained for reference; the winner rule below deliberately leaves median
+// ties unresolved. Null if the candidate has no weight.
+function medianGrades(vs, ballots, c) {
+  const grades = new Map();
+  let totalW = 0;
+  for (let k = 0; k < vs.length; k++) {
+    if (vs[k].w <= 0) continue;
+    const g = ballots[k][c];
+    grades.set(g, (grades.get(g) ?? 0) + vs[k].w);
+    totalW += vs[k].w;
+  }
+  if (totalW === 0) return null;
+  const sorted = [...grades.entries()].sort((a, b) => a[0] - b[0]);
+  const half = totalW / 2;
+  let below = 0;
+  for (const [g, w] of sorted) {
+    if (below + w >= half) return { median: g, interp: g + (half - below) / w };
+    below += w;
+  }
+  return null;
+}
+
+// Candidates sharing the highest weighted median grade.
+function highestMedianLeaders(vs, ballots) {
+  let topMedian = -Infinity;
+  const leaders = [];
+  for (let c = 0; c < 3; c++) {
+    const med = medianGrades(vs, ballots, c);
+    if (med === null) continue;
+    if (med.median > topMedian) {
+      topMedian = med.median;
+      leaders.length = 0;
+      leaders.push(c);
+    } else if (med.median === topMedian) {
+      leaders.push(c);
+    }
+  }
+  return leaders;
+}
+
+// Highest Median: elect the unique candidate with the highest weighted median grade. If two or
+// more candidates share that median, return TIE instead of applying GMJ's CDF tie-break.
 function highestMedianWinner(vs, ballots) {
-  const n = 3;
-  const dists = [];
-  for (let c = 0; c < n; c++) {
-    const arr = [];
-    for (let k = 0; k < vs.length; k++) if (vs[k].w > 0) arr.push([ballots[k][c], vs[k].w]);
-    arr.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-    dists.push(arr);
-  }
-  const med = [null, null, null];
-  for (let c = 0; c < n; c++) {
-    let totalW = 0;
-    for (const [, w] of dists[c]) totalW += w;
-    if (totalW === 0) continue;
-    let cum = 0;
-    for (const [r, w] of dists[c]) { cum += w; if (cum >= totalW / 2) { med[c] = r; break; } }
-  }
-  const tot = scoreTotals(vs, ballots);
-  let best = -1;
-  for (let c = 0; c < n; c++) {
-    if (med[c] === null) continue;
-    if (best === -1
-      || med[c] > med[best]
-      || (med[c] === med[best] && tot[c] > tot[best])
-      || (med[c] === med[best] && tot[c] === tot[best] && c < best)) best = c;
-  }
-  return best;
+  const leaders = highestMedianLeaders(vs, ballots);
+  return leaders.length === 1 ? leaders[0] : TIE;
 }
 
 // BTR-Score: bottom-two by total score; of those two eliminate the pairwise loser
@@ -287,11 +423,11 @@ function bordaWinner(vs, ballots) {
     if (tot[i] > bestV) { secondV = bestV; second = best; bestV = tot[i]; best = i; }
     else if (tot[i] > secondV) { secondV = tot[i]; second = i; }
   }
-  return bestV === secondV ? -1 : best;
+  return bestV === secondV ? TIE : best;
 }
 
 function bordaRunnerUp(vs, ballots, winner) {
-  if (winner === -1) return -1;
+  if (winner < 0) return -1;
   const tot = bordaPoints(vs, ballots);
   let best = -1, bestV = -Infinity;
   for (let i = 0; i < 3; i++) {
@@ -344,7 +480,7 @@ function irvRunnerUp(vs, ranks) {
 }
 
 function condorcetRunnerUp(vs, ranks, winner) {
-  if (winner === -1) return -1;
+  if (winner < 0) return -1;
   const margin = Array.from({ length: 3 }, () => new Array(3).fill(0));
   vs.forEach((v, k) => {
     const r = ranks[k];
@@ -375,14 +511,14 @@ function approvalHonest(v, opts, top2) {
 }
 
 function elevatePlurality(b, v, w, r) {
-  if (w === -1 || r === -1) return { ballot: b, changed: false };
+  if (w < 0 || r < 0) return { ballot: b, changed: false };
   const top2 = v.order.indexOf(w) < v.order.indexOf(r) ? w : r;
   const nb = oneHot(top2);
   return { ballot: nb, changed: !b.every((x, i) => x === nb[i]) };
 }
 
 function elevateApproval(b, v, w, r, opts) {
-  if (w === -1) return { ballot: b, changed: false };
+  if (w < 0) return { ballot: b, changed: false };
   const cutoff = prefers(r, v, w) ? r : w;
   const nb = [0, 0, 0];
   for (let i = 0; i < 3; i++) if (prefers(i, v, cutoff) || i === cutoff) nb[i] = 1;
@@ -390,8 +526,10 @@ function elevateApproval(b, v, w, r, opts) {
 }
 
 function elevateScore(b, v, w, r, opts) {
-  if (w === -1) return { ballot: b, changed: false };
-  const cutoff = prefers(r, v, w) ? r : w;
+  if (w < 0) return { ballot: b, changed: false };
+  const fronts = [w, ...(Array.isArray(r) ? r : [r])].filter(c => c >= 0);
+  let cutoff = fronts[0];
+  for (let i = 1; i < fronts.length; i++) if (prefers(fronts[i], v, cutoff)) cutoff = fronts[i];
   const levels = opts?.levels ?? 10;
   const nb = [0, 0, 0];
   for (let i = 0; i < 3; i++) if (prefers(i, v, cutoff) || i === cutoff) nb[i] = levels;
@@ -399,7 +537,7 @@ function elevateScore(b, v, w, r, opts) {
 }
 
 function elevateSTAR(b, v, w, r, opts) {
-  if (w === -1 || r === -1) return { ballot: b, changed: false };
+  if (w < 0 || r < 0) return { ballot: b, changed: false };
   if (!prefers(r, v, w)) return { ballot: b, changed: false };
   const levels = opts?.levels ?? 10;
   const nb = [0, 0, 0];
@@ -410,7 +548,7 @@ function elevateSTAR(b, v, w, r, opts) {
 }
 
 function elevateBTRScore(b, v, w, r, opts) {
-  if (w === -1 || r === -1) return { ballot: b, changed: false };
+  if (w < 0 || r < 0) return { ballot: b, changed: false };
   if (!prefers(r, v, w)) return { ballot: b, changed: false };
   const levels = opts?.levels ?? 10;
   const t = [0, 1, 2].find(c => c !== w && c !== r);
@@ -422,7 +560,7 @@ function elevateBTRScore(b, v, w, r, opts) {
 }
 
 function elevateRanked(b, v, w, r, opts) {
-  if (w === -1 || r === -1) return { ballot: b, changed: false };
+  if (w < 0 || r < 0) return { ballot: b, changed: false };
   const strat = (opts && opts.rankedStrategy === "buryLeastTopTwo") ? "buryLeastTopTwo" : "buryLeader";
   if (strat === "buryLeastTopTwo") {
     const bury = prefers(r, v, w) ? w : r; // least-preferred of {winner, runner-up}
@@ -481,6 +619,7 @@ export const METHODS = {
     winner: (vs, ballots) => irvWinner(vs, ballots),
     elevate: elevateRanked,
     runnerUp: (vs, ballots, opts, winner) => irvRunnerUp(vs, ballots),
+    trace: (vs, ballots) => irvTrace(vs, ballots),
     key: b => b[0],
   },
   condorcet: {
@@ -496,6 +635,14 @@ export const METHODS = {
     elevate: elevateRanked,
     runnerUp: (vs, ballots, opts, winner) => pairwiseRunnerUp(vs, ballots, winner),
     trace: (vs, ballots) => btrIrvTrace(vs, ballots),
+    key: b => b[0],
+  },
+  rcipe: {
+    ballot: v => v.order.slice(),
+    winner: (vs, ballots) => rcipeWinner(vs, ballots),
+    elevate: elevateRanked,
+    runnerUp: (vs, ballots, opts, winner) => pairwiseRunnerUp(vs, ballots, winner),
+    trace: (vs, ballots) => rcipeTrace(vs, ballots),
     key: b => b[0],
   },
   schulze: {
@@ -517,11 +664,13 @@ export const METHODS = {
     winner: (vs, ballots) => starWinner(vs, ballots),
     elevate: elevateSTAR,
     runnerUp: (vs, ballots, opts, winner) => scoreRunnerUp(vs, ballots, winner),
+    trace: (vs, ballots) => starTrace(vs, ballots),
     key: scoreKey,
   },
   highestMedian: {
     ballot: (v, opts) => METHODS.score.ballot(v, opts),
     winner: (vs, ballots) => highestMedianWinner(vs, ballots),
+    leaders: (vs, ballots) => highestMedianLeaders(vs, ballots),
     elevate: elevateScore,
     runnerUp: (vs, ballots, opts, winner) => scoreRunnerUp(vs, ballots, winner),
     key: scoreKey,
@@ -547,16 +696,17 @@ const HONEST = {
   IRV: { method: METHODS.irv },
   Condorcet: { method: METHODS.condorcet },
   BTRIRV: { method: METHODS.btrirv },
+  RCIPE: { method: METHODS.rcipe },
   Schulze: { method: METHODS.schulze },
   RankedPairs: { method: METHODS.rankedPairs },
   Borda: { method: METHODS.borda },
   ApprovalTop2: { method: METHODS.approvalTop2 },
   "ApprovalDist0.3": { method: METHODS.approval, opts: { d: 0.3 } },
   "ApprovalDist1.0": { method: METHODS.approval, opts: { d: 1.0 } },
-  Score: { method: METHODS.score, opts: { D: 2, levels: 10, round: false } },
-  STAR: { method: METHODS.star, opts: { D: 2, levels: 10, round: false } },
-  HighestMedian: { method: METHODS.highestMedian, opts: { D: 2, levels: 10, round: false } },
-  BTRScore: { method: METHODS.btrScore, opts: { D: 2, levels: 10, round: false } },
+  Score: { method: METHODS.score, opts: { D: 2, levels: 10 } },
+  STAR: { method: METHODS.star, opts: { D: 2, levels: 10 } },
+  HighestMedian: { method: METHODS.highestMedian, opts: { D: 2, levels: 10 } },
+  BTRScore: { method: METHODS.btrScore, opts: { D: 2, levels: 10 } },
 };
 
 export function winnersFromVs(vs) {
@@ -570,7 +720,9 @@ export function winnersFromVs(vs) {
 }
 
 export const HONEST_METHODS = {};
+export const HONEST_OPTS = {};
 for (const [name, { method, opts }] of Object.entries(HONEST)) {
+  HONEST_OPTS[name] = opts ?? {};
   HONEST_METHODS[name] = (positions, elec = ELEC) => {
     const vs = assess(positions, elec);
     const ballots = vs.map(v => method.ballot(v, opts));
