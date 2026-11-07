@@ -4,6 +4,7 @@ description: "Ranked ballots (IRV, Borda, Condorcet, and Condorcet-completion me
 author: "Shon Czinner"
 date: "2026-08-28"
 categories: [voting, social choice, political science]
+homepage: false
 bibliography: citations.bib
 execute:
   freeze: true

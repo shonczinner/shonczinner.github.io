@@ -24,6 +24,7 @@ website:
   navbar:
     right:
       - about.qmd
+      - archive.qmd
       - icon: github
         href: https://github.com/shonczinner
       - icon: linkedin

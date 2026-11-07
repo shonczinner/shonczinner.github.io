@@ -4,6 +4,7 @@ description: "Why single-marked ballots, plurality voting, and first-past-the-po
 author: "Shon Czinner"
 date: "2026-08-22"
 categories: [voting, social choice, political science]
+homepage: false
 bibliography: citations.bib
 execute:
  freeze: true

@@ -1,0 +1,13 @@
+---
+title: "Archive"
+description: "All posts, including essays and non-technical writing."
+page-layout: full
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+  fields: [title, date, description]
+  categories: true
+---
+
+Everything I've written, in reverse chronological order. For the technical posts, see the [home page](/).

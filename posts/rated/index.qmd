@@ -4,6 +4,7 @@ description: "Approval, Score, STAR, Highest Median and BTR-Score"
 author: "Shon Czinner"
 date: "2026-09-05"
 categories: [voting, social choice, political science]
+homepage: false
 bibliography: citations.bib
 execute:
   freeze: true

@@ -6,6 +6,8 @@ listing:
   feed: true
   fields: [title, date, description]
   categories: true
+  exclude:
+    homepage: false
 page-layout: full
 image: profile.jpg
 ---
