@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.19">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -97,14 +97,15 @@ div.csl-indent {
 <link href="../../favicon.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-55617497126496852ff9f5a59253c640.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-8d3ad9c781c51ccd60b292c95058b2c2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -190,25 +191,26 @@ window.Quarto = {
 <meta property="og:image" content="https://shonczinner.github.io/posts/rated/img.PNG">
 <meta property="og:site_name" content="Shon Czinner’s Blog">
 <meta property="og:locale" content="en_CA">
+<meta property="og:image:height" content="210">
+<meta property="og:image:width" content="732">
 <meta name="twitter:title" content="Are Rated Ballots Better? – Shon Czinner’s Blog">
 <meta name="twitter:description" content="Approval, Score, STAR, Highest Median and BTR-Score">
 <meta name="twitter:image" content="https://shonczinner.github.io/posts/rated/img.PNG">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed fullcontent quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Shon Czinner’s Blog</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -216,6 +218,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../archive.html"> 
+<span class="menu-text">Archive</span></a>
   </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/shonczinner"> <i class="bi bi-github" role="img">
@@ -236,6 +242,7 @@ window.Quarto = {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
+            <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -245,7 +252,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content" id="quarto-document-content" tabindex="-1">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -295,14 +302,14 @@ window.Quarto = {
 <p>We reuse the exact same model, electorate, and code as the ranked and single-mark posts.</p>
 <p>The same electorate from before is plotted below,</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="27" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 26;"><span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>Plotly <span class="op">=</span> <span class="cf">await</span> <span class="pp">require</span>(<span class="st">"https://cdn.plot.ly/plotly-2.35.2.min.js"</span>)</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { elecData<span class="op">,</span> approvalBallotData<span class="op">,</span> scoreBallotData<span class="op">,</span> densityWeightedData<span class="op">,</span> winnerHeatmap<span class="op">,</span> winnerLegend } <span class="im">from</span> <span class="st">"../../src/voting/plots.js"</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { ELEC } <span class="im">from</span> <span class="st">"../../src/voting/electorate.js"</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { assess<span class="op">,</span> METHODS<span class="op">,</span> NAMES<span class="op">,</span> COLORS } <span class="im">from</span> <span class="st">"../../src/voting/methods.js"</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { strategicWinner } <span class="im">from</span> <span class="st">"../../src/voting/strategic.js"</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>elec <span class="op">=</span> ELEC</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="28" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 27;"><span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>Plotly <span class="op">=</span> <span class="cf">await</span> <span class="pp">require</span>(<span class="st">"https://cdn.plot.ly/plotly-2.35.2.min.js"</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { elecData<span class="op">,</span> approvalBallotData<span class="op">,</span> scoreBallotData<span class="op">,</span> densityWeightedData<span class="op">,</span> winnerHeatmap<span class="op">,</span> winnerLegend } <span class="im">from</span> <span class="st">"../../src/voting/plots.js"</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { ELEC } <span class="im">from</span> <span class="st">"../../src/voting/electorate.js"</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { assess<span class="op">,</span> METHODS<span class="op">,</span> NAMES<span class="op">,</span> COLORS } <span class="im">from</span> <span class="st">"../../src/voting/methods.js"</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { strategicWinner } <span class="im">from</span> <span class="st">"../../src/voting/strategic.js"</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>elec <span class="op">=</span> ELEC</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -347,14 +354,14 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="37" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 36;"><span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">render</span>(fig) {</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> el <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">border</span> <span class="op">=</span> <span class="st">"1px solid #eee"</span><span class="op">;</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderRadius</span> <span class="op">=</span> <span class="st">"6px"</span><span class="op">;</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">margin</span> <span class="op">=</span> <span class="st">"0.5rem 0 1.5rem"</span><span class="op">;</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  Plotly<span class="op">.</span><span class="fu">newPlot</span>(el<span class="op">,</span> fig<span class="op">.</span><span class="at">data</span><span class="op">,</span> fig<span class="op">.</span><span class="at">layout</span><span class="op">,</span> { <span class="dt">displayModeBar</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">responsive</span><span class="op">:</span> <span class="kw">true</span> })<span class="op">;</span></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> el<span class="op">;</span></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="38" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 37;"><span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">render</span>(fig) {</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> el <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">border</span> <span class="op">=</span> <span class="st">"1px solid #eee"</span><span class="op">;</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderRadius</span> <span class="op">=</span> <span class="st">"6px"</span><span class="op">;</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">margin</span> <span class="op">=</span> <span class="st">"0.5rem 0 1.5rem"</span><span class="op">;</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  Plotly<span class="op">.</span><span class="fu">newPlot</span>(el<span class="op">,</span> fig<span class="op">.</span><span class="at">data</span><span class="op">,</span> fig<span class="op">.</span><span class="at">layout</span><span class="op">,</span> { <span class="dt">displayModeBar</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">responsive</span><span class="op">:</span> <span class="kw">true</span> })<span class="op">;</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> el<span class="op">;</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-2" data-nodetype="declaration">
 
@@ -362,7 +369,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="48" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 47;"><span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">elecData</span>(elec))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="49" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 48;"><span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">elecData</span>(elec))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="expression">
 
@@ -375,10 +382,10 @@ window.Quarto = {
 <h1>Honest rated ballots</h1>
 <p>With honest voting, approval and rated ballots look like this:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="61" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 60;"><span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>viewof Bballot <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.2</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"B position"</span> })</span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>viewof Cballot <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.2</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"C position"</span> })</span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>posBallot <span class="op">=</span> [<span class="dv">0</span><span class="op">,</span> Bballot<span class="op">,</span> Cballot]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="62" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 61;"><span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>viewof Bballot <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.2</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"B position"</span> })</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>viewof Cballot <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fl">0.2</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"C position"</span> })</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>posBallot <span class="op">=</span> [<span class="dv">0</span><span class="op">,</span> Bballot<span class="op">,</span> Cballot]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-4-1" data-nodetype="declaration">
@@ -402,7 +409,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="67" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 66;"><span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="68" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 67;"><span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-5" data-nodetype="expression">
 
@@ -410,7 +417,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="71" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 70;"><span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">approvalBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approvalTop2"</span><span class="op">,</span> <span class="kw">undefined</span><span class="op">,</span> <span class="vs">`Approval (top two) ballot — A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="72" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 71;"><span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">approvalBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approvalTop2"</span><span class="op">,</span> <span class="kw">undefined</span><span class="op">,</span> <span class="vs">`Approval (top two) ballot — A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-6" data-nodetype="expression">
 
@@ -418,7 +425,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="75" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 74;"><span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">approvalBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approval"</span><span class="op">,</span> <span class="fl">0.3</span><span class="op">,</span> <span class="vs">`Approval (dist ≤ 0.3) ballot — A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="76" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 75;"><span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">approvalBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approval"</span><span class="op">,</span> <span class="fl">0.3</span><span class="op">,</span> <span class="vs">`Approval (dist ≤ 0.3) ballot — A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-7" data-nodetype="expression">
 
@@ -426,7 +433,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="79" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 78;"><span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">scoreBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="80" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 79;"><span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">scoreBallotData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-8" data-nodetype="expression">
 
@@ -436,7 +443,7 @@ window.Quarto = {
 <p>Notice the difference from plurality and ranked ballots: a <em>single</em> voter can now express support for more than one candidate, and even the same voters who vote B or C on a plurality ballot are free to keep a high opinion of A. The centrist A, sitting at the median, is within reach of every voter. So on honest ballots A collects approval or high scores from both flanks.</p>
 <p>We can weight each column by the actual density of voters at each location to get a sense of how many approvals or how much score each candidate collects:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="87" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 86;"><span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="88" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 87;"><span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-9" data-nodetype="expression">
 
@@ -444,7 +451,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="92" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 91;"><span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approvalTop2"</span><span class="op">,</span> <span class="kw">undefined</span><span class="op">,</span> <span class="vs">`Approval (top 2) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="93" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 92;"><span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approvalTop2"</span><span class="op">,</span> <span class="kw">undefined</span><span class="op">,</span> <span class="vs">`Approval (top 2) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-10-1" data-nodetype="expression">
@@ -452,7 +459,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="93" data-source-offset="-145"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 92;"><span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approval"</span><span class="op">,</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }<span class="op">,</span> <span class="vs">`Approval (dist ≤ 0.3) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="94" data-source-offset="-145"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 93;"><span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"approval"</span><span class="op">,</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }<span class="op">,</span> <span class="vs">`Approval (dist ≤ 0.3) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-10-2" data-nodetype="expression">
@@ -460,7 +467,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="94" data-source-offset="-292"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 93;"><span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"score"</span><span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span> <span class="vs">`Score (0–10) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="95" data-source-offset="-292"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 94;"><span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">densityWeightedData</span>(elec<span class="op">,</span> posBallot<span class="op">,</span> <span class="st">"score"</span><span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span> <span class="vs">`Score (0–10) — density-weighted (A=0, B=</span><span class="sc">${</span>Bballot<span class="sc">}</span><span class="vs">, C=</span><span class="sc">${</span>Cballot<span class="sc">}</span><span class="vs">)`</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-10-3" data-nodetype="expression">
@@ -471,34 +478,34 @@ window.Quarto = {
 </div>
 <p>The total area of each candidate’s region is now their honest vote share, and, unlike plurality, the centrist’s region is no longer pinched in the middle: the two balloons push inward on the outer candidates instead. As a first read, honest rated and approval ballots look like they should rescue A.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb13" data-startfrom="99" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 98;"><span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a>honestTotalsEl <span class="op">=</span> {</span>
-<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vs <span class="op">=</span> <span class="fu">assess</span>(posBallot<span class="op">,</span> elec)<span class="op">;</span></span>
-<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> el <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
-<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">display</span> <span class="op">=</span> <span class="st">"flex"</span><span class="op">;</span></span>
-<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">gap</span> <span class="op">=</span> <span class="st">"1rem"</span><span class="op">;</span></span>
-<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">flexWrap</span> <span class="op">=</span> <span class="st">"wrap"</span><span class="op">;</span></span>
-<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">margin</span> <span class="op">=</span> <span class="st">"0.5rem 0 1.5rem"</span><span class="op">;</span></span>
-<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> [</span>
-<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Approval (top two)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">approvalTop2</span><span class="op">,</span> {}]<span class="op">,</span></span>
-<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Approval (d = 0.3)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">approval</span><span class="op">,</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }]<span class="op">,</span></span>
-<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Score (0–10)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">score</span><span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }]<span class="op">,</span></span>
-<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">;</span></span>
-<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> [label<span class="op">,</span> method<span class="op">,</span> opts] <span class="kw">of</span> rows) {</span>
-<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> ballots <span class="op">=</span> vs<span class="op">.</span><span class="fu">map</span>(v <span class="kw">=&gt;</span> method<span class="op">.</span><span class="fu">ballot</span>(v<span class="op">,</span> opts))<span class="op">;</span></span>
-<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> tot <span class="op">=</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">;</span></span>
-<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a>    vs<span class="op">.</span><span class="fu">forEach</span>((v<span class="op">,</span> k) <span class="kw">=&gt;</span> ballots[k]<span class="op">.</span><span class="fu">forEach</span>((x<span class="op">,</span> c) <span class="kw">=&gt;</span> tot[c] <span class="op">+=</span> x <span class="op">*</span> v<span class="op">.</span><span class="at">w</span>))<span class="op">;</span></span>
-<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> card <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
-<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">flex</span> <span class="op">=</span> <span class="st">"1 1 180px"</span><span class="op">;</span></span>
-<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">border</span> <span class="op">=</span> <span class="st">"1px solid #eee"</span><span class="op">;</span></span>
-<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderRadius</span> <span class="op">=</span> <span class="st">"6px"</span><span class="op">;</span></span>
-<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">padding</span> <span class="op">=</span> <span class="st">"0.5rem 0.7rem"</span><span class="op">;</span></span>
-<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderTop</span> <span class="op">=</span> <span class="st">"3px solid #69b3a2"</span><span class="op">;</span></span>
-<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> <span class="vs">`&lt;div style="font-weight:600;margin-bottom:0.3rem"&gt;</span><span class="sc">${</span>label<span class="sc">}</span><span class="vs">&lt;/div&gt;`</span> <span class="op">+</span></span>
-<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a>      NAMES<span class="op">.</span><span class="fu">map</span>((nm<span class="op">,</span> c) <span class="kw">=&gt;</span> <span class="vs">`&lt;div style="color:</span><span class="sc">${</span>COLORS[c]<span class="sc">}</span><span class="vs">"&gt;</span><span class="sc">${</span>nm<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>tot[c]<span class="op">.</span><span class="fu">toLocaleString</span>()<span class="sc">}</span><span class="vs">&lt;/div&gt;`</span>)<span class="op">.</span><span class="fu">join</span>(<span class="st">""</span>)<span class="op">;</span></span>
-<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a>    el<span class="op">.</span><span class="fu">appendChild</span>(card)<span class="op">;</span></span>
-<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> el<span class="op">;</span></span>
-<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb13" data-startfrom="100" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 99;"><span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a>honestTotalsEl <span class="op">=</span> {</span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vs <span class="op">=</span> <span class="fu">assess</span>(posBallot<span class="op">,</span> elec)<span class="op">;</span></span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> el <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">display</span> <span class="op">=</span> <span class="st">"flex"</span><span class="op">;</span></span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">gap</span> <span class="op">=</span> <span class="st">"1rem"</span><span class="op">;</span></span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">flexWrap</span> <span class="op">=</span> <span class="st">"wrap"</span><span class="op">;</span></span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a>  el<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">margin</span> <span class="op">=</span> <span class="st">"0.5rem 0 1.5rem"</span><span class="op">;</span></span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> [</span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Approval (top two)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">approvalTop2</span><span class="op">,</span> {}]<span class="op">,</span></span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Approval (d = 0.3)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">approval</span><span class="op">,</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }]<span class="op">,</span></span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Score (0–10)"</span><span class="op">,</span> METHODS<span class="op">.</span><span class="at">score</span><span class="op">,</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }]<span class="op">,</span></span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">;</span></span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> [label<span class="op">,</span> method<span class="op">,</span> opts] <span class="kw">of</span> rows) {</span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> ballots <span class="op">=</span> vs<span class="op">.</span><span class="fu">map</span>(v <span class="kw">=&gt;</span> method<span class="op">.</span><span class="fu">ballot</span>(v<span class="op">,</span> opts))<span class="op">;</span></span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> tot <span class="op">=</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">;</span></span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>    vs<span class="op">.</span><span class="fu">forEach</span>((v<span class="op">,</span> k) <span class="kw">=&gt;</span> ballots[k]<span class="op">.</span><span class="fu">forEach</span>((x<span class="op">,</span> c) <span class="kw">=&gt;</span> tot[c] <span class="op">+=</span> x <span class="op">*</span> v<span class="op">.</span><span class="at">w</span>))<span class="op">;</span></span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> card <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"div"</span>)<span class="op">;</span></span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">flex</span> <span class="op">=</span> <span class="st">"1 1 180px"</span><span class="op">;</span></span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">border</span> <span class="op">=</span> <span class="st">"1px solid #eee"</span><span class="op">;</span></span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderRadius</span> <span class="op">=</span> <span class="st">"6px"</span><span class="op">;</span></span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">padding</span> <span class="op">=</span> <span class="st">"0.5rem 0.7rem"</span><span class="op">;</span></span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">style</span><span class="op">.</span><span class="at">borderTop</span> <span class="op">=</span> <span class="st">"3px solid #69b3a2"</span><span class="op">;</span></span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a>    card<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> <span class="vs">`&lt;div style="font-weight:600;margin-bottom:0.3rem"&gt;</span><span class="sc">${</span>label<span class="sc">}</span><span class="vs">&lt;/div&gt;`</span> <span class="op">+</span></span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a>      NAMES<span class="op">.</span><span class="fu">map</span>((nm<span class="op">,</span> c) <span class="kw">=&gt;</span> <span class="vs">`&lt;div style="color:</span><span class="sc">${</span>COLORS[c]<span class="sc">}</span><span class="vs">"&gt;</span><span class="sc">${</span>nm<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>tot[c]<span class="op">.</span><span class="fu">toLocaleString</span>()<span class="sc">}</span><span class="vs">&lt;/div&gt;`</span>)<span class="op">.</span><span class="fu">join</span>(<span class="st">""</span>)<span class="op">;</span></span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a>    el<span class="op">.</span><span class="fu">appendChild</span>(card)<span class="op">;</span></span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> el<span class="op">;</span></span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-11" data-nodetype="declaration">
 
@@ -518,22 +525,22 @@ window.Quarto = {
 </ul>
 <p>As before, we sweep every position of C (with B fixed) and colour the map by the winner: green A, red B, orange C, brown where two candidates are level at the top (a tie), and grey where the iteration never settles (non-convergence).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb14" data-startfrom="143" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 142;"><span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a>cGrid <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({ <span class="dt">length</span><span class="op">:</span> <span class="dv">140</span> }<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> <span class="op">-</span><span class="dv">4</span> <span class="op">+</span> <span class="dv">8</span> <span class="op">*</span> i <span class="op">/</span> <span class="dv">139</span>)</span>
-<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a>ratedOpts <span class="op">=</span> ({</span>
-<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a>  <span class="dt">approvalTop2</span><span class="op">:</span> {}<span class="op">,</span></span>
-<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a>  <span class="dt">approval</span><span class="op">:</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }<span class="op">,</span></span>
-<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a>  <span class="dt">score</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
-<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a>  <span class="dt">star</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
-<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a>  <span class="dt">highestMedian</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
-<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a>  <span class="dt">btrScore</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
-<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a>honestRow <span class="op">=</span> (m<span class="op">,</span> Bv) <span class="kw">=&gt;</span> C <span class="kw">=&gt;</span> {</span>
-<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vs <span class="op">=</span> <span class="fu">assess</span>([<span class="dv">0</span><span class="op">,</span> Bv<span class="op">,</span> C]<span class="op">,</span> elec)<span class="op">;</span></span>
-<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> METHODS[m]<span class="op">.</span><span class="fu">winner</span>(vs<span class="op">,</span> vs<span class="op">.</span><span class="fu">map</span>(v <span class="kw">=&gt;</span> METHODS[m]<span class="op">.</span><span class="fu">ballot</span>(v<span class="op">,</span> ratedOpts[m] <span class="op">??</span> {})))<span class="op">;</span></span>
-<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a>stratRow <span class="op">=</span> (m<span class="op">,</span> Bv) <span class="kw">=&gt;</span> C <span class="kw">=&gt;</span> <span class="fu">strategicWinner</span>([<span class="dv">0</span><span class="op">,</span> Bv<span class="op">,</span> C]<span class="op">,</span> m<span class="op">,</span> <span class="dv">100</span><span class="op">,</span> ratedOpts[m] <span class="op">??</span> {})<span class="op">.</span><span class="at">winner</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb14" data-startfrom="144" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 143;"><span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a>cGrid <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({ <span class="dt">length</span><span class="op">:</span> <span class="dv">140</span> }<span class="op">,</span> (_<span class="op">,</span> i) <span class="kw">=&gt;</span> <span class="op">-</span><span class="dv">4</span> <span class="op">+</span> <span class="dv">8</span> <span class="op">*</span> i <span class="op">/</span> <span class="dv">139</span>)</span>
+<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a>ratedOpts <span class="op">=</span> ({</span>
+<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a>  <span class="dt">approvalTop2</span><span class="op">:</span> {}<span class="op">,</span></span>
+<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a>  <span class="dt">approval</span><span class="op">:</span> { <span class="dt">d</span><span class="op">:</span> <span class="fl">0.3</span> }<span class="op">,</span></span>
+<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a>  <span class="dt">score</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a>  <span class="dt">star</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a>  <span class="dt">highestMedian</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a>  <span class="dt">btrScore</span><span class="op">:</span> { <span class="dt">D</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">levels</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a>honestRow <span class="op">=</span> (m<span class="op">,</span> Bv) <span class="kw">=&gt;</span> C <span class="kw">=&gt;</span> {</span>
+<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vs <span class="op">=</span> <span class="fu">assess</span>([<span class="dv">0</span><span class="op">,</span> Bv<span class="op">,</span> C]<span class="op">,</span> elec)<span class="op">;</span></span>
+<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> METHODS[m]<span class="op">.</span><span class="fu">winner</span>(vs<span class="op">,</span> vs<span class="op">.</span><span class="fu">map</span>(v <span class="kw">=&gt;</span> METHODS[m]<span class="op">.</span><span class="fu">ballot</span>(v<span class="op">,</span> ratedOpts[m] <span class="op">??</span> {})))<span class="op">;</span></span>
+<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a>stratRow <span class="op">=</span> (m<span class="op">,</span> Bv) <span class="kw">=&gt;</span> C <span class="kw">=&gt;</span> <span class="fu">strategicWinner</span>([<span class="dv">0</span><span class="op">,</span> Bv<span class="op">,</span> C]<span class="op">,</span> m<span class="op">,</span> <span class="dv">100</span><span class="op">,</span> ratedOpts[m] <span class="op">??</span> {})<span class="op">.</span><span class="at">winner</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-12-1" data-nodetype="declaration">
@@ -568,7 +575,7 @@ window.Quarto = {
 <h1>Approval</h1>
 <p>Approval is the simplest rated ballot: you approve the candidates you accept, and the most-approved candidate wins. For honest voting, we have two variants: one with a distance-threshold (<code>d = 0.3</code>) where you “vote for everyone near you” and the other with exactly two approvals.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb15" data-startfrom="166" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 165;"><span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a>viewof BApproval <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Approval: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb15" data-startfrom="167" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 166;"><span id="cb15-167"><a href="#cb15-167" aria-hidden="true" tabindex="-1"></a>viewof BApproval <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Approval: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-13" data-nodetype="declaration">
 
@@ -576,7 +583,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell hidden">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="171" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 170;"><span id="cb16-171"><a href="#cb16-171" aria-hidden="true" tabindex="-1"></a>mutable approvalYeeRun <span class="op">=</span> <span class="kw">null</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb16" data-startfrom="172" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 171;"><span id="cb16-172"><a href="#cb16-172" aria-hidden="true" tabindex="-1"></a>mutable approvalYeeRun <span class="op">=</span> <span class="kw">null</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display hidden">
 <div id="ojs-cell-14" data-nodetype="declaration">
 
@@ -584,9 +591,9 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb17" data-startfrom="175" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 174;"><span id="cb17-175"><a href="#cb17-175" aria-hidden="true" tabindex="-1"></a>viewof runApprovalYee <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Run Approval maps"</span><span class="op">,</span> {</span>
-<span id="cb17-176"><a href="#cb17-176" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reduce</span><span class="op">:</span> () <span class="kw">=&gt;</span> { mutable approvalYeeRun <span class="op">=</span> { <span class="dt">B</span><span class="op">:</span> BApproval }<span class="op">;</span> }</span>
-<span id="cb17-177"><a href="#cb17-177" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb17" data-startfrom="176" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 175;"><span id="cb17-176"><a href="#cb17-176" aria-hidden="true" tabindex="-1"></a>viewof runApprovalYee <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Run Approval maps"</span><span class="op">,</span> {</span>
+<span id="cb17-177"><a href="#cb17-177" aria-hidden="true" tabindex="-1"></a>  <span class="dt">reduce</span><span class="op">:</span> () <span class="kw">=&gt;</span> { mutable approvalYeeRun <span class="op">=</span> { <span class="dt">B</span><span class="op">:</span> BApproval }<span class="op">;</span> }</span>
+<span id="cb17-178"><a href="#cb17-178" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-15" data-nodetype="declaration">
 
@@ -594,7 +601,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="181" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 180;"><span id="cb18-181"><a href="#cb18-181" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb18" data-startfrom="182" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 181;"><span id="cb18-182"><a href="#cb18-182" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-16" data-nodetype="expression">
 
@@ -602,24 +609,24 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb19" data-startfrom="185" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 184;"><span id="cb19-185"><a href="#cb19-185" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb19-186"><a href="#cb19-186" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>approvalYeeRun) {</span>
-<span id="cb19-187"><a href="#cb19-187" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> p <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"p"</span>)<span class="op">;</span></span>
-<span id="cb19-188"><a href="#cb19-188" aria-hidden="true" tabindex="-1"></a>    p<span class="op">.</span><span class="at">textContent</span> <span class="op">=</span> <span class="st">"Set B, then press Run Approval maps."</span><span class="op">;</span></span>
-<span id="cb19-189"><a href="#cb19-189" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> p<span class="op">;</span></span>
-<span id="cb19-190"><a href="#cb19-190" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb19-191"><a href="#cb19-191" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> Bv <span class="op">=</span> approvalYeeRun<span class="op">.</span><span class="at">B</span><span class="op">;</span></span>
-<span id="cb19-192"><a href="#cb19-192" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb19-193"><a href="#cb19-193" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Approval top-2 (honest)"</span><span class="op">,</span> <span class="st">"Approval top-2 (strategic)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (honest)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb19-194"><a href="#cb19-194" aria-hidden="true" tabindex="-1"></a>    [</span>
-<span id="cb19-195"><a href="#cb19-195" aria-hidden="true" tabindex="-1"></a>      cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> Bv))<span class="op">,</span></span>
-<span id="cb19-196"><a href="#cb19-196" aria-hidden="true" tabindex="-1"></a>      cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> Bv))<span class="op">,</span></span>
-<span id="cb19-197"><a href="#cb19-197" aria-hidden="true" tabindex="-1"></a>      cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approval"</span><span class="op">,</span> Bv))<span class="op">,</span></span>
-<span id="cb19-198"><a href="#cb19-198" aria-hidden="true" tabindex="-1"></a>      cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approval"</span><span class="op">,</span> Bv))<span class="op">,</span></span>
-<span id="cb19-199"><a href="#cb19-199" aria-hidden="true" tabindex="-1"></a>    ]<span class="op">,</span></span>
-<span id="cb19-200"><a href="#cb19-200" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">,</span> Bv<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>Bv<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb19-201"><a href="#cb19-201" aria-hidden="true" tabindex="-1"></a>  ))<span class="op">;</span></span>
-<span id="cb19-202"><a href="#cb19-202" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb19" data-startfrom="186" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 185;"><span id="cb19-186"><a href="#cb19-186" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb19-187"><a href="#cb19-187" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>approvalYeeRun) {</span>
+<span id="cb19-188"><a href="#cb19-188" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> p <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">"p"</span>)<span class="op">;</span></span>
+<span id="cb19-189"><a href="#cb19-189" aria-hidden="true" tabindex="-1"></a>    p<span class="op">.</span><span class="at">textContent</span> <span class="op">=</span> <span class="st">"Set B, then press Run Approval maps."</span><span class="op">;</span></span>
+<span id="cb19-190"><a href="#cb19-190" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> p<span class="op">;</span></span>
+<span id="cb19-191"><a href="#cb19-191" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-192"><a href="#cb19-192" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> Bv <span class="op">=</span> approvalYeeRun<span class="op">.</span><span class="at">B</span><span class="op">;</span></span>
+<span id="cb19-193"><a href="#cb19-193" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb19-194"><a href="#cb19-194" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Approval top-2 (honest)"</span><span class="op">,</span> <span class="st">"Approval top-2 (strategic)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (honest)"</span><span class="op">,</span> <span class="st">"Approval d=0.3 (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb19-195"><a href="#cb19-195" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb19-196"><a href="#cb19-196" aria-hidden="true" tabindex="-1"></a>      cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> Bv))<span class="op">,</span></span>
+<span id="cb19-197"><a href="#cb19-197" aria-hidden="true" tabindex="-1"></a>      cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approvalTop2"</span><span class="op">,</span> Bv))<span class="op">,</span></span>
+<span id="cb19-198"><a href="#cb19-198" aria-hidden="true" tabindex="-1"></a>      cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"approval"</span><span class="op">,</span> Bv))<span class="op">,</span></span>
+<span id="cb19-199"><a href="#cb19-199" aria-hidden="true" tabindex="-1"></a>      cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"approval"</span><span class="op">,</span> Bv))<span class="op">,</span></span>
+<span id="cb19-200"><a href="#cb19-200" aria-hidden="true" tabindex="-1"></a>    ]<span class="op">,</span></span>
+<span id="cb19-201"><a href="#cb19-201" aria-hidden="true" tabindex="-1"></a>    cGrid<span class="op">,</span> Bv<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>Bv<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb19-202"><a href="#cb19-202" aria-hidden="true" tabindex="-1"></a>  ))<span class="op">;</span></span>
+<span id="cb19-203"><a href="#cb19-203" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-17" data-nodetype="expression">
 
@@ -633,7 +640,7 @@ window.Quarto = {
 <h1>Score</h1>
 <p>Score voting elects the candidate who has the highest sum of scores on all ballots.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb20" data-startfrom="214" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 213;"><span id="cb20-214"><a href="#cb20-214" aria-hidden="true" tabindex="-1"></a>viewof BScore <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb20" data-startfrom="215" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 214;"><span id="cb20-215"><a href="#cb20-215" aria-hidden="true" tabindex="-1"></a>viewof BScore <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-18" data-nodetype="declaration">
 
@@ -641,7 +648,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb21" data-startfrom="218" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 217;"><span id="cb21-218"><a href="#cb21-218" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb21" data-startfrom="219" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 218;"><span id="cb21-219"><a href="#cb21-219" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-19" data-nodetype="expression">
 
@@ -649,11 +656,11 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb22" data-startfrom="222" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 221;"><span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Score (honest)"</span><span class="op">,</span> <span class="st">"Score (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))]<span class="op">,</span></span>
-<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BScore<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BScore<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb22" data-startfrom="223" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 222;"><span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Score (honest)"</span><span class="op">,</span> <span class="st">"Score (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"score"</span><span class="op">,</span> BScore))]<span class="op">,</span></span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BScore<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BScore<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb22-227"><a href="#cb22-227" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-20" data-nodetype="expression">
 
@@ -668,7 +675,7 @@ window.Quarto = {
 <p>With honest voting, STAR elects A everywhere.</p>
 <p>With strategic voting, the question is whether voters can game which two candidates reach the runoff. The strategy above (max to your favourite, max − 1 to your second, bury your least) is precisely an attempt to control the final two.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb23" data-startfrom="240" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 239;"><span id="cb23-240"><a href="#cb23-240" aria-hidden="true" tabindex="-1"></a>viewof BStar <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"STAR: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb23" data-startfrom="241" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 240;"><span id="cb23-241"><a href="#cb23-241" aria-hidden="true" tabindex="-1"></a>viewof BStar <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"STAR: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-21" data-nodetype="declaration">
 
@@ -676,7 +683,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb24" data-startfrom="244" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 243;"><span id="cb24-244"><a href="#cb24-244" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb24" data-startfrom="245" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 244;"><span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-22" data-nodetype="expression">
 
@@ -684,11 +691,11 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb25" data-startfrom="248" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 247;"><span id="cb25-248"><a href="#cb25-248" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb25-249"><a href="#cb25-249" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"STAR (honest)"</span><span class="op">,</span> <span class="st">"STAR (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb25-250"><a href="#cb25-250" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))]<span class="op">,</span></span>
-<span id="cb25-251"><a href="#cb25-251" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BStar<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BStar<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb25-252"><a href="#cb25-252" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb25" data-startfrom="249" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 248;"><span id="cb25-249"><a href="#cb25-249" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb25-250"><a href="#cb25-250" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"STAR (honest)"</span><span class="op">,</span> <span class="st">"STAR (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb25-251"><a href="#cb25-251" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"star"</span><span class="op">,</span> BStar))]<span class="op">,</span></span>
+<span id="cb25-252"><a href="#cb25-252" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BStar<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BStar<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb25-253"><a href="#cb25-253" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-23" data-nodetype="expression">
 
@@ -701,7 +708,7 @@ window.Quarto = {
 <h1>Highest Median</h1>
 <p>Highest Median (also known as Majority Judgment) elects the candidate whose <em>median</em> grade is highest. With rounded 0–10 grades, A and C can share the highest median grade in a narrow band around the centre. Under honest voting those cells are left as ties (brown) rather than being resolved by a tie-break. In the default B = −0.3 map, A wins everywhere outside the band, and strategic voting breaks the tie to elect A inside it as well.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb26" data-startfrom="262" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 261;"><span id="cb26-262"><a href="#cb26-262" aria-hidden="true" tabindex="-1"></a>viewof BHMed <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Highest Median: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb26" data-startfrom="263" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 262;"><span id="cb26-263"><a href="#cb26-263" aria-hidden="true" tabindex="-1"></a>viewof BHMed <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Highest Median: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-24" data-nodetype="declaration">
 
@@ -709,7 +716,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb27" data-startfrom="266" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 265;"><span id="cb27-266"><a href="#cb27-266" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb27" data-startfrom="267" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 266;"><span id="cb27-267"><a href="#cb27-267" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-25" data-nodetype="expression">
 
@@ -717,11 +724,11 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb28" data-startfrom="270" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 269;"><span id="cb28-270"><a href="#cb28-270" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb28-271"><a href="#cb28-271" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Highest Median (honest)"</span><span class="op">,</span> <span class="st">"Highest Median (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb28-272"><a href="#cb28-272" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))]<span class="op">,</span></span>
-<span id="cb28-273"><a href="#cb28-273" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BHMed<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BHMed<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb28-274"><a href="#cb28-274" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb28" data-startfrom="271" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 270;"><span id="cb28-271"><a href="#cb28-271" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb28-272"><a href="#cb28-272" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Highest Median (honest)"</span><span class="op">,</span> <span class="st">"Highest Median (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb28-273"><a href="#cb28-273" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"highestMedian"</span><span class="op">,</span> BHMed))]<span class="op">,</span></span>
+<span id="cb28-274"><a href="#cb28-274" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BHMed<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BHMed<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb28-275"><a href="#cb28-275" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-26" data-nodetype="expression">
 
@@ -734,7 +741,7 @@ window.Quarto = {
 <p>Similar to STAR voting, BTR-Score combines ranked and rated methods: it is a Score method, but tabulated with the bottom-two-runoff mechanics of the ranked family. Each round, the two candidates with the lowest score totals face a pairwise runoff, where each ballot’s higher-graded candidate is treated as preferred; the pairwise loser is eliminated and the process repeats. Because the pairwise comparisons read directly off the ratings, BTR-Score is Condorcet-consistent: when a Condorcet winner exists on the ballots, BTR-Score elects it.</p>
 <p>With honest voting, that means A wins everywhere, matching all honest Condorcet methods. The strategic result is the surprise of this post. The ideal candidate does not always survive the bury-below-last strategy:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb29" data-startfrom="284" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 283;"><span id="cb29-284"><a href="#cb29-284" aria-hidden="true" tabindex="-1"></a>viewof BBtr <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"BTR-Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb29" data-startfrom="285" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 284;"><span id="cb29-285"><a href="#cb29-285" aria-hidden="true" tabindex="-1"></a>viewof BBtr <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="op">-</span><span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span> { <span class="dt">step</span><span class="op">:</span> <span class="fl">0.1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="op">-</span><span class="fl">0.3</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"BTR-Score: B position"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-27" data-nodetype="declaration">
 
@@ -742,7 +749,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb30" data-startfrom="288" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 287;"><span id="cb30-288"><a href="#cb30-288" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb30" data-startfrom="289" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 288;"><span id="cb30-289"><a href="#cb30-289" aria-hidden="true" tabindex="-1"></a><span class="fu">winnerLegend</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-28" data-nodetype="expression">
 
@@ -750,11 +757,11 @@ window.Quarto = {
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb31" data-startfrom="292" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 291;"><span id="cb31-292"><a href="#cb31-292" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
-<span id="cb31-293"><a href="#cb31-293" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"BTR-Score (honest)"</span><span class="op">,</span> <span class="st">"BTR-Score (strategic)"</span>]<span class="op">,</span></span>
-<span id="cb31-294"><a href="#cb31-294" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))]<span class="op">,</span></span>
-<span id="cb31-295"><a href="#cb31-295" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BBtr<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BBtr<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb31-296"><a href="#cb31-296" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb31" data-startfrom="293" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 292;"><span id="cb31-293"><a href="#cb31-293" aria-hidden="true" tabindex="-1"></a><span class="fu">render</span>(<span class="fu">winnerHeatmap</span>(</span>
+<span id="cb31-294"><a href="#cb31-294" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"BTR-Score (honest)"</span><span class="op">,</span> <span class="st">"BTR-Score (strategic)"</span>]<span class="op">,</span></span>
+<span id="cb31-295"><a href="#cb31-295" aria-hidden="true" tabindex="-1"></a>  [cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">honestRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))<span class="op">,</span> cGrid<span class="op">.</span><span class="fu">map</span>(<span class="fu">stratRow</span>(<span class="st">"btrScore"</span><span class="op">,</span> BBtr))]<span class="op">,</span></span>
+<span id="cb31-296"><a href="#cb31-296" aria-hidden="true" tabindex="-1"></a>  cGrid<span class="op">,</span> BBtr<span class="op">,</span> <span class="vs">`B = </span><span class="sc">${</span>BBtr<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb31-297"><a href="#cb31-297" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-29" data-nodetype="expression">
 
@@ -867,7 +874,8 @@ window._ojs.runtime.interpretFromScriptTags();
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -876,8 +884,69 @@ window._ojs.runtime.interpretFromScriptTags();
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -891,6 +960,7 @@ window._ojs.runtime.interpretFromScriptTags();
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -1053,44 +1123,54 @@ window._ojs.runtime.interpretFromScriptTags();
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -1188,6 +1268,9 @@ window._ojs.runtime.interpretFromScriptTags();
       }
     }
   });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 

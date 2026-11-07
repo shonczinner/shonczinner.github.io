@@ -1,59 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://shonczinner.github.io/about.html</loc>
-    <lastmod>2026-10-20T21:46:16.468Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/ranked/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.472Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/gameoflife/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.470Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/small-jepa-language-model/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.480Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/gradient-descent/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.470Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/welcome/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.481Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/embedding-prediction/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.469Z</lastmod>
+    <loc>https://shonczinner.github.io/archive.html</loc>
+    <lastmod>2026-11-07T03:26:45.511Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.469Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/voting-summary/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.481Z</lastmod>
+    <lastmod>2026-11-07T03:26:45.511Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/onnx-quarto/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.471Z</lastmod>
+    <lastmod>2026-11-07T03:26:45.513Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/welcome/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.520Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/rated/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.472Z</lastmod>
+    <lastmod>2026-11-07T03:26:45.514Z</lastmod>
   </url>
   <url>
-    <loc>https://shonczinner.github.io/posts/plurality/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.472Z</lastmod>
-  </url>
-  <url>
-    <loc>https://shonczinner.github.io/posts/sigreg-sketched-isotropic-gaussian-regularization/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.479Z</lastmod>
+    <loc>https://shonczinner.github.io/posts/gradient-descent/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.512Z</lastmod>
   </url>
   <url>
     <loc>https://shonczinner.github.io/posts/buyrent/index.html</loc>
-    <lastmod>2026-10-20T21:46:16.469Z</lastmod>
+    <lastmod>2026-11-07T03:26:45.512Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/sigreg-sketched-isotropic-gaussian-regularization/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.518Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/small-jepa-language-model/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.519Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/embedding-prediction/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.512Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/voting-summary/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.520Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/ranked/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.514Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/plurality/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.513Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/posts/gameoflife/index.html</loc>
+    <lastmod>2026-11-07T03:26:45.512Z</lastmod>
+  </url>
+  <url>
+    <loc>https://shonczinner.github.io/about.html</loc>
+    <lastmod>2026-11-07T03:26:45.511Z</lastmod>
   </url>
 </urlset>
